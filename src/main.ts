@@ -1,8 +1,8 @@
 import {serve} from 'https://deno.land/std@0.97.0/http/server.ts';
 
-import { home } from './index.ts';
-import { login, signup } from './userService.ts';
-import { Route, HttpMethod, matchRequestToRouteHandler } from './server.ts';
+import { home } from './controllers/indexcontroller.ts';
+import { login, signup } from './controllers/usercontroller.ts';
+import { Route, HttpMethod, matchRequestToRouteHandler } from './lib/server.ts';
 
 
 const HOST = "0.0.0.0";
