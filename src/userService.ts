@@ -1,0 +1,2 @@
+export const login: (id: any) => Promise<string> = (id) => new Promise((resolve) => resolve(`User ${id} logged in.`));
+export const signup: (id: any) => Promise<string> = (id) => new Promise((resolve) => resolve(`Please enter your information below. *required`));

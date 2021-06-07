@@ -1,0 +1,1 @@
+export const home: () => Promise<string> = () => new Promise((resolve) => resolve("Welcome To LiCode!"));
