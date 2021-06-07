@@ -12,7 +12,7 @@ export const enum HttpMethod {
   export type Route = {
     method: HttpMethod;
     route: string;
-    handler: (...params: any) => Promise<any>;
+    handler: (req: ServerRequest, ...params: any) => void;
   };
   
   export type RouteParam = {
@@ -59,8 +59,9 @@ export const enum HttpMethod {
    export const matchRequestToRouteHandler = async (routes: Route[], req: ServerRequest): Promise<void> => {
     let route: Route | undefined = routes.find((route: Route) => basicRouteMatcher(req, route));
     if (route) {
-      const response: any = await route.handler();
-      return req.respond({ status: Status.OK, body: JSON.stringify(response) });
+      await route.handler(req);
+      // const response: any = await route.handler();
+      // return req.respond({ status: Status.OK, body: JSON.stringify(response) });
     }
     route = routes.find((route: Route) => routeWithParamsRouteMatcher(req, route));
     if (route) {
@@ -76,8 +77,9 @@ export const enum HttpMethod {
         },
         {}
       );
-      const response: any = await route.handler(...Object.values(routeParams));
-      return req.respond({ status: Status.OK, body: JSON.stringify(response) });
+      await route.handler(req, ...Object.values(routeParams));
+      // const response: any = await route.handler(...Object.values(routeParams));
+      // return req.respond({ status: Status.OK, body: JSON.stringify(response) });
     }
     // route could not be found, return 404
     return req.respond({ status: Status.NotFound, body: 'Route not found' });
