@@ -1,7 +1,7 @@
 import {serve} from 'https://deno.land/std@0.97.0/http/server.ts';
 
 import { home } from './controllers/indexcontroller.ts';
-import { login, signup } from './controllers/usercontroller.ts';
+import { loginGET, loginPOST, signupGET, signupPOST } from './controllers/usercontroller.ts';
 import { Route, HttpMethod, matchRequestToRouteHandler } from './lib/server.ts';
 
 
@@ -19,13 +19,23 @@ const routes: Route[] = [
   },
   {
     method: HttpMethod.GET,
-    route: '/login/:id',
-    handler: login,
+    route: '/user/login',
+    handler: loginGET,
+  },
+  {
+    method: HttpMethod.POST,
+    route: '/user/login',
+    handler: loginPOST,
   },
   {
     method: HttpMethod.GET,
-    route: '/signup/:id',
-    handler: signup,
+    route: '/user/signup',
+    handler: signupGET,
+  },
+  {
+    method: HttpMethod.POST,
+    route: '/user/signup',
+    handler: signupPOST,
   },
 ];
 

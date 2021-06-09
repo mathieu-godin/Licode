@@ -12,7 +12,7 @@ export const enum HttpMethod {
   export type Route = {
     method: HttpMethod;
     route: string;
-    handler: (req: ServerRequest, ...params: any) => void;
+    handler: (req: ServerRequest, ...params: any) => Promise<void>;
   };
   
   export type RouteParam = {
