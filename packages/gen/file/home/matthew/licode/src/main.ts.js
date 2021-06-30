@@ -1,0 +1,39 @@
+import { serve } from 'https://deno.land/std@0.97.0/http/server.ts';
+import { home } from './controllers/indexcontroller.ts';
+import { loginGET, loginPOST, signupGET, signupPOST } from './controllers/usercontroller.ts';
+import { HttpMethod, matchRequestToRouteHandler } from './lib/server.ts';
+const HOST = "0.0.0.0";
+const PORT = 8080;
+const s = serve({ hostname: HOST, port: PORT });
+console.log(`Server running on ${HOST}:${PORT}`);
+const routes = [
+    {
+        method: HttpMethod.GET,
+        route: '/',
+        handler: home,
+    },
+    {
+        method: HttpMethod.GET,
+        route: '/user/login',
+        handler: loginGET,
+    },
+    {
+        method: HttpMethod.POST,
+        route: '/user/login',
+        handler: loginPOST,
+    },
+    {
+        method: HttpMethod.GET,
+        route: '/user/signup',
+        handler: signupGET,
+    },
+    {
+        method: HttpMethod.POST,
+        route: '/user/signup',
+        handler: signupPOST,
+    },
+];
+for await (const req of s) {
+    matchRequestToRouteHandler(routes, req);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibWFpbi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIm1haW4udHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsT0FBTyxFQUFDLEtBQUssRUFBQyxNQUFNLDZDQUE2QyxDQUFDO0FBRWxFLE9BQU8sRUFBRSxJQUFJLEVBQUUsTUFBTSxrQ0FBa0MsQ0FBQztBQUN4RCxPQUFPLEVBQUUsUUFBUSxFQUFFLFNBQVMsRUFBRSxTQUFTLEVBQUUsVUFBVSxFQUFFLE1BQU0saUNBQWlDLENBQUM7QUFDN0YsT0FBTyxFQUFTLFVBQVUsRUFBRSwwQkFBMEIsRUFBRSxNQUFNLGlCQUFpQixDQUFDO0FBR2hGLE1BQU0sSUFBSSxHQUFHLFNBQVMsQ0FBQztBQUN2QixNQUFNLElBQUksR0FBRyxJQUFJLENBQUM7QUFFbEIsTUFBTSxDQUFDLEdBQUcsS0FBSyxDQUFDLEVBQUMsUUFBUSxFQUFFLElBQUksRUFBRSxJQUFJLEVBQUUsSUFBSSxFQUFDLENBQUMsQ0FBQztBQUM5QyxPQUFPLENBQUMsR0FBRyxDQUFDLHFCQUFxQixJQUFJLElBQUksSUFBSSxFQUFFLENBQUMsQ0FBQztBQUVqRCxNQUFNLE1BQU0sR0FBWTtJQUN0QjtRQUNFLE1BQU0sRUFBRSxVQUFVLENBQUMsR0FBRztRQUN0QixLQUFLLEVBQUUsR0FBRztRQUNWLE9BQU8sRUFBRSxJQUFJO0tBQ2Q7SUFDRDtRQUNFLE1BQU0sRUFBRSxVQUFVLENBQUMsR0FBRztRQUN0QixLQUFLLEVBQUUsYUFBYTtRQUNwQixPQUFPLEVBQUUsUUFBUTtLQUNsQjtJQUNEO1FBQ0UsTUFBTSxFQUFFLFVBQVUsQ0FBQyxJQUFJO1FBQ3ZCLEtBQUssRUFBRSxhQUFhO1FBQ3BCLE9BQU8sRUFBRSxTQUFTO0tBQ25CO0lBQ0Q7UUFDRSxNQUFNLEVBQUUsVUFBVSxDQUFDLEdBQUc7UUFDdEIsS0FBSyxFQUFFLGNBQWM7UUFDckIsT0FBTyxFQUFFLFNBQVM7S0FDbkI7SUFDRDtRQUNFLE1BQU0sRUFBRSxVQUFVLENBQUMsSUFBSTtRQUN2QixLQUFLLEVBQUUsY0FBYztRQUNyQixPQUFPLEVBQUUsVUFBVTtLQUNwQjtDQUNGLENBQUM7QUFFRixJQUFJLEtBQUssRUFBRSxNQUFNLEdBQUcsSUFBSSxDQUFDLEVBQUU7SUFDekIsMEJBQTBCLENBQUMsTUFBTSxFQUFFLEdBQUcsQ0FBQyxDQUFDO0NBQ3pDIn0=
