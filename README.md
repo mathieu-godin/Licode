@@ -6,7 +6,7 @@ A confrontational coding platform.
 
 ### Initial Setup
 
-```bash
+```
 git clone https://github.com/mathieu-godin/licode
 cd licode
 export DENO_DIR=<path-to-licode>/licode/packages
