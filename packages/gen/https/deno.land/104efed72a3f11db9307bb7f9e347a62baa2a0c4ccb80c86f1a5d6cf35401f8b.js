@@ -1,3 +1,0 @@
-export const VERSION = "2.4.7";
-export const BRANCH = "main";
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5mby5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3gvZGVub25AMi40LjgvaW5mby50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFFQSxNQUFNLENBQUMsTUFBTSxPQUFPLEdBQUcsT0FBTyxDQUFDO0FBQy9CLE1BQU0sQ0FBQyxNQUFNLE1BQU0sR0FBRyxNQUFNLENBQUMifQ==

@@ -1,8 +1,0 @@
-import { load, loadAll } from "./loader/loader.ts";
-export function parse(content, options) {
-    return load(content, options);
-}
-export function parseAll(content, iterator, options) {
-    return loadAll(content, iterator, options);
-}
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoicGFyc2UuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJodHRwczovL2Rlbm8ubGFuZC9zdGRAMC45OS4wL2VuY29kaW5nL195YW1sL3BhcnNlLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUtBLE9BQU8sRUFBYyxJQUFJLEVBQUUsT0FBTyxFQUFFLE1BQU0sb0JBQW9CLENBQUM7QUFZL0QsTUFBTSxVQUFVLEtBQUssQ0FBQyxPQUFlLEVBQUUsT0FBc0I7SUFDM0QsT0FBTyxJQUFJLENBQUMsT0FBTyxFQUFFLE9BQU8sQ0FBQyxDQUFDO0FBQ2hDLENBQUM7QUFNRCxNQUFNLFVBQVUsUUFBUSxDQUN0QixPQUFlLEVBQ2YsUUFBcUIsRUFDckIsT0FBc0I7SUFFdEIsT0FBTyxPQUFPLENBQUMsT0FBTyxFQUFFLFFBQVEsRUFBRSxPQUFPLENBQUMsQ0FBQztBQUM3QyxDQUFDIn0=

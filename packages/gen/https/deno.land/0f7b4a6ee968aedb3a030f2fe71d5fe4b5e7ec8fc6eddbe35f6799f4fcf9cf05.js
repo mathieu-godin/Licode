@@ -1,8 +1,0 @@
-import { Type } from "../type.ts";
-export const map = new Type("tag:yaml.org,2002:map", {
-    construct(data) {
-        return data !== null ? data : {};
-    },
-    kind: "mapping",
-});
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibWFwLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiaHR0cHM6Ly9kZW5vLmxhbmQvc3RkQDAuOTkuMC9lbmNvZGluZy9feWFtbC90eXBlL21hcC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFLQSxPQUFPLEVBQUUsSUFBSSxFQUFFLE1BQU0sWUFBWSxDQUFDO0FBR2xDLE1BQU0sQ0FBQyxNQUFNLEdBQUcsR0FBRyxJQUFJLElBQUksQ0FBQyx1QkFBdUIsRUFBRTtJQUNuRCxTQUFTLENBQUMsSUFBSTtRQUNaLE9BQU8sSUFBSSxLQUFLLElBQUksQ0FBQyxDQUFDLENBQUMsSUFBSSxDQUFDLENBQUMsQ0FBQyxFQUFFLENBQUM7SUFDbkMsQ0FBQztJQUNELElBQUksRUFBRSxTQUFTO0NBQ2hCLENBQUMsQ0FBQyJ9
