@@ -27,7 +27,7 @@ export DENO_DIR=<path-to-licode>/licode/packages
 deno run --allow-net src/main.ts 
 ```
 
-#### To Have deno_dir Permanently Set On Your System
+#### To Have DENO_DIR Permanently Set On Your System
 
 Add the following line to ~/.profile (on Linux).
 ```
