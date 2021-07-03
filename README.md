@@ -14,6 +14,13 @@ A confrontational coding platform.
 curl -fsSL https://deno.land/x/install/install.sh | sh
 ```
 
+Add the following two lines to ~/.bashrc (on Linux).
+
+```
+export DENO_INSTALL="/$HOME/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+```
+
 ##### Windows
 
 ```
