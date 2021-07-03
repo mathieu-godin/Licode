@@ -40,7 +40,7 @@ DENO_DIR allows us to save the packages we use in our licode repository. The pac
 
 #### Have DENO_DIR Permanently Set On Your System
 
-Add the following line to ~/.bashrc (on Linux).
+Add the following line to ~/.profile (on Linux).
 ```
 export DENO_DIR="$HOME/licode/packages"
 ```
