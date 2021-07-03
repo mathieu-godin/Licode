@@ -1,0 +1,5 @@
+import { dump } from "./dumper/dumper.ts";
+export function stringify(obj, options) {
+    return dump(obj, options);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3RyaW5naWZ5LmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiaHR0cHM6Ly9kZW5vLmxhbmQvc3RkQDAuOTkuMC9lbmNvZGluZy9feWFtbC9zdHJpbmdpZnkudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBS0EsT0FBTyxFQUFFLElBQUksRUFBRSxNQUFNLG9CQUFvQixDQUFDO0FBVTFDLE1BQU0sVUFBVSxTQUFTLENBQ3ZCLEdBQTRCLEVBQzVCLE9BQXFCO0lBRXJCLE9BQU8sSUFBSSxDQUFDLEdBQUcsRUFBRSxPQUFPLENBQUMsQ0FBQztBQUM1QixDQUFDIn0=

@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "x-amz-id-2": "58fKgApQPH5DfGCFWofVnERe3QirDd150RAagHsmFzXD5fxJDOZinCONcGrW8hSDabgDnhBuVVI=",
+    "content-type": "application/typescript; charset=utf-8",
+    "x-amz-request-id": "WT425S5B2BXAEND4",
+    "content-length": "33762",
+    "accept-ranges": "bytes",
+    "x-amz-version-id": "OmzdWGNxE8atRxT0SKsaDh.CMzDJTZue",
+    "last-modified": "Mon, 28 Jun 2021 07:03:09 GMT",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "access-control-allow-origin": "*",
+    "cache-control": "public, max-age=31536000, immutable",
+    "server": "cloudflare",
+    "age": "416193",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "date": "Sat, 03 Jul 2021 23:06:11 GMT",
+    "cf-ray": "6693c34d497057ae-IAD",
+    "vary": "Accept-Encoding",
+    "etag": "\"20028e9c4e4a6af95cc0d33917b4d96b\"",
+    "cf-cache-status": "HIT"
+  },
+  "url": "https://deno.land/x/oak@v7.7.0/router.ts"
+}

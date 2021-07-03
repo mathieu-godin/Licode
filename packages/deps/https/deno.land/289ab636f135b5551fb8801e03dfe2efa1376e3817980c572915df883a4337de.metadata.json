@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "access-control-allow-origin": "*",
+    "age": "416193",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "content-type": "application/typescript; charset=utf-8",
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-amz-request-id": "E3JP5VJDSFWE9MS0",
+    "last-modified": "Tue, 15 Jun 2021 20:18:58 GMT",
+    "content-length": "1762",
+    "cf-ray": "6693c34dda7d57ae-IAD",
+    "x-amz-version-id": "4V1YI9NzaF1xMI4bwTNH_Wv52uBkO3eQ",
+    "accept-ranges": "bytes",
+    "date": "Sat, 03 Jul 2021 23:06:11 GMT",
+    "etag": "\"5e70ac8eacba9dafedb503755cf8e400\"",
+    "cf-cache-status": "HIT",
+    "server": "cloudflare",
+    "x-amz-id-2": "0cZ5u0A+0clgqPHYWm1XAYLsqMBCs9rY7qnPU+D5ztuBzTc0K6GhjD/B3jSGgDHc9/QUaAWim98=",
+    "vary": "Accept-Encoding",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400"
+  },
+  "url": "https://deno.land/std@0.99.0/io/readers.ts"
+}

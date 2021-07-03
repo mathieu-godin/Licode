@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "last-modified": "Tue, 15 Jun 2021 20:18:57 GMT",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "date": "Sat, 03 Jul 2021 23:04:47 GMT",
+    "cf-cache-status": "HIT",
+    "content-length": "491",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "access-control-allow-origin": "*",
+    "server": "cloudflare",
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-amz-request-id": "Q7X445K9MN1ZZ10Z",
+    "x-amz-version-id": "tnhCj0SqN546YLn15CgMOgNIkMJEbtkq",
+    "content-type": "application/typescript; charset=utf-8",
+    "etag": "\"ff7562aa87a89437ae95bfc83eca44db\"",
+    "vary": "Accept-Encoding",
+    "accept-ranges": "bytes",
+    "age": "434666",
+    "cf-ray": "6693c13eef01c1ac-IAD",
+    "x-amz-id-2": "H+OZF4tHqrn8Xz2BHJEEando0TW21rQwZv3kKKSd7iOFDZ/zJAr/DCTuGjnMWyCxShYC72cR3LQ="
+  },
+  "url": "https://deno.land/std@0.99.0/encoding/_yaml/type/seq.ts"
+}

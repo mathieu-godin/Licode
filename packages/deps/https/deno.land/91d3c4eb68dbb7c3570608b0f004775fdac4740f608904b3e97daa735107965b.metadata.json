@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "accept-ranges": "bytes",
+    "content-type": "application/typescript; charset=utf-8",
+    "access-control-allow-origin": "*",
+    "age": "416193",
+    "vary": "Accept-Encoding",
+    "x-amz-id-2": "/DME+apmlhz+GUn5HpT55CvJC25svjv4ubsqnDU68slroEWzmHTXXG8T5bQK4IdIiKIn/lTnQcE=",
+    "x-amz-version-id": "TIQJbTN9OeBjEKbTXQ71sK_3cMAcsfvi",
+    "x-amz-request-id": "E3JM769T4X9Z0DQG",
+    "server": "cloudflare",
+    "last-modified": "Mon, 28 Jun 2021 07:03:08 GMT",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "date": "Sat, 03 Jul 2021 23:06:11 GMT",
+    "etag": "\"266bd7337c6923fb543e4c7836f4102f\"",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "content-length": "4049",
+    "cf-ray": "6693c34e1b0f57ae-IAD",
+    "cf-cache-status": "HIT",
+    "cache-control": "public, max-age=31536000, immutable"
+  },
+  "url": "https://deno.land/x/oak@v7.7.0/content_disposition.ts"
+}

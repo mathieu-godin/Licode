@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "date": "Sat, 03 Jul 2021 23:06:11 GMT",
+    "server": "cloudflare",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "x-amz-version-id": "rectQYxB1X_HUb.yRG5nmzV1DCrx4u4d",
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-amz-request-id": "E3JH754C5GTH09S2",
+    "cf-ray": "6693c34e1b1a57ae-IAD",
+    "access-control-allow-origin": "*",
+    "content-length": "1726",
+    "content-type": "application/typescript; charset=utf-8",
+    "last-modified": "Mon, 28 Jun 2021 07:03:09 GMT",
+    "x-amz-id-2": "uDAN+cJfFDb7qXQlFLW89IqfBJhnarVXLoLxj0sc895mWq+UNYdbQMoEi0uW6QyEjeFC4XmVV+I=",
+    "age": "416193",
+    "vary": "Accept-Encoding",
+    "etag": "\"b3f8135ad6bdb615b3d25f6b654689e0\"",
+    "cf-cache-status": "HIT",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\""
+  },
+  "url": "https://deno.land/x/oak@v7.7.0/negotiation/common.ts"
+}

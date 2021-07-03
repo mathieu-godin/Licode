@@ -1,0 +1,22 @@
+{
+  "headers": {
+    "x-amz-request-id": "7PB3RN1W6DDG4W3P",
+    "content-type": "application/typescript; charset=utf-8",
+    "cf-cache-status": "MISS",
+    "date": "Sat, 03 Jul 2021 23:04:46 GMT",
+    "cf-ray": "6693c13c2b29c1ac-IAD",
+    "x-amz-id-2": "Q5jt8aJt4fW9TWem5KVnd2c58uOGn3Ja7RnGux4Vk2EDAN8GJJOEa/YcmZAMPaknY1IeoR4p9ac=",
+    "x-amz-version-id": "iANxqfqOwmc14U6zLtwH60DiV2RRmSvG",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "cache-control": "public, max-age=31536000, immutable",
+    "etag": "\"f4d5f8744dbc8b92b0bf392c67efee9b\"",
+    "content-length": "4179",
+    "accept-ranges": "bytes",
+    "access-control-allow-origin": "*",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "last-modified": "Fri, 18 Jun 2021 19:10:53 GMT",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare"
+  },
+  "url": "https://deno.land/x/denon@2.4.8/denon.ts"
+}

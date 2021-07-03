@@ -1,0 +1,5 @@
+export * as log from "https://deno.land/std@0.97.0/log/mod.ts";
+export { LogLevels } from "https://deno.land/std@0.97.0/log/levels.ts";
+export { BaseHandler } from "https://deno.land/std@0.97.0/log/handlers.ts";
+export { blue, bold, gray, green, italic, red, reset, setColorEnabled, yellow, } from "https://deno.land/std@0.97.0/fmt/colors.ts";
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGVwcy5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3gvYnJhbmNoQDAuMS42L2RlcHMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBRUEsT0FBTyxLQUFLLEdBQUcsTUFBTSx5Q0FBeUMsQ0FBQztBQVMvRCxPQUFPLEVBQUUsU0FBUyxFQUFFLE1BQU0sNENBQTRDLENBQUM7QUFFdkUsT0FBTyxFQUFFLFdBQVcsRUFBRSxNQUFNLDhDQUE4QyxDQUFDO0FBRTNFLE9BQU8sRUFDTCxJQUFJLEVBQ0osSUFBSSxFQUNKLElBQUksRUFDSixLQUFLLEVBQ0wsTUFBTSxFQUNOLEdBQUcsRUFDSCxLQUFLLEVBQ0wsZUFBZSxFQUNmLE1BQU0sR0FDUCxNQUFNLDRDQUE0QyxDQUFDIn0=

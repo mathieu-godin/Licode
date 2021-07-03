@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "vary": "Accept-Encoding",
+    "cf-ray": "6693c13dcd55c1ac-IAD",
+    "server": "cloudflare",
+    "cache-control": "public, max-age=31536000, immutable",
+    "cf-cache-status": "HIT",
+    "x-amz-version-id": "ZLWZ38ul_3ikwanyRpu0eCVstOjf8aDo",
+    "content-type": "application/typescript; charset=utf-8",
+    "last-modified": "Tue, 15 Jun 2021 20:18:58 GMT",
+    "date": "Sat, 03 Jul 2021 23:04:47 GMT",
+    "age": "433923",
+    "x-amz-request-id": "5NFBDAZPY3YP96YD",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "accept-ranges": "bytes",
+    "x-amz-id-2": "pprJBK96UcvgkI/lABSVhN3Bh0q44RLW86iy5Ez7AtaGQLV2VieaKD/VrhtSGGB7movl7Cvwmvw=",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "content-length": "1425",
+    "access-control-allow-origin": "*",
+    "etag": "\"1e0d53eafd0f2522368ba44ed083c9be\""
+  },
+  "url": "https://deno.land/std@0.99.0/fs/ensure_dir.ts"
+}
