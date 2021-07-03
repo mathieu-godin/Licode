@@ -41,5 +41,5 @@ deno install -qAf --unstable https://deno.land/x/denon/denon.ts
 ```
 
 ```
-denon run --allow-net --reload src/main.ts 
+denon run --allow-net src/main.ts 
 ```
