@@ -20,6 +20,8 @@ curl -fsSL https://deno.land/x/install/install.sh | sh
 iwr https://deno.land/x/install/install.ps1 -useb | iex
 ```
 
+#### Server Installation and Execution
+
 ```
 git clone https://github.com/mathieu-godin/licode
 cd licode
