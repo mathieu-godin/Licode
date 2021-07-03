@@ -4,6 +4,8 @@ A confrontational coding platform.
 
 ## Setup
 
+### Initial Setup
+
 #### To Install Deno
 
 ##### Linux and Mac
@@ -17,8 +19,6 @@ curl -fsSL https://deno.land/x/install/install.sh | sh
 ```
 iwr https://deno.land/x/install/install.ps1 -useb | iex
 ```
-
-### Initial Setup
 
 ```
 git clone https://github.com/mathieu-godin/licode
