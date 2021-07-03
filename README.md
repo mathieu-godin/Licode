@@ -6,7 +6,7 @@ A confrontational coding platform.
 
 ### Initial Setup
 
-#### To Install Deno
+#### Install Deno
 
 ##### Linux and Mac
 
@@ -29,26 +29,28 @@ export DENO_DIR=<path-to-licode>/licode/packages
 deno run --allow-net src/main.ts 
 ```
 
-#### To Have DENO_DIR Permanently Set On Your System
+#### Have DENO_DIR Permanently Set On Your System
 
 Add the following line to ~/.profile (on Linux).
 ```
 export DENO_DIR=<path-to-licode>/licode/packages
 ```
 
-### To Reload Packages
+### Reload Packages
 
 ```
 deno run --allow-net --reload src/main.ts 
 ```
 
-### To Not Have to Restart the Server Each Time a Change Is Made
+### Not Have to Restart the Server Each Time a Change Is Made
 
-#### To Install Denon
+#### Install Denon
 
 ```
 deno install -qAf --unstable https://deno.land/x/denon/denon.ts
 ```
+
+#### Start Server That Doesn't Need to Be Restarted When a Change Is Made
 
 ```
 denon run --allow-net src/main.ts 
