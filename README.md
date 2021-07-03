@@ -29,7 +29,7 @@ export DENO_DIR=<path-to-licode>/licode/packages
 deno run --allow-net src/main.ts 
 ```
 
-DENO_DIR allows us to save the packages we use in our licode repository.
+DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files.
 
 #### Have DENO_DIR Permanently Set On Your System
 
