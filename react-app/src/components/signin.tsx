@@ -6,11 +6,12 @@ export interface SigninProps {}
 export interface SigninState {}
 
 class Signin extends React.Component<SigninProps, SigninState> {
-  //state = { :  }
+  state = {
+    emailAddress: "",
+  };
   render() {
-    //return (  );
     return (
-      <div>
+      <div className="badge">
         <h1>licode</h1>
         <form>
           <input placeholder="Email Address" />
