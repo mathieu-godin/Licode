@@ -32,7 +32,7 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 ```
 git clone https://github.com/mathieu-godin/licode
 cd licode
-export DENO_DIR=<path-to-licode>/licode/packages
+export DENO_DIR="$HOME/licode/packages"
 deno run --allow-net mod.ts 
 ```
 
