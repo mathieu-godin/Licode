@@ -53,6 +53,8 @@ export LICODE_PORT=3000
 deno run --allow-net --allow-env mod.ts 
 ```
 
+If you go to localhost:3000 on your web browser, you should see the message "Hello World".
+
 DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files. For now, we will run our server on port 3000. We set it with the LICODE_PORT environment variable.
 
 #### Have Environment Variables Permanently Set On Your System
