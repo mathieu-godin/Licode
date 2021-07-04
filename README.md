@@ -18,7 +18,7 @@ I was thinking of using PostgreSQL instead of MySQL. It's the same thing but I t
 
 ## Setup
 
-This setup assumes you clone the server repository in your home ($HOME or ~) folder.
+This setup assumes you clone the server repository in your home folder ($HOME or ~).
 
 ### Initial Setup
 
