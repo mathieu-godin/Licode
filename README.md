@@ -101,3 +101,10 @@ deno install -qAf --unstable https://deno.land/x/denon/denon.ts
 ```bash
 denon run --allow-net --allow-env --allow-read mod.ts 
 ```
+
+#### How to Quickly Test the Frontend Application Without a Backend
+
+```bash
+cd licode/react-app
+npm start
+```
