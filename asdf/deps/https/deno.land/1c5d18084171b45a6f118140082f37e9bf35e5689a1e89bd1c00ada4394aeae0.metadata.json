@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "cache-control": "public, max-age=31536000, immutable",
+    "etag": "\"70802cfcc997dd1bbf150e5b71ea36d5\"",
+    "cf-cache-status": "HIT",
+    "content-type": "application/typescript; charset=utf-8",
+    "access-control-allow-origin": "*",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "date": "Sun, 04 Jul 2021 00:07:36 GMT",
+    "x-amz-id-2": "0rZbanr+pNlKyz8/ZQ3Cmj6FgKjnSBVAv0sbE4cK+hWMpvcr4kd9HSUqWAoRZkGWfcT5b3plEAk=",
+    "content-length": "1463",
+    "last-modified": "Mon, 28 Jun 2021 07:03:08 GMT",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "cf-ray": "66941d47afcc5dc2-IAD",
+    "x-amz-request-id": "39ZRR2ZP8CSHJV9N",
+    "server": "cloudflare",
+    "accept-ranges": "bytes",
+    "age": "429810",
+    "x-amz-version-id": "hj1sK1IHW4AJwA6lglny3tjw_Ncp4wWr",
+    "vary": "Accept-Encoding"
+  },
+  "url": "https://deno.land/x/oak@v7.7.0/async_iterable_reader.ts"
+}

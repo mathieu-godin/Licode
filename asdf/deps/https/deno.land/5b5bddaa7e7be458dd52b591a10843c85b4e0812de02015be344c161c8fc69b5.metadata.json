@@ -1,0 +1,14 @@
+{
+  "headers": {
+    "date": "Sun, 04 Jul 2021 00:07:36 GMT",
+    "server": "cloudflare",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "content-length": "0",
+    "location": "/x/oak@v7.7.0/mod.ts",
+    "cf-ray": "66941d45dd7a5dc2-IAD",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "x-deno-warning": "Implicitly using latest version (v7.7.0) for https://deno.land/x/oak/mod.ts",
+    "vary": "Accept-Encoding"
+  },
+  "url": "https://deno.land/x/oak/mod.ts"
+}
