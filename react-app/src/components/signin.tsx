@@ -11,7 +11,7 @@ class Signin extends React.Component<SigninProps, SigninState> {
   };
   render() {
     return (
-      <div className="badge">
+      <div>
         <h1>licode</h1>
         <form>
           <input placeholder="Email Address" />
