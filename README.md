@@ -4,6 +4,8 @@ A confrontational coding platform.
 
 ## Setup
 
+This setup assumes you clone the server repository in your home ($HOME or ~) folder.
+
 ### Initial Setup
 
 #### Install Deno
