@@ -2,6 +2,20 @@
 
 A confrontational coding platform.
 
+## Technologies
+
+### Backend
+
+Deno server using Oak. Deno is like an equivalent of Node. Oak is like an equivalent of Express. Actually, the successor or Express that came out recently is Koa (on Node). Oak is the Koa equivalent for Deno. Deno is used for one time HTTPS requests. We intend to use Go for our realtime server.
+
+### Frontend
+
+React web application.
+
+### Database
+
+I was thinking of using PostgreSQL instead of MySQL. It's the same thing but I think it's better these days for production applications.
+
 ## Setup
 
 This setup assumes you clone the server repository in your home ($HOME or ~) folder.
