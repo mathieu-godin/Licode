@@ -75,7 +75,7 @@ cd ..
 deno run --allow-net --allow-env --allow-read mod.ts 
 ```
 
-If you go to localhost:3000 on your web browser, you should see a default React application.
+If you go to localhost:3000 on your web browser, you should see a very simple React application.
 
 ### Useful Things to Know
 
