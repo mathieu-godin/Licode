@@ -49,17 +49,19 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 git clone https://github.com/mathieu-godin/licode
 cd licode
 export DENO_DIR="$HOME/licode/packages"
+export LICODE_PORT=3000
 deno run --allow-net mod.ts 
 ```
 
-DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files.
+DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files. For now, we will run our server on port 3000. We set it with the LICODE_PORT environment variable.
 
-#### Have DENO_DIR Permanently Set On Your System
+#### Have Environment Variables Permanently Set On Your System
 
-Add the following line to ~/.profile (on Linux).
+Add the following lines to ~/.profile (on Linux).
 
 ```bash
 export DENO_DIR="$HOME/licode/packages"
+export LICODE_PORT=3000
 ```
 
 ### Reload Packages
