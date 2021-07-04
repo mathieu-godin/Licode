@@ -1,1 +1,2 @@
 packages/* linguist-vendored
+packages/gen/https/deno.land/* linguist-vendored
