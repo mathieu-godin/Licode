@@ -9,13 +9,12 @@ const router = new Router();
 
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
-    // Will log the thrown error to the console.
     console.log(evt.error);
   });
 app.use(async (context) => {
     await send(context, context.request.url.pathname, {
         root: `${Deno.cwd()}/react-app/build`,
-        index: "index.html",
+        index: 'index.html',
     });
 });
 //app.use(router.routes());
