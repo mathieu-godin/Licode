@@ -18,7 +18,7 @@ I was thinking of using PostgreSQL instead of MySQL. It's the same thing but I t
 
 ## Setup
 
-This setup assumes you clone the server repository in your home ($HOME or ~) folder.
+This setup assumes you clone the server repository in your home folder ($HOME or ~).
 
 ### Initial Setup
 
@@ -45,43 +45,59 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 
 #### Server Installation and Execution
 
+##### Clone the Repository
+
 ```bash
 git clone https://github.com/mathieu-godin/licode
-cd licode
+```
+##### Build the Frontend Application
+
+Make sure you have Node.js installed (and as such npm). React needs this.
+
+```bash
+cd licode/react-app
+npm run build
+```
+##### Set Backend Server Environment Variables
+
+```bash
 export DENO_DIR="$HOME/licode/packages"
 export LICODE_PORT=3000
-deno run --allow-net --allow-env mod.ts 
 ```
-
-If you go to localhost:3000 on your web browser, you should see the message "Hello World".
+If you want these environment variables to still be there when you reboot your system, add the above two lines to ~/.profile (Linux).
 
 DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files. For now, we will run our server on port 3000. We set it with the LICODE_PORT environment variable.
 
-#### Have Environment Variables Permanently Set On Your System
-
-Add the following lines to ~/.profile (on Linux).
+##### Run the Server
 
 ```bash
-export DENO_DIR="$HOME/licode/packages"
-export LICODE_PORT=3000
+cd ..
+deno run --allow-net --allow-env --allow-read mod.ts 
 ```
 
-### Reload Packages
+If you go to localhost:3000 on your web browser, you should see a default React application.
+
+### Useful Things to Know
+
+#### How to Reload Packages
+
+All the packages being used by our Deno server were downloaded to the packages folder the first time we ran "deno run ...".
+To reload the packages, run the following.
 
 ```bash
-deno run --allow-net --allow-env --reload mod.ts 
+deno run --allow-net --allow-env --allow-read --reload mod.ts 
 ```
 
-### Not Have to Restart the Server Each Time a Change Is Made
+#### How to Not Have to Restart the Server Each Time a Change Is Made
 
-#### Install Denon
+##### Install Denon
 
 ```bash
 deno install -qAf --unstable https://deno.land/x/denon/denon.ts
 ```
 
-#### Start Server That Doesn't Need to Be Restarted When a Change Is Made
+##### Start Server That Doesn't Need to Be Restarted When a Change Is Made
 
 ```bash
-denon run --allow-net --allow-env mod.ts 
+denon run --allow-net --allow-env --allow-read mod.ts 
 ```
