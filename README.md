@@ -94,7 +94,7 @@ deno run --allow-net --allow-env --allow-read --reload mod.ts
 deno install -qAf --unstable https://deno.land/x/denon/denon.ts
 ```
 
-#### Start Server That Doesn't Need to Be Restarted When a Change Is Made
+#### Start Server That Doesn't Have to Be Restarted Whenever a Change Is Made
 
 ```bash
 denon run --allow-net --allow-env --allow-read mod.ts 
