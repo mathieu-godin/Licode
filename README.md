@@ -71,6 +71,7 @@ DENO_DIR allows us to save the packages we use in our licode repository. The pac
 ##### Run the Server
 
 ```bash
+cd ..
 deno run --allow-net --allow-env --allow-read mod.ts 
 ```
 
