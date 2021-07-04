@@ -45,17 +45,36 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 
 #### Server Installation and Execution
 
+##### Clone the Repository
+
 ```bash
 git clone https://github.com/mathieu-godin/licode
-cd licode
+```
+##### Build the Frontend Application
+
+Make sure you have Node.js installed (and as such npm). React needs this.
+
+```bash
+cd licode/react-app
+npm run build
+```
+##### Set Backend Server Environment Variables
+
+```bash
 export DENO_DIR="$HOME/licode/packages"
 export LICODE_PORT=3000
+```
+If you want these environment variables to still be there when you reboot your system, add the above two lines to ~/.profile (Linux).
+
+DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files. For now, we will run our server on port 3000. We set it with the LICODE_PORT environment variable.
+
+##### Run the Server
+
+```bash
 deno run --allow-net --allow-env --allow-read mod.ts 
 ```
 
 If you go to localhost:3000 on your web browser, you should see a default React application.
-
-DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files. For now, we will run our server on port 3000. We set it with the LICODE_PORT environment variable.
 
 #### Have Environment Variables Permanently Set On Your System
 
