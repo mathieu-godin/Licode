@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "x-amz-request-id": "E3JWYM3AH02HF1QA",
+    "access-control-allow-origin": "*",
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-amz-version-id": "_uJzk7XGkXB2mPf381cwg2BGLPP3UVPj",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "content-type": "application/typescript; charset=utf-8",
+    "date": "Sun, 04 Jul 2021 00:12:08 GMT",
+    "server": "cloudflare",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "last-modified": "Mon, 28 Jun 2021 07:03:09 GMT",
+    "x-amz-id-2": "B1T/OmCHg8ui+U/kFW8KSHABML0qWP3alPj0Sw6Kcyao795/KD9kIGlmTCQx2il0MZoRvuNzkpU=",
+    "cf-cache-status": "HIT",
+    "age": "420150",
+    "content-length": "2659",
+    "cf-ray": "669423e7c9bbcf5c-IAD",
+    "accept-ranges": "bytes",
+    "etag": "\"bc4cd512ca6fd22619f7d010839ab0ce\"",
+    "vary": "Accept-Encoding"
+  },
+  "url": "https://deno.land/x/oak@v7.7.0/keyStack.ts"
+}

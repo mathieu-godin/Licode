@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "age": "420150",
+    "content-type": "application/typescript; charset=utf-8",
+    "accept-ranges": "bytes",
+    "cf-ray": "669423e7fa1ecf5c-IAD",
+    "x-amz-version-id": "BeSNmNXFygoR3K00tYz7TuAYMXOJRTqa",
+    "content-length": "4231",
+    "access-control-allow-origin": "*",
+    "date": "Sun, 04 Jul 2021 00:12:08 GMT",
+    "last-modified": "Mon, 28 Jun 2021 07:03:09 GMT",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-amz-id-2": "rsO15LnO3qxdrw7i7rxD0G82vnEclIWGCK3UsGqzYOP1HdXScptFj0BFNF14mOiPz5bPK6C90fk=",
+    "server": "cloudflare",
+    "vary": "Accept-Encoding",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "x-amz-request-id": "E3JXS2GXMVKP7C9F",
+    "etag": "\"717a90d0bb670123262a019370e589e8\"",
+    "cf-cache-status": "HIT"
+  },
+  "url": "https://deno.land/x/oak@v7.7.0/structured_clone.ts"
+}

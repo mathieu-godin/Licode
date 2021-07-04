@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "content-type": "application/typescript; charset=utf-8",
+    "cf-cache-status": "HIT",
+    "date": "Sun, 04 Jul 2021 00:12:08 GMT",
+    "server": "cloudflare",
+    "access-control-allow-origin": "*",
+    "accept-ranges": "bytes",
+    "cf-ray": "669423e7fa12cf5c-IAD",
+    "content-length": "4200",
+    "age": "420150",
+    "cache-control": "public, max-age=31536000, immutable",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "vary": "Accept-Encoding",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "x-amz-version-id": "fXwpKmwNPFDeviAfo.Oh9lO9FwCwbbsE",
+    "x-amz-request-id": "E3JXBVKCJ6JMBHD4",
+    "x-amz-id-2": "BtfCPJxV9FgZixQTzUMJ8uk+WhPccSTTgJZO6UH+izkDfuZHvh26ZkfBVwnPrYw6/A0BcsINw9M=",
+    "last-modified": "Mon, 28 Jun 2021 07:03:09 GMT",
+    "etag": "\"ed2f22ba37fe1d1db9c348652757b9cc\""
+  },
+  "url": "https://deno.land/x/oak@v7.7.0/negotiation/encoding.ts"
+}
