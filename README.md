@@ -54,6 +54,7 @@ Make sure you have Node.js installed (and as such npm). React needs this.
 
 ```bash
 cd licode/react-app
+npm install
 npm run build
 ```
 #### Set Backend Server Environment Variables
