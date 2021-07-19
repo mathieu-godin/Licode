@@ -4,11 +4,11 @@ import {
 } from "https://deno.land/x/nessie@2.0.0/mod.ts";
 
 const client = new ClientPostgreSQL({
-    database: "nessie",
+    database: "licode",
     hostname: "localhost",
     port: 5432,
-    user: "root",
-    password: "pwd",
+    user: "licode",
+    password: "edocil",
 });
 
 /** This is the final config object */

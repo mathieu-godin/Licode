@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "cf-ray": "67152556fda05b23-IAD",
+    "x-amz-id-2": "HVyY1g6atznbcL8lTWv6iXzynlSsP814e2pH9aXzyebmkRszJhcVGWzr0bNL/2bH0cl926seJ1s=",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "date": "Mon, 19 Jul 2021 15:57:30 GMT",
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-amz-request-id": "DEGGJPE1952EAJ45",
+    "vary": "Accept-Encoding",
+    "x-deno-ray": "us-east4-c::715b12d412af9a340bd4c1965bf1dd8e",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "etag": "\"be3a7aab1b8356e1ddfbe38299cc5faa\"",
+    "cf-cache-status": "DYNAMIC",
+    "access-control-allow-origin": "*",
+    "content-length": "3905",
+    "last-modified": "Thu, 24 Jun 2021 14:21:18 GMT",
+    "server": "cloudflare",
+    "x-amz-version-id": "dbAVsUjSi_RktQSMdFlufOv8kuA0lwbM",
+    "content-type": "application/typescript; charset=utf-8",
+    "via": "HTTP/1.1 deploy"
+  },
+  "url": "https://deno.land/x/nessie@2.0.0/clients/ClientMySQL.ts"
+}

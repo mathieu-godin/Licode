@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "cf-cache-status": "DYNAMIC",
+    "x-amz-request-id": "DEGVZNMADGAA7S4E",
+    "via": "HTTP/1.1 deploy",
+    "content-length": "3501",
+    "date": "Mon, 19 Jul 2021 15:57:30 GMT",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "x-deno-ray": "us-east4-c::cfacd49966cc349302f3fdb4b83f0545",
+    "last-modified": "Thu, 24 Jun 2021 14:21:18 GMT",
+    "content-type": "application/typescript; charset=utf-8",
+    "access-control-allow-origin": "*",
+    "x-amz-version-id": "kycLpmfvLWzG0_X2tya3QGEaegitsA9l",
+    "cf-ray": "67152556fd9e5b23-IAD",
+    "vary": "Accept-Encoding",
+    "server": "cloudflare",
+    "cache-control": "public, max-age=31536000, immutable",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "etag": "\"60999f361e328fd6f4e65711e271a660\"",
+    "x-amz-id-2": "om0buv8+igYLeFZyCzkEy08RtYCRyJ6NSeVAFPuWiB3NSRiI9ZoLOdDZBlRnToX1xR66COShhh8="
+  },
+  "url": "https://deno.land/x/nessie@2.0.0/clients/ClientSQLite.ts"
+}
