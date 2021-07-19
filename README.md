@@ -14,11 +14,48 @@ React web application.
 
 ### Database
 
-I was thinking of using PostgreSQL instead of MySQL. It's the same thing but I think it's better these days for production applications.
+Postgres Database.
 
 ## Setup
 
 This setup assumes you clone the server repository in your home folder ($HOME or ~).
+
+### Install Postgres
+
+#### Linux (Ubuntu)
+
+```bash
+sudo apt install postgresql
+```
+
+To test that Postgres was installed successfully and create the licode database and user, do the following.
+
+```bash
+sudo -u postgres psql
+CREATE USER licode WITH PASSWORD 'edocil';
+CREATE DATABASE licode;
+GRANT ALL PRIVILEGES ON DATABASE licode to licode;
+\q
+sudo systemctl restart postgresql
+```
+
+We then install pgAdmin, the best GUI tool to manage a Postgres database.
+
+```bash
+sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
+sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
+sudo apt install pgadmin4
+```
+
+### Setup the Database
+
+Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to *edocil* for now (simply licode spelled backwards).
+
+Click on **Add New Server** at the center of the pgAdmin window. In the new window, write *pgServer1* in the **Name** field. Switch from the **General** to the **Connection** tab. Enter *localhost* in the **Host name/address** field. Set the **Username** field to *licode* and the **Password** field to *edocil*. Leave all the other fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers** on the left. You should have **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**. You should have **licode** and **postgres** under **Databases**.
+
+Although we could use pgAdmin to modify our database scheme as we go along, this would be an ill-advised decision as we wouldn't be able to track how we modify our database as we go along.
+
+For this reason, we need something similar to Laravel Migrations. Here comes Deno Nessie (which is actually inspired by Laravel Migrations).
 
 ### Install Deno
 
