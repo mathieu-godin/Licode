@@ -28,6 +28,15 @@ This setup assumes you clone the server repository in your home folder ($HOME or
 sudo apt install postgresql
 ```
 
+To test that Postgres was installed successfully, do the following.
+
+```bash
+sudo -i -u postgres
+psql
+\q
+exit
+```
+
 We then install pgAdmin, the best GUI tool to manage a Postgres database.
 
 ```bash
