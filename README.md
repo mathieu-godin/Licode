@@ -31,10 +31,8 @@ sudo apt install postgresql
 To test that Postgres was installed successfully, do the following.
 
 ```bash
-sudo -i -u postgres
-psql
+sudo -u postgres psql
 \q
-exit
 ```
 
 We then install pgAdmin, the best GUI tool to manage a Postgres database.
