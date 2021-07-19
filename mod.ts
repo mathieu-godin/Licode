@@ -3,21 +3,20 @@ const env = Deno.env.toObject();
 const app = new Application();
 const router = new Router();
 
-/*router.get('/', (ctx) => {
-    ctx.response.body = 'Hello World'
-});*/
-
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
     console.log(evt.error);
 });
+router.get("/api/hello-world", (context) => {
+    context.response.body = "Hello World";
+});
+app.use(router.routes());
+app.use(router.allowedMethods());
 app.use(async (context) => {
     await send(context, context.request.url.pathname, {
         root: `${Deno.cwd()}/react-app/build`,
         index: "index.html",
     });
 });
-//app.use(router.routes());
-app.use(router.allowedMethods());
 console.log("Running on port", port);
 await app.listen({ port });
