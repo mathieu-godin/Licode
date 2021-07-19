@@ -53,9 +53,9 @@ Open pgAdmin (by searching it in your programs and starting it). It will ask you
 
 Click on **Add New Server** at the center of the pgAdmin window. In the new window, write *pgServer1* in the **Name** field. Switch from the **General** to the **Connection** tab. Enter *localhost* in the **Host name/address** field. Set the **Username** field to *licode* and the **Password** field to *edocil*. Leave all the other fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers** on the left. You should have **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**. You should have **licode** and **postgres** under **Databases**.
 
-Navigate to **Schemas** under **licode**. Naviagte to **public** and then to **Tables**. Right click **Tables**, click on **Create** and then click on **Table...**.
+Although we could use pgAdmin to modify our database scheme as we go along, this would be an ill-advised decision as we wouldn't be able to track how we modify our database as we go along.
 
-Enter *users* under the **Name** field.
+For this reason, we need something similar to Laravel Migrations. Here comes Deno Nessie (which is actually inspired by Laravel Migrations).
 
 ### Install Deno
 
