@@ -28,12 +28,15 @@ This setup assumes you clone the server repository in your home folder ($HOME or
 sudo apt install postgresql
 ```
 
-To test that Postgres was installed successfully and create the licode database, do the following.
+To test that Postgres was installed successfully and create the licode database and user, do the following.
 
 ```bash
 sudo -u postgres psql
-createdb licode
+CREATE USER licode WITH PASSWORD 'edocil';
+CREATE DATABASE licode;
+GRANT ALL PRIVILEGES ON DATABASE licode to licode;
 \q
+sudo systemctl restart postgresql
 ```
 
 We then install pgAdmin, the best GUI tool to manage a Postgres database.
@@ -44,7 +47,9 @@ sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_
 sudo apt install pgadmin4
 ```
 
-Then, open pgAdmin (by searching it in your programs and startting it). It will ask you to set a master password. Let's set it to "edocil" for now (simply licode spelled backwards).
+Then, open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to *edocil* for now (simply licode spelled backwards).
+
+Click on **Add New Server** at the center of the pgAdmin window. In the new window, write *pgServer1* in the **Name** field. Switch from the **General** to the **Connection** tab. Enter *localhost* in the **Host name/address** field. Set the **Username** field to *licode* and the **Password** field to *edocil*. Leave all the other fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers** on the left. You should have **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**. You should have **licode** and **postgres** under **Databases**.
 
 ### Install Deno
 
