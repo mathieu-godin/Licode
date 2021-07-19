@@ -14,7 +14,7 @@ React web application.
 
 ### Database
 
-Postgres Database
+Postgres Database.
 
 ## Setup
 
@@ -25,8 +25,18 @@ This setup assumes you clone the server repository in your home folder ($HOME or
 #### Linux (Ubuntu)
 
 ```bash
-sudo apt-get install postgresql
+sudo apt install postgresql
 ```
+
+We then install pgAdmin, the best GUI tool to manage a Postgres database.
+
+```bash
+sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
+sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
+sudo apt install pgadmin4
+```
+
+Then, open pgAdmin (by searching it in your programs and startting it). It will ask you to set a master password. Let's set it to "edocil" for now (simply licode spelled backwards).
 
 ### Install Deno
 
