@@ -28,10 +28,11 @@ This setup assumes you clone the server repository in your home folder ($HOME or
 sudo apt install postgresql
 ```
 
-To test that Postgres was installed successfully, do the following.
+To test that Postgres was installed successfully and create the licode database, do the following.
 
 ```bash
 sudo -u postgres psql
+createdb licode
 \q
 ```
 
