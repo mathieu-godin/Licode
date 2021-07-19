@@ -10,11 +10,11 @@ Deno server using Oak. Deno is like an equivalent of Node. Oak is like an equiva
 
 ### Frontend
 
-React web application.
+React web application. Deno Oak deploys that React application.
 
 ### Database
 
-Postgres Database.
+Postgres Database. Deno Nessie is used to modify the scheme of the database (aka migrations). Deno Postgres is used to read or write data to the database.
 
 ## Setup
 
