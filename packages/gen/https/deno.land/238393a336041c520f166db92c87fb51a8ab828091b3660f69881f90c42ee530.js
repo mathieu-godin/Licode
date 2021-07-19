@@ -1,0 +1,8 @@
+export function deferred() {
+    let methods;
+    const promise = new Promise((resolve, reject) => {
+        methods = { resolve, reject };
+    });
+    return Object.assign(promise, methods);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGVmZXJyZWQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJodHRwczovL2Rlbm8ubGFuZC9zdGRAMC45My4wL2FzeW5jL2RlZmVycmVkLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQW1CQSxNQUFNLFVBQVUsUUFBUTtJQUN0QixJQUFJLE9BQU8sQ0FBQztJQUNaLE1BQU0sT0FBTyxHQUFHLElBQUksT0FBTyxDQUFJLENBQUMsT0FBTyxFQUFFLE1BQU0sRUFBUSxFQUFFO1FBQ3ZELE9BQU8sR0FBRyxFQUFFLE9BQU8sRUFBRSxNQUFNLEVBQUUsQ0FBQztJQUNoQyxDQUFDLENBQUMsQ0FBQztJQUNILE9BQU8sTUFBTSxDQUFDLE1BQU0sQ0FBQyxPQUFPLEVBQUUsT0FBTyxDQUFnQixDQUFDO0FBQ3hELENBQUMifQ==

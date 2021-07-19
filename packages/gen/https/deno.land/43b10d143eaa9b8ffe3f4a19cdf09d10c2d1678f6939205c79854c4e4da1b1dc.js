@@ -1,0 +1,178 @@
+import { globToRegExp, isAbsolute, isGlob, joinGlobs, normalize, SEP_PATTERN, } from "../path/mod.ts";
+import { _createWalkEntry, _createWalkEntrySync, walk, walkSync, } from "./walk.ts";
+import { assert } from "../_util/assert.ts";
+import { isWindows } from "../_util/os.ts";
+function split(path) {
+    const s = SEP_PATTERN.source;
+    const segments = path
+        .replace(new RegExp(`^${s}|${s}$`, "g"), "")
+        .split(SEP_PATTERN);
+    const isAbsolute_ = isAbsolute(path);
+    return {
+        segments,
+        isAbsolute: isAbsolute_,
+        hasTrailingSep: !!path.match(new RegExp(`${s}$`)),
+        winRoot: isWindows && isAbsolute_ ? segments.shift() : undefined,
+    };
+}
+function throwUnlessNotFound(error) {
+    if (!(error instanceof Deno.errors.NotFound)) {
+        throw error;
+    }
+}
+function comparePath(a, b) {
+    if (a.path < b.path)
+        return -1;
+    if (a.path > b.path)
+        return 1;
+    return 0;
+}
+export async function* expandGlob(glob, { root = Deno.cwd(), exclude = [], includeDirs = true, extended = false, globstar = false, caseInsensitive, } = {}) {
+    const globOptions = { extended, globstar, caseInsensitive };
+    const absRoot = isAbsolute(root)
+        ? normalize(root)
+        : joinGlobs([Deno.cwd(), root], globOptions);
+    const resolveFromRoot = (path) => isAbsolute(path)
+        ? normalize(path)
+        : joinGlobs([absRoot, path], globOptions);
+    const excludePatterns = exclude
+        .map(resolveFromRoot)
+        .map((s) => globToRegExp(s, globOptions));
+    const shouldInclude = (path) => !excludePatterns.some((p) => !!path.match(p));
+    const { segments, hasTrailingSep, winRoot } = split(resolveFromRoot(glob));
+    let fixedRoot = winRoot != undefined ? winRoot : "/";
+    while (segments.length > 0 && !isGlob(segments[0])) {
+        const seg = segments.shift();
+        assert(seg != null);
+        fixedRoot = joinGlobs([fixedRoot, seg], globOptions);
+    }
+    let fixedRootInfo;
+    try {
+        fixedRootInfo = await _createWalkEntry(fixedRoot);
+    }
+    catch (error) {
+        return throwUnlessNotFound(error);
+    }
+    async function* advanceMatch(walkInfo, globSegment) {
+        if (!walkInfo.isDirectory) {
+            return;
+        }
+        else if (globSegment == "..") {
+            const parentPath = joinGlobs([walkInfo.path, ".."], globOptions);
+            try {
+                if (shouldInclude(parentPath)) {
+                    return yield await _createWalkEntry(parentPath);
+                }
+            }
+            catch (error) {
+                throwUnlessNotFound(error);
+            }
+            return;
+        }
+        else if (globSegment == "**") {
+            return yield* walk(walkInfo.path, {
+                includeFiles: false,
+                skip: excludePatterns,
+            });
+        }
+        yield* walk(walkInfo.path, {
+            maxDepth: 1,
+            match: [
+                globToRegExp(joinGlobs([walkInfo.path, globSegment], globOptions), globOptions),
+            ],
+            skip: excludePatterns,
+        });
+    }
+    let currentMatches = [fixedRootInfo];
+    for (const segment of segments) {
+        const nextMatchMap = new Map();
+        for (const currentMatch of currentMatches) {
+            for await (const nextMatch of advanceMatch(currentMatch, segment)) {
+                nextMatchMap.set(nextMatch.path, nextMatch);
+            }
+        }
+        currentMatches = [...nextMatchMap.values()].sort(comparePath);
+    }
+    if (hasTrailingSep) {
+        currentMatches = currentMatches.filter((entry) => entry.isDirectory);
+    }
+    if (!includeDirs) {
+        currentMatches = currentMatches.filter((entry) => !entry.isDirectory);
+    }
+    yield* currentMatches;
+}
+export function* expandGlobSync(glob, { root = Deno.cwd(), exclude = [], includeDirs = true, extended = false, globstar = false, caseInsensitive, } = {}) {
+    const globOptions = { extended, globstar, caseInsensitive };
+    const absRoot = isAbsolute(root)
+        ? normalize(root)
+        : joinGlobs([Deno.cwd(), root], globOptions);
+    const resolveFromRoot = (path) => isAbsolute(path)
+        ? normalize(path)
+        : joinGlobs([absRoot, path], globOptions);
+    const excludePatterns = exclude
+        .map(resolveFromRoot)
+        .map((s) => globToRegExp(s, globOptions));
+    const shouldInclude = (path) => !excludePatterns.some((p) => !!path.match(p));
+    const { segments, hasTrailingSep, winRoot } = split(resolveFromRoot(glob));
+    let fixedRoot = winRoot != undefined ? winRoot : "/";
+    while (segments.length > 0 && !isGlob(segments[0])) {
+        const seg = segments.shift();
+        assert(seg != null);
+        fixedRoot = joinGlobs([fixedRoot, seg], globOptions);
+    }
+    let fixedRootInfo;
+    try {
+        fixedRootInfo = _createWalkEntrySync(fixedRoot);
+    }
+    catch (error) {
+        return throwUnlessNotFound(error);
+    }
+    function* advanceMatch(walkInfo, globSegment) {
+        if (!walkInfo.isDirectory) {
+            return;
+        }
+        else if (globSegment == "..") {
+            const parentPath = joinGlobs([walkInfo.path, ".."], globOptions);
+            try {
+                if (shouldInclude(parentPath)) {
+                    return yield _createWalkEntrySync(parentPath);
+                }
+            }
+            catch (error) {
+                throwUnlessNotFound(error);
+            }
+            return;
+        }
+        else if (globSegment == "**") {
+            return yield* walkSync(walkInfo.path, {
+                includeFiles: false,
+                skip: excludePatterns,
+            });
+        }
+        yield* walkSync(walkInfo.path, {
+            maxDepth: 1,
+            match: [
+                globToRegExp(joinGlobs([walkInfo.path, globSegment], globOptions), globOptions),
+            ],
+            skip: excludePatterns,
+        });
+    }
+    let currentMatches = [fixedRootInfo];
+    for (const segment of segments) {
+        const nextMatchMap = new Map();
+        for (const currentMatch of currentMatches) {
+            for (const nextMatch of advanceMatch(currentMatch, segment)) {
+                nextMatchMap.set(nextMatch.path, nextMatch);
+            }
+        }
+        currentMatches = [...nextMatchMap.values()].sort(comparePath);
+    }
+    if (hasTrailingSep) {
+        currentMatches = currentMatches.filter((entry) => entry.isDirectory);
+    }
+    if (!includeDirs) {
+        currentMatches = currentMatches.filter((entry) => !entry.isDirectory);
+    }
+    yield* currentMatches;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZXhwYW5kX2dsb2IuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJodHRwczovL2Rlbm8ubGFuZC9zdGRAMC45OS4wL2ZzL2V4cGFuZF9nbG9iLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUNBLE9BQU8sRUFFTCxZQUFZLEVBQ1osVUFBVSxFQUNWLE1BQU0sRUFDTixTQUFTLEVBQ1QsU0FBUyxFQUNULFdBQVcsR0FDWixNQUFNLGdCQUFnQixDQUFDO0FBQ3hCLE9BQU8sRUFDTCxnQkFBZ0IsRUFDaEIsb0JBQW9CLEVBQ3BCLElBQUksRUFFSixRQUFRLEdBQ1QsTUFBTSxXQUFXLENBQUM7QUFDbkIsT0FBTyxFQUFFLE1BQU0sRUFBRSxNQUFNLG9CQUFvQixDQUFDO0FBQzVDLE9BQU8sRUFBRSxTQUFTLEVBQUUsTUFBTSxnQkFBZ0IsQ0FBQztBQWdCM0MsU0FBUyxLQUFLLENBQUMsSUFBWTtJQUN6QixNQUFNLENBQUMsR0FBRyxXQUFXLENBQUMsTUFBTSxDQUFDO0lBQzdCLE1BQU0sUUFBUSxHQUFHLElBQUk7U0FDbEIsT0FBTyxDQUFDLElBQUksTUFBTSxDQUFDLElBQUksQ0FBQyxJQUFJLENBQUMsR0FBRyxFQUFFLEdBQUcsQ0FBQyxFQUFFLEVBQUUsQ0FBQztTQUMzQyxLQUFLLENBQUMsV0FBVyxDQUFDLENBQUM7SUFDdEIsTUFBTSxXQUFXLEdBQUcsVUFBVSxDQUFDLElBQUksQ0FBQyxDQUFDO0lBQ3JDLE9BQU87UUFDTCxRQUFRO1FBQ1IsVUFBVSxFQUFFLFdBQVc7UUFDdkIsY0FBYyxFQUFFLENBQUMsQ0FBQyxJQUFJLENBQUMsS0FBSyxDQUFDLElBQUksTUFBTSxDQUFDLEdBQUcsQ0FBQyxHQUFHLENBQUMsQ0FBQztRQUNqRCxPQUFPLEVBQUUsU0FBUyxJQUFJLFdBQVcsQ0FBQyxDQUFDLENBQUMsUUFBUSxDQUFDLEtBQUssRUFBRSxDQUFDLENBQUMsQ0FBQyxTQUFTO0tBQ2pFLENBQUM7QUFDSixDQUFDO0FBRUQsU0FBUyxtQkFBbUIs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

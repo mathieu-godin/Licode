@@ -1,0 +1,50 @@
+export var Status;
+(function (Status) {
+    Status[Status["Unknown"] = -1] = "Unknown";
+    Status[Status["SqliteOk"] = 0] = "SqliteOk";
+    Status[Status["SqliteError"] = 1] = "SqliteError";
+    Status[Status["SqliteInternal"] = 2] = "SqliteInternal";
+    Status[Status["SqlitePerm"] = 3] = "SqlitePerm";
+    Status[Status["SqliteAbort"] = 4] = "SqliteAbort";
+    Status[Status["SqliteBusy"] = 5] = "SqliteBusy";
+    Status[Status["SqliteLocked"] = 6] = "SqliteLocked";
+    Status[Status["SqliteNoMem"] = 7] = "SqliteNoMem";
+    Status[Status["SqliteReadOnly"] = 8] = "SqliteReadOnly";
+    Status[Status["SqliteInterrupt"] = 9] = "SqliteInterrupt";
+    Status[Status["SqliteIOErr"] = 10] = "SqliteIOErr";
+    Status[Status["SqliteCorrupt"] = 11] = "SqliteCorrupt";
+    Status[Status["SqliteNotFound"] = 12] = "SqliteNotFound";
+    Status[Status["SqliteFull"] = 13] = "SqliteFull";
+    Status[Status["SqliteCantOpen"] = 14] = "SqliteCantOpen";
+    Status[Status["SqliteProtocol"] = 15] = "SqliteProtocol";
+    Status[Status["SqliteEmpty"] = 16] = "SqliteEmpty";
+    Status[Status["SqliteSchema"] = 17] = "SqliteSchema";
+    Status[Status["SqliteTooBig"] = 18] = "SqliteTooBig";
+    Status[Status["SqliteConstraint"] = 19] = "SqliteConstraint";
+    Status[Status["SqliteMismatch"] = 20] = "SqliteMismatch";
+    Status[Status["SqliteMisuse"] = 21] = "SqliteMisuse";
+    Status[Status["SqliteNoLFS"] = 22] = "SqliteNoLFS";
+    Status[Status["SqliteAuth"] = 23] = "SqliteAuth";
+    Status[Status["SqliteFormat"] = 24] = "SqliteFormat";
+    Status[Status["SqliteRange"] = 25] = "SqliteRange";
+    Status[Status["SqliteNotADB"] = 26] = "SqliteNotADB";
+    Status[Status["SqliteNotice"] = 27] = "SqliteNotice";
+    Status[Status["SqliteWarning"] = 28] = "SqliteWarning";
+    Status[Status["SqliteRow"] = 100] = "SqliteRow";
+    Status[Status["SqliteDone"] = 101] = "SqliteDone";
+})(Status || (Status = {}));
+export var Types;
+(function (Types) {
+    Types[Types["Integer"] = 1] = "Integer";
+    Types[Types["Float"] = 2] = "Float";
+    Types[Types["Text"] = 3] = "Text";
+    Types[Types["Blob"] = 4] = "Blob";
+    Types[Types["Null"] = 5] = "Null";
+    Types[Types["BigInteger"] = 6] = "BigInteger";
+})(Types || (Types = {}));
+export var Values;
+(function (Values) {
+    Values[Values["Error"] = -1] = "Error";
+    Values[Values["Null"] = 0] = "Null";
+})(Values || (Values = {}));
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY29uc3RhbnRzLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiaHR0cHM6Ly9kZW5vLmxhbmQveC9zcWxpdGVAdjIuNC4wL3NyYy9jb25zdGFudHMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsTUFBTSxDQUFOLElBQVksTUFrQ1g7QUFsQ0QsV0FBWSxNQUFNO0lBQ2hCLDBDQUFZLENBQUE7SUFFWiwyQ0FBWSxDQUFBO0lBQ1osaURBQWUsQ0FBQTtJQUNmLHVEQUFrQixDQUFBO0lBQ2xCLCtDQUFjLENBQUE7SUFDZCxpREFBZSxDQUFBO0lBQ2YsK0NBQWMsQ0FBQTtJQUNkLG1EQUFnQixDQUFBO0lBQ2hCLGlEQUFlLENBQUE7SUFDZix1REFBa0IsQ0FBQTtJQUNsQix5REFBbUIsQ0FBQTtJQUNuQixrREFBZ0IsQ0FBQTtJQUNoQixzREFBa0IsQ0FBQTtJQUNsQix3REFBbUIsQ0FBQTtJQUNuQixnREFBZSxDQUFBO0lBQ2Ysd0RBQW1CLENBQUE7SUFDbkIsd0RBQW1CLENBQUE7SUFDbkIsa0RBQWdCLENBQUE7SUFDaEIsb0RBQWlCLENBQUE7SUFDakIsb0RBQWlCLENBQUE7SUFDakIsNERBQXFCLENBQUE7SUFDckIsd0RBQW1CLENBQUE7SUFDbkIsb0RBQWlCLENBQUE7SUFDakIsa0RBQWdCLENBQUE7SUFDaEIsZ0RBQWUsQ0FBQTtJQUNmLG9EQUFpQixDQUFBO0lBQ2pCLGtEQUFnQixDQUFBO0lBQ2hCLG9EQUFpQixDQUFBO0lBQ2pCLG9EQUFpQixDQUFBO0lBQ2pCLHNEQUFrQixDQUFBO0lBQ2xCLCtDQUFlLENBQUE7SUFDZixpREFBZ0IsQ0FBQTtBQUNsQixDQUFDLEVBbENXLE1BQU0sS0FBTixNQUFNLFFBa0NqQjtBQUVELE1BQU0sQ0FBTixJQUFZLEtBT1g7QUFQRCxXQUFZLEtBQUs7SUFDZix1Q0FBVyxDQUFBO0lBQ1gsbUNBQVMsQ0FBQTtJQUNULGlDQUFRLENBQUE7SUFDUixpQ0FBUSxDQUFBO0lBQ1IsaUNBQVEsQ0FBQTtJQUNSLDZDQUFjLENBQUE7QUFDaEIsQ0FBQyxFQVBXLEtBQUssS0FBTCxLQUFLLFFBT2hCO0FBRUQsTUFBTSxDQUFOLElBQVksTUFHWDtBQUhELFdBQVksTUFBTTtJQUNoQixzQ0FBVSxDQUFBO0lBQ1YsbUNBQVEsQ0FBQTtBQUNWLENBQUMsRUFIVyxNQUFNLEtBQU4sTUFBTSxRQUdqQiJ9

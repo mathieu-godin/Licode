@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "date": "Mon, 19 Jul 2021 15:45:26 GMT",
+    "content-length": "4586",
+    "etag": "\"b50d1e876ef617fa0a169200680c2254\"",
+    "via": "HTTP/1.1 deploy",
+    "x-amz-id-2": "ov29RIeJwRYSRU0nLlOzRkYLRpI143Y6jn1XnjW4Q8Dk81V8/MCLKr1MP56BRmJjFxC2I00w/Xs=",
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-amz-version-id": "5xFXyRqCtn0y.BfYczwSJ3fZJ5DX0L9g",
+    "x-amz-request-id": "CWJ57E62GXVNA0V9",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "cf-cache-status": "DYNAMIC",
+    "server": "cloudflare",
+    "x-deno-ray": "us-east4-c::45cc48c45761ac902e03fb6aa0234967",
+    "last-modified": "Wed, 28 Apr 2021 18:36:55 GMT",
+    "content-type": "application/typescript; charset=utf-8",
+    "cf-ray": "671513ac0ae8c16b-IAD",
+    "access-control-allow-origin": "*",
+    "vary": "Accept-Encoding"
+  },
+  "url": "https://deno.land/x/postgres@v0.11.2/connection/packet_writer.ts"
+}

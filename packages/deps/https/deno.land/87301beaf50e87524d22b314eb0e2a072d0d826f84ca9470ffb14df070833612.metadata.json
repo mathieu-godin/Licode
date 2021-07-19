@@ -1,0 +1,23 @@
+{
+  "headers": {
+    "server": "cloudflare",
+    "expect-ct": "max-age=604800, report-uri=\"https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct\"",
+    "alt-svc": "h3-27=\":443\"; ma=86400, h3-28=\":443\"; ma=86400, h3-29=\":443\"; ma=86400, h3=\":443\"; ma=86400",
+    "cache-control": "public, max-age=31536000, immutable",
+    "cf-cache-status": "DYNAMIC",
+    "access-control-allow-origin": "*",
+    "vary": "Accept-Encoding",
+    "last-modified": "Sat, 29 Aug 2020 19:52:18 GMT",
+    "content-type": "application/typescript; charset=utf-8",
+    "cf-ray": "671513ad9d0ec16b-IAD",
+    "date": "Mon, 19 Jul 2021 15:45:26 GMT",
+    "via": "HTTP/1.1 deploy",
+    "x-amz-version-id": "null",
+    "etag": "\"2a9ede7c4f05de714b6164e77fbcc009\"",
+    "x-amz-id-2": "/4XyXzU0BRDZ4rcwhdzy719hOKfNbcUV9UlUBPRbNmW+rRDtMmkujVyG5Gnn3Su6mSgv51EOr9s=",
+    "x-deno-ray": "us-east4-c::d82dea5318050e8d65adf8b8a7cd7669",
+    "x-amz-request-id": "CWJEG9TJ5H3J1GZW",
+    "content-length": "25"
+  },
+  "url": "https://deno.land/x/god_crypto@v0.2.0/mod.ts"
+}

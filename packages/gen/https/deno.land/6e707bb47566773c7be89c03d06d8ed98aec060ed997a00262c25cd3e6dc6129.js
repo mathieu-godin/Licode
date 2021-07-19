@@ -1,0 +1,5 @@
+import { Hash } from "./_wasm/hash.ts";
+export function createHash(algorithm) {
+    return new Hash(algorithm);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibW9kLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiaHR0cHM6Ly9kZW5vLmxhbmQvc3RkQDAuNzQuMC9oYXNoL21vZC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFFQSxPQUFPLEVBQUUsSUFBSSxFQUFFLE1BQU0saUJBQWlCLENBQUM7QUE2QnZDLE1BQU0sVUFBVSxVQUFVLENBQUMsU0FBNkI7SUFDdEQsT0FBTyxJQUFJLElBQUksQ0FBQyxTQUFtQixDQUFDLENBQUM7QUFDdkMsQ0FBQyJ9

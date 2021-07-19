@@ -1,0 +1,135 @@
+import { COL_FILE_NAME, TABLE_MIGRATIONS } from "../consts.ts";
+import { green } from "../deps.ts";
+import { getDurationFromTimestamp } from "../cli/utils.ts";
+import { NessieError } from "../cli/errors.ts";
+export class AbstractClient {
+    logger = () => undefined;
+    client;
+    migrationFiles = [];
+    seedFiles = [];
+    dialect;
+    QUERY_GET_LATEST = `SELECT ${COL_FILE_NAME} FROM ${TABLE_MIGRATIONS} ORDER BY ${COL_FILE_NAME} DESC LIMIT 1;`;
+    QUERY_GET_ALL = `SELECT ${COL_FILE_NAME} FROM ${TABLE_MIGRATIONS} ORDER BY ${COL_FILE_NAME} DESC;`;
+    QUERY_MIGRATION_INSERT = (fileName) => `INSERT INTO ${TABLE_MIGRATIONS} (${COL_FILE_NAME}) VALUES ('${fileName}');`;
+    QUERY_MIGRATION_DELETE = (fileName) => `DELETE FROM ${TABLE_MIGRATIONS} WHERE ${COL_FILE_NAME} = '${fileName}';`;
+    constructor(options) {
+        this.client = options.client;
+    }
+    _parseAmount(amount, maxAmount = 0, isMigration = true) {
+        const defaultAmount = isMigration ? maxAmount : 1;
+        if (amount === "all")
+            return maxAmount;
+        if (amount === undefined)
+            return defaultAmount;
+        if (typeof amount === "string") {
+            amount = isNaN(parseInt(amount)) ? defaultAmount : parseInt(amount);
+        }
+        return Math.min(maxAmount, amount);
+    }
+    async _migrate(amount, latestMigration, queryHandler) {
+        this.logger(amount, "Amount pre");
+        this.logger(latestMigration, "Latest migrations");
+        this._sliceMigrationFiles(latestMigration);
+        amount = this._parseAmount(amount, this.migrationFiles.length, true);
+        this.logger(this.migrationFiles, "Filtered and sorted migration files");
+        if (amount < 1) {
+            console.info("Nothing to migrate");
+            return;
+        }
+        console.info(green(`Starting migration of ${this.migrationFiles.length} files`), "\n----\n");
+        const t1 = performance.now();
+        for (const [i, file] of this.migrationFiles.entries()) {
+            if (i >= amount)
+                break;
+            console.info(green(`Migrating ${file.name}`));
+            const t2 = performance.now();
+            await this._migrationHandler(file, queryHandler);
+            const duration2 = getDurationFromTimestamp(t2);
+            console.info(`Done in ${duration2} seconds\n----\n`);
+        }
+        const duration1 = getDurationFromTimestamp(t1);
+        console.info(green(`Migrations completed in ${duration1} seconds`));
+    }
+    async _rollback(amount, allMigrations, queryHandler) {
+        this.logger(allMigrations, "Files to rollback");
+        this.logger(amount, "Amount pre");
+        if (!allMigrations || allMigrations.length < 1) {
+            console.info("Nothing to rollback");
+            return;
+        }
+        amount = this._parseAmount(amount, allMigrations.length, false);
+        this.logger(amount, "Received amount to rollback");
+        console.info(green(`Starting rollback of ${amount} files`), "\n----\n");
+        const t1 = performance.now();
+        for (const [i, fileName] of allMigrations.entries()) {
+            if (i >= amount)
+                break;
+            const file = this.migrationFiles
+                .find((migrationFile) => migrationFile.name === fileName);
+            if (!file) {
+                throw new NessieError(`Migration file '${fileName}' is not found`);
+            }
+            console.info(`Rolling back ${file.name}`);
+            const t2 = performance.now();
+            await this._migrationHandler(file, queryHandler, true);
+            const duration2 = getDurationFromTimestamp(t2);
+            console.info(`Done in ${duration2} seconds\n----\n`);
+        }
+        const duration1 = getDurationFromTimestamp(t1);
+        console.info(green(`Rollback completed in ${duration1} seconds`));
+    }
+    async _seed(matcher = ".+.ts") {
+        const files = this.seedFiles.filter((el) => el.name === matcher || new RegExp(matcher).test(el.name));
+        if (files.length < 1) {
+            console.info(`No seed file found with matcher '${matcher}'`);
+            return;
+        }
+        console.info(green(`Starting seeding of ${files.length} files`), "\n----\n");
+        const t1 = performance.now();
+        for await (const file of files) {
+            const exposedObject = {
+                dialect: this.dialect,
+            };
+            console.info(`Seeding ${file.name}`);
+            const SeedClass = (await import(file.path)).default;
+            const seed = new SeedClass({ client: this.client });
+            const t2 = performance.now();
+            await seed.run(exposedObject);
+            const duration2 = getDurationFromTimestamp(t2);
+            console.info(`Done in ${duration2} seconds\n----\n`);
+        }
+        const duration1 = getDurationFromTimestamp(t1);
+        console.info(green(`Seeding completed in ${duration1} seconds`));
+    }
+    setLogger(fn) {
+        this.logger = fn;
+    }
+    splitAndTrimQueries(query) {
+        return query.split(";").filter((el) => el.trim() !== "");
+    }
+    _sliceMigrationFiles(queryResult) {
+        if (!queryResult)
+            return;
+        const sliceIndex = this.migrationFiles
+            .findIndex((file) => file.name >= queryResult);
+        if (sliceIndex !== undefined) {
+            this.migrationFiles = this.migrationFiles.slice(sliceIndex + 1);
+        }
+    }
+    async _migrationHandler(file, queryHandler, isDown = false) {
+        const exposedObject = {
+            dialect: this.dialect,
+        };
+        const MigrationClass = (await import(file.path)).default;
+        const migration = new MigrationClass({ client: this.client });
+        if (isDown) {
+            await migration.down(exposedObject);
+            await queryHandler(this.QUERY_MIGRATION_DELETE(file.name));
+        }
+        else {
+            await migration.up(exposedObject);
+            await queryHandler(this.QUERY_MIGRATION_INSERT(file.name));
+        }
+    }
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiQWJzdHJhY3RDbGllbnQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJodHRwczovL2Rlbm8ubGFuZC94L25lc3NpZUAyLjAuMC9jbGllbnRzL0Fic3RyYWN0Q2xpZW50LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQWlCQSxPQUFPLEVBQUUsYUFBYSxFQUFFLGdCQUFnQixFQUFFLE1BQU0sY0FBYyxDQUFDO0FBQy9ELE9BQU8sRUFBRSxLQUFLLEVBQUUsTUFBTSxZQUFZLENBQUM7QUFDbkMsT0FBTyxFQUFFLHdCQUF3QixFQUFFLE1BQU0saUJBQWlCLENBQUM7QUFDM0QsT0FBTyxFQUFFLFdBQVcsRUFBRSxNQUFNLGtCQUFrQixDQUFDO0FBRy9DLE1BQU0sT0FBZ0IsY0FBYztJQUN4QixNQUFNLEdBQWEsR0FBRyxFQUFFLENBQUMsU0FBUyxDQUFDO0lBRTdDLE1BQU0sQ0FBUztJQUVmLGNBQWMsR0FBaUIsRUFBRSxDQUFDO0lBRWxDLFNBQVMsR0FBaUIsRUFBRSxDQUFDO0lBRTdCLE9BQU8sQ0FBdUI7SUFFWCxnQkFBZ0IsR0FDakMsVUFBVSxhQUFhLFNBQVMsZ0JBQWdCLGFBQWEsYUFBYSxnQkFBZ0IsQ0FBQztJQUMxRSxhQUFhLEdBQzlCLFVBQVUsYUFBYSxTQUFTLGdCQUFnQixhQUFhLGFBQWEsUUFBUSxDQUFDO0lBRTNFLHNCQUFzQixHQUFvQixDQUFDLFFBQVEsRUFBRSxFQUFFLENBQy9ELGVBQWUsZ0JBQWdCLEtBQUssYUFBYSxjQUFjLFFBQVEsS0FBSyxDQUFDO0lBQ3JFLHNCQUFzQixHQUFvQixDQUFDLFFBQVEsRUFBRSxFQUFFLENBQy9ELGVBQWUsZ0JBQWdCLFVBQVUsYUFBYSxPQUFPLFFBQVEsSUFBSSxDQUFDO0lBRTVFLFlBQVksT0FBc0M7UUFDaEQsSUFBSSxDQUFDLE1BQU0sR0FBRyxPQUFPLENBQUMsTUFBTSxDQUFDO0lBQy9CLENBQUM7SUFFUyxZQUFZLENBQ3BCLE1BQXVCLEVBQ3ZCLFNBQVMsR0FBRyxDQUFDLEVBQ2Is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

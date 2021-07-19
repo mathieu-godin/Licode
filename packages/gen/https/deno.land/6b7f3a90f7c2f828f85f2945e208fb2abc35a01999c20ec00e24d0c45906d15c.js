@@ -1,0 +1,7 @@
+import { RSA } from "https://deno.land/x/god_crypto@v0.2.0/mod.ts";
+function encryptWithPublicKey(key, data) {
+    const publicKey = RSA.parseKey(key);
+    return RSA.encrypt(data, publicKey);
+}
+export { encryptWithPublicKey };
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY3J5cHQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJodHRwczovL2Rlbm8ubGFuZC94L215c3FsQHYyLjkuMC9zcmMvYXV0aF9wbHVnaW4vY3J5cHQudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsT0FBTyxFQUFFLEdBQUcsRUFBRSxNQUFNLDhDQUE4QyxDQUFDO0FBQ25FLFNBQVMsb0JBQW9CLENBQUMsR0FBVyxFQUFFLElBQWdCO0lBQ3pELE1BQU0sU0FBUyxHQUFHLEdBQUcsQ0FBQyxRQUFRLENBQUMsR0FBRyxDQUFDLENBQUM7SUFDcEMsT0FBTyxHQUFHLENBQUMsT0FBTyxDQUFDLElBQUksRUFBRSxTQUFTLENBQUMsQ0FBQztBQUN0QyxDQUFDO0FBRUQsT0FBTyxFQUFFLG9CQUFvQixFQUFFLENBQUMifQ==

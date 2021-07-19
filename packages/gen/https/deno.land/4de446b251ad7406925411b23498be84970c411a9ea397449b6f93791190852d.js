@@ -1,0 +1,4 @@
+export const string = ({ value }) => {
+    return value;
+};
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3RyaW5nLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiaHR0cHM6Ly9kZW5vLmxhbmQveC9jbGlmZnlAdjAuMTkuMi9mbGFncy90eXBlcy9zdHJpbmcudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBR0EsTUFBTSxDQUFDLE1BQU0sTUFBTSxHQUF5QixDQUFDLEVBQUUsS0FBSyxFQUFhLEVBQVUsRUFBRTtJQUMzRSxPQUFPLEtBQUssQ0FBQztBQUNmLENBQUMsQ0FBQyJ9

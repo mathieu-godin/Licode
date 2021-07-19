@@ -1,0 +1,2 @@
+export { encode as encodeBase64, } from "https://deno.land/std@0.99.0/encoding/base64.ts";
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZGVwcy5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3gvY2xpZmZ5QHYwLjE5LjIvYW5zaS9kZXBzLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFDTCxNQUFNLElBQUksWUFBWSxHQUN2QixNQUFNLGlEQUFpRCxDQUFDIn0=
