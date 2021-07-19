@@ -14,11 +14,19 @@ React web application.
 
 ### Database
 
-I was thinking of using PostgreSQL instead of MySQL. It's the same thing but I think it's better these days for production applications.
+Postgres Database
 
 ## Setup
 
 This setup assumes you clone the server repository in your home folder ($HOME or ~).
+
+### Install Postgres
+
+#### Linux (Ubuntu)
+
+```bash
+sudo apt-get install postgresql
+```
 
 ### Install Deno
 
