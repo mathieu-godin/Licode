@@ -1,4 +1,4 @@
-import { Application, Router, send } from 'https://deno.land/x/oak/mod.ts';
+import { Application, Router, send } from "https://deno.land/x/oak/mod.ts";
 const env = Deno.env.toObject();
 const app = new Application();
 const router = new Router();
@@ -10,14 +10,14 @@ const router = new Router();
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
     console.log(evt.error);
-  });
+});
 app.use(async (context) => {
     await send(context, context.request.url.pathname, {
         root: `${Deno.cwd()}/react-app/build`,
-        index: 'index.html',
+        index: "index.html",
     });
 });
 //app.use(router.routes());
 app.use(router.allowedMethods());
-console.log('Running on port', port);
+console.log("Running on port", port);
 await app.listen({ port });
