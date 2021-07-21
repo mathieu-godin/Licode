@@ -49,9 +49,9 @@ sudo apt install pgadmin4
 
 ### Setup the Database
 
-Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to *edocil* for now (simply licode spelled backwards).
+Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to _edocil_ for now (simply licode spelled backwards).
 
-Click on **Add New Server** at the center of the pgAdmin window. In the new window, write *pgServer1* in the **Name** field. Switch from the **General** to the **Connection** tab. Enter *localhost* in the **Host name/address** field. Set the **Username** field to *licode* and the **Password** field to *edocil*. Leave all the other fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers** on the left. You should have **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**. You should have **licode** and **postgres** under **Databases**.
+Click on **Add New Server** at the center of the pgAdmin window. In the new window, write _pgServer1_ in the **Name** field. Switch from the **General** to the **Connection** tab. Enter _localhost_ in the **Host name/address** field. Set the **Username** field to _licode_ and the **Password** field to _edocil_. Leave all the other fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers** on the left. You should have **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**. You should have **licode** and **postgres** under **Databases**.
 
 Although we could use pgAdmin to modify our database scheme as we go along, this would be an ill-advised decision as we wouldn't be able to track how we modify our database as we go along.
 
@@ -85,6 +85,7 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 ```bash
 git clone https://github.com/mathieu-godin/licode
 ```
+
 #### Build the Frontend Application
 
 Make sure you have Node.js installed (and as such npm). React needs this.
@@ -94,12 +95,14 @@ cd licode/react-app
 npm install
 npm run build
 ```
+
 #### Set Backend Server Environment Variables
 
 ```bash
 export DENO_DIR="$HOME/licode/packages"
 export LICODE_PORT=3000
 ```
+
 If you want these environment variables to still be there when you reboot your system, add the above two lines to ~/.profile (Linux).
 
 DENO_DIR allows us to save the packages we use in our licode repository. The packages are what we import using URLs at the top of our .ts files. For now, we will run our server on port 3000. We set it with the LICODE_PORT environment variable.
@@ -108,7 +111,7 @@ DENO_DIR allows us to save the packages we use in our licode repository. The pac
 
 ```bash
 cd ..
-deno run --allow-net --allow-env --allow-read mod.ts 
+deno run --allow-net --allow-env --allow-read mod.ts
 ```
 
 If you go to localhost:3000 on your web browser, you should see a very simple React application.
@@ -121,7 +124,7 @@ All the packages being used by our Deno server were downloaded to the packages f
 To reload the packages, run the following.
 
 ```bash
-deno run --allow-net --allow-env --allow-read --reload mod.ts 
+deno run --allow-net --allow-env --allow-read --reload mod.ts
 ```
 
 ### How to Not Have to Restart the Server Each Time a Change Is Made
@@ -135,7 +138,7 @@ deno install -qAf --unstable https://deno.land/x/denon/denon.ts
 #### Start Server That Doesn't Have to Be Restarted Whenever a Change Is Made
 
 ```bash
-denon run --allow-net --allow-env --allow-read mod.ts 
+denon run --allow-net --allow-env --allow-read mod.ts
 ```
 
 ### How to Quickly Test the Frontend Application Without a Backend
@@ -149,8 +152,12 @@ npm start
 
 ### Password Encryption
 
-As done with the other aspects of this application, we will use state-of-the-art technologies. As seen in **ECE 458: Computer Security**, MD5 is 100% insecure, SHA-1 is considered broken, though not as bad as MD5, and SHA-2 is what most applications are using currently. However, SHA-3, which was released in 2015, hasn't been used by many companies yet. However, it's definitely more secure than SHA-2 and that's why I think we should use it. More specifically, I think we should use SHA3-512, which has 256 bits security against collision attacks (considered military grade). 128 bits collision security would be considered application grade. However, as processing power greatly augments every year, what used to be considered military grade could definitely become considered application grade. SHA-3 also offers much better security against length extension attacks than SHA-2.
+As done with the other aspects of this application, we will use state-of-the-art technologies. As seen in **ECE 458: Computer Security**, MD5 is 100% insecure, SHA-1 is considered broken, though not as bad as MD5, and SHA-2 is what most applications are using currently. However, SHA-3, which was released in 2015, hasn't been used by many companies yet. However, it's definitely more secure than SHA-2 and that's why I think we should use it. More specifically, I think we should use SHA3-512, which has 256 bits security against collision attacks (considered military grade). 128 bits collision security would be considered application grade. However, as processing power greatly augments every year, what used to be considered military grade could definitely become considered application grade. SHA-3 also offers much better security against length extension attacks than SHA-2. Most companies actually do not do this. They only use scrypt or bcrypt which isn't even approved by NIST. Furthermore, plaintext passwords are captured on the server side each time somebody logs in or registers. Nothing stops us from doing much better than this.
 
 #### When the User Registers
 
-The server will generate a random salt and store Hash(password || salt).
+Coming soon
+
+#### When the User Logs In
+
+Coming soon
