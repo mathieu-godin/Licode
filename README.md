@@ -144,3 +144,13 @@ denon run --allow-net --allow-env --allow-read mod.ts
 cd licode/react-app
 npm start
 ```
+
+## Security
+
+### Password Encryption
+
+As done with the other aspects of this application, we will use state-of-the-art technologies. As seen in **ECE 458: Computer Security**, MD5 is 100% insecure, SHA-1 is considered broken, though not as bad as MD5, and SHA-2 is what most applications are using currently. However, SHA-3, which was released in 2015, hasn't been used by many companies yet. However, it's definitely more secure than SHA-2 and that's why I think we should use it. More specifically, I think we should use SHA3-512, which has 256 bits security against collision attacks (considered military grade). 128 bits collision security would be considered application grade. However, as processing power greatly augments every year, what used to be considered military grade could definitely become considered application grade. SHA-3 also offers much better security against length extension attacks than SHA-2.
+
+#### When the User Registers
+
+The server will generate a random salt and store Hash(password || salt).
