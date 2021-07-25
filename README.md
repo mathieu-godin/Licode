@@ -182,3 +182,7 @@ To run all the migrations and update the database accordingly, to the following:
 ```bash
 deno run -A --unstable https://deno.land/x/nessie/cli.ts migrate
 ```
+
+### Cancer Database Problems
+
+The above command doesn't work currently. Originally, you would get: *invalid certificate: Unknown Issuer*. After performing what is done on this link https://www.gab.lc/articles/postgresql_with_ssl/ (or rather just adding a CA .pem file to the postgres confgiuration) and moving the new CA .pem file to a location that doens't require *sudo* on your machine (and having the matching path in the postgres configuration file accordingly), the error improves to *invalid certificate: BadDER*.
