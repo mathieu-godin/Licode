@@ -161,3 +161,24 @@ We generate a client and server salt randomly. We send the client salt to the cl
 #### When the User Logs In
 
 We send the clien salt to the client. The client sends Hash(password || client_salt). On the server side, we perform Hash(*received* || server_salt) (or effectively Hash(Hash(password || client_salt) || server_salt)) and compare it with the hash that was saved when the user registered. If the two hashes match, the user logs in succesfully. Otherwise, the user doesn't.
+
+
+## Database Management
+
+### Database Migrations
+
+Each time we modify the database (a.k.a. a migration), we create a Nessie migration and run that migration.
+
+To create a new migration, do the following:
+
+```bash
+deno run -A --unstable https://deno.land/x/nessie/cli.ts make <migration-name>
+```
+
+Edit that migration by editing the file under db/migrations that starts with the current timestamp and ends with the name you chose.
+
+To run all the migrations and update the database accordingly, to the following:
+
+```bash
+deno run -A --unstable https://deno.land/x/nessie/cli.ts migrate
+```
