@@ -1,7 +1,7 @@
 import {
     ClientPostgreSQL,
     NessieConfig,
-} from "https://deno.land/x/nessie@2.0.0/mod.ts";
+} from "https://deno.land/x/nessie/mod.ts";
 
 const client = new ClientPostgreSQL({
     database: "licode",
