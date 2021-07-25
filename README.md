@@ -156,8 +156,8 @@ As done with the other aspects of this application, we will use state-of-the-art
 
 #### When the User Registers
 
-Coming soon
+We generate a client and server salt randomly. We send the client salt to the client. The client sends us Hash(password || client_salt). The server receives that (let's call that *received*). We would then save in the database in their user row, Hash(*received* || server_salt) (or effectively Hash(Hash(password || client_salt) || server_salt)), client_salt, and server_salt.
 
 #### When the User Logs In
 
-Coming soon
+We send the clien salt to the client. The client sends Hash(password || client_salt). On the server side, we perform Hash(*received* || server_salt) (or effectively Hash(Hash(password || client_salt) || server_salt)) and compare it with the hash that was saved when the user registered. If the two hashes match, the user logs in succesfully. Otherwise, the user doesn't.
