@@ -183,6 +183,8 @@ To run all the migrations and update the database accordingly, to the following:
 deno run -A --unstable https://deno.land/x/nessie/cli.ts migrate
 ```
 
-### Cancer Database Problems
+## Important Notes About Deno
 
-The above command doesn't work currently. Originally, you would get: *invalid certificate: Unknown Issuer*. After performing what is done on this link https://www.gab.lc/articles/postgresql_with_ssl/ (or rather just adding a CA .pem file to the postgres confgiuration) and moving the new CA .pem file to a location that doens't require *sudo* on your machine (and having the matching path in the postgres configuration file accordingly), the error improves to *invalid certificate: BadDER*.
+### Unstable SSL/TLS Support
+
+As Deno is a recent backend framework, not everything is very well stable or supported. SSL/TLS support, i.e., what is used to have an encrypted tunnel to have HTTPS etc., is not very well supported and requires the *--unstable* flag when running Deno and it usually doesn'twork very well. This is what caused connection issues with the database earlier.
