@@ -172,7 +172,7 @@ Each time we modify the database (a.k.a. a migration), we create a Nessie migrat
 To create a new migration, do the following:
 
 ```bash
-deno run -A --unstable https://deno.land/x/nessie/cli.ts make <migration-name>
+deno run https://deno.land/x/nessie/cli.ts make <migration-name>
 ```
 
 Edit that migration by editing the file under db/migrations that starts with the current timestamp and ends with the name you chose.
@@ -180,7 +180,7 @@ Edit that migration by editing the file under db/migrations that starts with the
 To run all the migrations and update the database accordingly, to the following:
 
 ```bash
-deno run -A --unstable https://deno.land/x/nessie/cli.ts migrate
+deno run https://deno.land/x/nessie/cli.ts migrate
 ```
 
 ## Important Notes About Deno
