@@ -187,4 +187,4 @@ deno run -A --unstable https://deno.land/x/nessie/cli.ts migrate
 
 ### Unstable SSL/TLS Support
 
-As Deno is a recent backend framework, not everything is very well stable or supported. SSL/TLS support, i.e., what is used to have an encrypted tunnel to have HTTPS etc., is not very well supported and requires the *--unstable* flag when running Deno and it usually doesn'twork very well. This is what caused connection issues with the database earlier.
+As Deno is a recent backend framework, not everything is very stable or well supported. SSL/TLS support, i.e., what is used to have an encrypted tunnel to have HTTPS etc., is not very well supported and requires the *--unstable* flag when running Deno and it usually doesn't work very well. This is what caused connection issues with the database earlier.
