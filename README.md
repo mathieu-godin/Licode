@@ -55,8 +55,7 @@ Click on **Add New Server** at the center of the pgAdmin window. In the new wind
 
 Although we could use pgAdmin to modify our database scheme as we go along, this would be an ill-advised decision as we wouldn't be able to track how we modify our database as we go along.
 
-For this reason, we need something similar to Laravel Migrations. Here comes Deno Nessie (which is actually inspired by Laravel Migrations).
-
+For this reason, we need something similar to Laravel Migrations. We will use our own migration frameowrk, i.e., a simple Python script.
 ### Install Deno
 
 #### Linux and Mac
@@ -167,20 +166,20 @@ We send the clien salt to the client. The client sends Hash(password || client_s
 
 ### Database Migrations
 
-Each time we modify the database (a.k.a. a migration), we create a Nessie migration and run that migration.
+We use our own migration framework which is a simple Python script. Each time we modify the database (a.k.a. a migration), we create a migration and run that migration.
 
 To create a new migration, do the following:
 
 ```bash
-deno run https://deno.land/x/nessie/cli.ts make <migration-name>
+migrations.py make <migration-name>
 ```
 
-Edit that migration by editing the file under db/migrations that starts with the current timestamp and ends with the name you chose.
+Edit that migration by editing the file under migrations/ that starts with the largest number and ends with the name you chose.
 
 To run all the migrations and update the database accordingly, to the following:
 
 ```bash
-deno run https://deno.land/x/nessie/cli.ts migrate
+migrations.py migrate
 ```
 
 ## Important Notes About Deno
@@ -191,4 +190,4 @@ As Deno is a recent backend framework, not everything is very stable or well sup
 
 ### Nessie is Unstable
 
-Nessie, the database migration framework we were using requires the use of the *--unstable* flag. We will stop using Nessie and find an alternative for this reason.
+Nessie, the database migration framework we were using requires the use of the *--unstable* flag. We will stop using Nessie and find an alternative for this reason. There isn't a lot of very well reputed migration frameworks out there except for Laravel Migrations for PHP. That's probably because a migration framework is so simple, most companies make their own and that's what we'll do. We just need the *migrate* and the *make* command (we can ignore *revert* and other operations we never planned to use). Making a Python script that does that should actually be very simple and take a very short amount of time.
