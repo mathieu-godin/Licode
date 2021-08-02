@@ -65,7 +65,7 @@ local   all             postgres                                peer
 
 With this one (basically change peer to md5):
 
-``bash
+```bash
 local   all             postgres                                md5
 ```
 
