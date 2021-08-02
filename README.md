@@ -47,7 +47,7 @@ sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_
 sudo apt install pgadmin4
 ```
 
-### Setup the Database
+### Set up the Database
 
 Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to _edocil_ for now (simply licode spelled backwards).
 
@@ -56,6 +56,21 @@ Click on **Add New Server** at the center of the pgAdmin window. In the new wind
 Although we could use pgAdmin to modify our database scheme as we go along, this would be an ill-advised decision as we wouldn't be able to track how we modify our database as we go along.
 
 For this reason, we need something similar to Laravel Migrations. We will use our own migration frameowrk, i.e., a simple Python script.
+
+We then need to replace the following line in */etc/postgresql/12/main/pg_hba.conf*:
+
+```bash
+local   all             postgres                                peer
+```
+
+With this one (basically change peer to md5):
+
+``bash
+local   all             postgres                                md5
+```
+
+This will let us execute SQL scripts to modify the database, which is needed for our migrations workflow.
+
 ### Install Deno
 
 #### Linux and Mac
