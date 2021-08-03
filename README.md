@@ -187,7 +187,7 @@ We use our own migration framework which is a simple Python script. Each time we
 To create a new migration, do the following:
 
 ```bash
-migrations.py make <migration-name>
+python migrations.py make <migration-name>
 ```
 
 Edit that migration by editing the file under migrations/ that starts with the largest number and ends with the name you chose.
@@ -195,7 +195,7 @@ Edit that migration by editing the file under migrations/ that starts with the l
 To run all the migrations and update the database accordingly, to the following:
 
 ```bash
-migrations.py migrate
+python migrations.py migrate
 ```
 
 ## Important Notes About Deno
