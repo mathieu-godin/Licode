@@ -190,13 +190,15 @@ To create a new migration, do the following:
 python migrations/migrations.py make <migration-name>
 ```
 
-Edit that migration by editing the file under migrations/ that starts with the largest number and ends with the name you chose.
+Edit the migration that just got created (should be printed by the migrations utility)
 
 To run all the migrations and update the database accordingly, to the following:
 
 ```bash
 python migrations/migrations.py migrate
 ```
+
+For more information about the migrations utility, visit: https://github.com/mathieu-godin/migrations
 
 ## Important Notes About Deno
 
