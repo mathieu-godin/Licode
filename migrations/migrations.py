@@ -4,19 +4,20 @@ from datetime import datetime
 import psycopg2
 
 try:
-    LAST_PERFORMED_FILE = '.last_performed'
-    CONFIG_FILE = 'migrations.conf'
+    MIGRATIONS_PATH = 'migrations/'
+    LAST_PERFORMED_FILE = MIGRATIONS_PATH + '.last_performed'
+    CONFIG_FILE = MIGRATIONS_PATH + 'migrations.conf'
     if len(sys.argv) == 3 and sys.argv[1] == 'make':
         date_time = datetime.now()
         file_name = str(date_time.year) + '_' + str(date_time.month) + '_' \
             + str(date_time.day) + '_' + str(date_time.hour) + '_' \
             + str(date_time.minute) + '_' + str(date_time.second) + '_' \
             + str(date_time.microsecond) + '_' + sys.argv[2] + '.sql'
-        f = open(file_name, 'w')
+        f = open(MIGRATIONS_PATH + file_name, 'w')
         f.close()
-        print("Migration " + file_name + " was created")
+        print("\nMigration " + file_name + " was created\n")
     elif len(sys.argv) == 2 and sys.argv[1] == 'migrate':
-        files = os.listdir()
+        files = os.listdir(MIGRATIONS_PATH)
         files.sort()
         if len(files) > 0:
             i = 0
@@ -52,7 +53,7 @@ try:
                     print()
                 while files[i].endswith('.sql'):
                     print("Executing migration " + files[i])
-                    f = open(files[i], 'r')
+                    f = open(MIGRATIONS_PATH + files[i], 'r')
                     sql_script_content = f.read()
                     f.close()
                     with ps_connection:
