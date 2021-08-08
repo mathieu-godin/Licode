@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "cache-control": "public, max-age=31536000, immutable",
+    "x-deno-ray": "northamerica-northeast1-b::be98c71f13c96b9d4058d9a4990f06c1",
+    "server": "AmazonS3",
+    "access-control-allow-origin": "*",
+    "content-type": "application/typescript; charset=utf-8",
+    "last-modified": "Tue, 20 Jul 2021 04:54:44 GMT",
+    "date": "Sun, 08 Aug 2021 20:56:58 GMT",
+    "etag": "\"f7ce28e2a93f5ca4128a76950f1f0b78\"",
+    "x-amz-id-2": "ejdRN8OlcF8+eYzZTCtypgs9U8rjehWp3zi2KyIqbr74EgIUFY/n/KvADHWTyOeUNFPidLBmzMM=",
+    "x-amz-request-id": "TZ49MV3C4HN4CFGE",
+    "x-amz-version-id": "7VayPH7UHZ_uYqfDiLqs238hmW41ATSi",
+    "via": "HTTP/1.1 deploy",
+    "content-length": "4725"
+  },
+  "url": "https://deno.land/x/oak@v8.0.0/buf_reader.ts"
+}

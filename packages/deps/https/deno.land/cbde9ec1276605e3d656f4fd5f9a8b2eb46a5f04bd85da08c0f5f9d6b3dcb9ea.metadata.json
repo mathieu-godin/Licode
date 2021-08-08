@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "cache-control": "public, max-age=31536000, immutable",
+    "server": "AmazonS3",
+    "last-modified": "Tue, 20 Jul 2021 04:54:44 GMT",
+    "x-amz-version-id": "05r4JvEsdH43zVzI4d3sJXs0RhBjFn1.",
+    "x-deno-ray": "northamerica-northeast1-b::444746b5a77e68c6dcf8e1f3ae55761b",
+    "date": "Sun, 08 Aug 2021 20:56:58 GMT",
+    "access-control-allow-origin": "*",
+    "via": "HTTP/1.1 deploy",
+    "content-length": "5408",
+    "x-amz-id-2": "T5N9TG4GYC8yGKkENGZbv1vHZDBpXL1iflJESVXvC1kK1ltjVswJGVUWW9oQGpy/Oe52tR8ygrI=",
+    "content-type": "application/typescript; charset=utf-8",
+    "etag": "\"11bdf020a8444bdf948cc692bfa432c2\"",
+    "x-amz-request-id": "TZ44B9CRWD9BRSAW"
+  },
+  "url": "https://deno.land/x/oak@v8.0.0/websocket.ts"
+}

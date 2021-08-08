@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "content-length": "188004",
+    "access-control-allow-origin": "*",
+    "last-modified": "Mon, 19 Jul 2021 17:53:25 GMT",
+    "cache-control": "public, max-age=31536000, immutable",
+    "content-type": "application/javascript",
+    "x-amz-version-id": "rio8mFyqQ4XE1gGEsk8t5N8GgBQgQtYf",
+    "server": "AmazonS3",
+    "date": "Sun, 08 Aug 2021 20:56:59 GMT",
+    "x-deno-ray": "northamerica-northeast1-b::32a5d72cfa375854d8b5117f9e4b13c8",
+    "via": "HTTP/1.1 deploy",
+    "etag": "\"230b957b902ea24abef61fc2cd04c308\"",
+    "x-amz-id-2": "bCpRgcTnX6B94cBoiR0du4tYLaUiCfgzRcWA1oZvgTNnVT2ryvVK0fvwt6tIrZUpDu+ePGsaLe0=",
+    "x-amz-request-id": "RZHVHTP40APHAHXN"
+  },
+  "url": "https://deno.land/std@0.102.0/hash/_wasm/wasm.js"
+}
