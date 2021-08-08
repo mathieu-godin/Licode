@@ -211,4 +211,3 @@ As Deno is a recent backend framework, not everything is very stable or well sup
 ### Nessie is Unstable
 
 Nessie, the database migration framework we were using requires the use of the *--unstable* flag. We will stop using Nessie and find an alternative for this reason. There isn't a lot of very well reputed migration frameworks out there except for Laravel Migrations for PHP. That's probably because a migration framework is so simple, most companies make their own and that's what we'll do. We just need the *migrate* and the *make* command (we can ignore *revert* and other operations we never planned to use). Making a Python script that does that should actually be very simple and take a very short amount of time.
-
