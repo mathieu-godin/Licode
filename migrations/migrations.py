@@ -5,7 +5,8 @@ import psycopg2
 
 try:
     MIGRATIONS_PATH = 'migrations/'
-    LAST_PERFORMED_FILE = MIGRATIONS_PATH + '.last_performed'
+    LAST_PERFORMED_FILE = '.last_performed'
+    LAST_PERFORMED_FILE_PATH = MIGRATIONS_PATH + LAST_PERFORMED_FILE
     CONFIG_FILE = MIGRATIONS_PATH + 'migrations.conf'
     if len(sys.argv) == 3 and sys.argv[1] == 'make':
         date_time = datetime.now()
@@ -24,9 +25,10 @@ try:
             while files[i][0] == '.':
                 i += 1
             if LAST_PERFORMED_FILE in files:
-                f = open(LAST_PERFORMED_FILE, 'r')
+                f = open(LAST_PERFORMED_FILE_PATH, 'r')
                 last_performed = f.read()
                 f.close()
+                print(last_performed)
                 while files[i] != last_performed:
                     i += 1
                 i += 1
@@ -60,7 +62,7 @@ try:
                         with ps_connection.cursor() as curs:
                             curs.execute(sql_script_content)
                     print("Executed migration " + files[i] + " successfully")
-                    f = open(LAST_PERFORMED_FILE, 'w')
+                    f = open(LAST_PERFORMED_FILE_PATH, 'w')
                     f.write(files[i])
                     f.close()
                     i += 1
