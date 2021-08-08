@@ -28,7 +28,6 @@ try:
                 f = open(LAST_PERFORMED_FILE_PATH, 'r')
                 last_performed = f.read()
                 f.close()
-                print(last_performed)
                 while files[i] != last_performed:
                     i += 1
                 i += 1
