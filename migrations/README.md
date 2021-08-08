@@ -18,10 +18,10 @@ pip install psycopg2
 Create a database migration:
 
 ```bash
-python migrations.py make <migration-name>
+python migrations/migrations.py make <migration-name>
 ```
 
 Perform all migrations that haven't been performed:
 ```bash
-python migrations.py migrate
+python migrations/migrations.py migrate
 ```
