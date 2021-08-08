@@ -10,15 +10,17 @@ Deno server using Oak. Deno is like an equivalent of Node. Oak is like an equiva
 
 ### Frontend
 
-React web application. Deno Oak deploys that React application.
+React web application.
 
 ### Database
 
-Postgres Database. Deno Nessie is used to modify the scheme of the database (aka migrations). Deno Postgres is used to read or write data to the database.
+I was thinking of using PostgreSQL instead of MySQL. It's the same thing but I think it's better these days for production applications.
 
 ## Setup
 
 This setup assumes you clone the server repository in your home folder ($HOME or ~).
+
+<<<<<<< HEAD
 
 ### Install Postgres
 
@@ -58,7 +60,7 @@ Although we could use pgAdmin to modify our database scheme as we go along, this
 
 For this reason, we need something similar to Laravel Migrations. We will use our own migration frameowrk, i.e., a simple Python script.
 
-We then need to replace the following line in */etc/postgresql/12/main/pg_hba.conf*:
+We then need to replace the following line in _/etc/postgresql/12/main/pg_hba.conf_:
 
 ```bash
 local   all             postgres                                peer
@@ -71,6 +73,10 @@ local   all             postgres                                md5
 ```
 
 This will let us execute SQL scripts to modify the database, which is needed for our migrations workflow.
+
+=======
+
+> > > > > > > parent of 2de2b11... merged userReg into master
 
 ### Install Deno
 
@@ -162,52 +168,3 @@ denon run --allow-net --allow-env --allow-read mod.ts
 cd licode/react-app
 npm start
 ```
-
-## Security
-
-### Password Encryption
-
-As done with the other aspects of this application, we will use state-of-the-art technologies. As seen in **ECE 458: Computer Security**, MD5 is 100% insecure, SHA-1 is considered broken, though not as bad as MD5, and SHA-2 is what most applications are using currently. However, SHA-3, which was released in 2015, hasn't been used by many companies yet. However, it's definitely more secure than SHA-2 and that's why I think we should use it. More specifically, I think we should use SHA3-512, which has 256 bits security against collision attacks (considered military grade). 128 bits collision security would be considered application grade. However, as processing power greatly augments every year, what used to be considered military grade could definitely become considered application grade. SHA-3 also offers much better security against length extension attacks than SHA-2. Most companies actually do not do this. They only use scrypt or bcrypt which isn't even approved by NIST. Furthermore, plaintext passwords are captured on the server side each time somebody logs in or registers. Nothing stops us from doing much better than this.
-
-#### When the User Registers
-
-We generate a client and server salt randomly. We send the client salt to the client. The client sends us Hash(password || client_salt). The server receives that (let's call that *received*). We would then save in the database in their user row, Hash(*received* || server_salt) (or effectively Hash(Hash(password || client_salt) || server_salt)), client_salt, and server_salt.
-
-#### When the User Logs In
-
-We send the clien salt to the client. The client sends Hash(password || client_salt). On the server side, we perform Hash(*received* || server_salt) (or effectively Hash(Hash(password || client_salt) || server_salt)) and compare it with the hash that was saved when the user registered. If the two hashes match, the user logs in succesfully. Otherwise, the user doesn't.
-
-
-## Database Management
-
-### Database Migrations
-
-We use our own migration framework which is a simple Python script. Each time we modify the database (a.k.a. a migration), we create a migration and run that migration.
-
-To create a new migration, do the following:
-
-```bash
-python migrations/migrations.py make <migration-name>
-```
-
-Edit the migration that just got created (should be printed by the migrations utility)
-
-To run all the migrations and update the database accordingly, to the following:
-
-```bash
-python migrations/migrations.py migrate
-```
-
-For more information about the migrations utility, visit:
-
-https://github.com/mathieu-godin/migrations
-
-## Important Notes About Deno
-
-### Unstable SSL/TLS Support
-
-As Deno is a recent backend framework, not everything is very stable or well supported. SSL/TLS support, i.e., what is used to have an encrypted tunnel to have HTTPS etc., is not very well supported and requires the *--unstable* flag when running Deno and it usually doesn't work very well. This is what caused connection issues with the database earlier.
-
-### Nessie is Unstable
-
-Nessie, the database migration framework we were using requires the use of the *--unstable* flag. We will stop using Nessie and find an alternative for this reason. There isn't a lot of very well reputed migration frameworks out there except for Laravel Migrations for PHP. That's probably because a migration framework is so simple, most companies make their own and that's what we'll do. We just need the *migrate* and the *make* command (we can ignore *revert* and other operations we never planned to use). Making a Python script that does that should actually be very simple and take a very short amount of time.
