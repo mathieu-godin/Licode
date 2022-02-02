@@ -6,11 +6,11 @@ Licode is a confrontational coding platform.
 
 ### Back End
 
-The backend Deno server uses Oak. Deno is a modern and nascent equivalent of Node.js that uses TypeScript, is more secure and offers other new features. Oak is to Deno what Express is to Node.js. Actually, Koa is a recent successor of Express for Node.js and Oak could be as seen as what Koa is to Node.js for Deno. The Deno backend server will be used for one time HTTPS requests. A Go server will be used for realtime WebSocket interactions between the client and the server.
+The back-end Deno server uses Oak. Deno is a modern and nascent equivalent of Node.js that uses TypeScript, is more secure and offers other new features. Oak is to Deno what Express is to Node.js. Actually, Koa is a recent successor of Express for Node.js and Oak could be as seen as what Koa is to Node.js for Deno. The Deno backend server will be used for one time HTTPS requests. A Go server will be used for realtime WebSocket interactions between the client and the server.
 
 ### Front End
 
-The frontend application uses React. Deno along with Oak make that React web application available through an HTTPS request.
+The front-end application uses React. Deno along with Oak make that React web application available through an HTTPS request.
 
 ### Database
 
