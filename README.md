@@ -105,7 +105,6 @@ Make sure you have Node.js and npm installed as React needs them.
 
 ```bash
 cd licode/react-app
-npm install
 npm run build
 ```
 
