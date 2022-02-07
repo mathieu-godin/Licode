@@ -166,3 +166,4 @@ packages/gen/https/deno.land/ff13a2c965618d6e4426b7d78c43a1754da4e594e599e82a181
 packages/gen/https/deno.land/ff13a2c965618d6e4426b7d78c43a1754da4e594e599e82a181f35e19e5ed3af.meta linguist-vendored
 packages/gen/https/deno.land/ffeecd6c8f3fa812cd9b24afa64516663c5026b3b2e40c44f74c1a4238e99789.js linguist-vendored
 packages/gen/https/deno.land/ffeecd6c8f3fa812cd9b24afa64516663c5026b3b2e40c44f74c1a4238e99789.meta linguist-vendored
+react-app/node_modules linguist-vendored
