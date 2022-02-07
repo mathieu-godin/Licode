@@ -96,7 +96,7 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 #### Cloning the Repository
 
 ```bash
-git clone https://github.com/mathieu-godin/licode
+git clone git@github.com:mathieu-godin/licode.git
 ```
 
 #### Building the Front-End Application
