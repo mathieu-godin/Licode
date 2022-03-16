@@ -18,6 +18,9 @@ class Home extends React.Component<HomeProps, HomeState> {
         <div>
           <Link to="/register">Sign up</Link>
         </div>
+        <div>
+          <Link to="/editor">Coding Editor</Link>
+        </div>
       </React.Fragment>
     );
   }
