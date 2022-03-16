@@ -1,11 +1,20 @@
 import { createTheme } from '@mui/material/styles';
 
 declare module '@mui/material/styles' {
+    interface Palette {
+        button: Palette['primary'];
+    }
+
+    interface PaletteOptions {
+        button: PaletteOptions['primary'];
+    }
+
     interface TypographyVariants {
         problemDescription: React.CSSProperties;
         problemHighlightedWord: React.CSSProperties;
         problemHighlightedItalicWord: React.CSSProperties;
         problemDescriptionItalic: React.CSSProperties;
+        aboveEditor: React.CSSProperties;
     }
 
     interface TypographyVariantsOptions {
@@ -13,6 +22,13 @@ declare module '@mui/material/styles' {
         problemHighlightedWord: React.CSSProperties;
         problemHighlightedItalicWord: React.CSSProperties;
         problemDescriptionItalic: React.CSSProperties;
+        aboveEditor: React.CSSProperties;
+    }
+}
+
+declare module '@mui/material/IconButton' {
+    interface IconButtonPropsColorOverrides {
+        button: true;
     }
 }
 
@@ -22,41 +38,51 @@ declare module '@mui/material/Typography' {
         problemHighlightedWord: true;
         problemHighlightedItalicWord: true;
         problemDescriptionItalic: true;
+        aboveEditor: true;
     }
 }
 
-const theme = createTheme({
+const editorTheme = createTheme({
     palette: {
         primary: {
             main: '#ffffff',
         },
+        button: {
+            main: '#000000',
+        },
     },
 });
 
-theme.typography.problemDescription = {
+editorTheme.typography.problemDescription = {
     fontFamily: 'Arial',
     color: '#000000',
     fontSize: 24,
 }
 
-theme.typography.problemHighlightedWord = {
+editorTheme.typography.problemHighlightedWord = {
     fontFamily: 'Arial',
     color: '#1468ab',
     fontSize: 24,
 }
 
-theme.typography.problemDescriptionItalic = {
+editorTheme.typography.problemDescriptionItalic = {
     fontFamily: 'Arial',
     color: '#000000',
     fontSize: 24,
     fontStyle: 'italic',
 }
 
-theme.typography.problemHighlightedItalicWord = {
+editorTheme.typography.problemHighlightedItalicWord = {
     fontFamily: 'Arial',
     color: '#1468ab',
     fontSize: 24,
     fontStyle: 'italic',
 }
 
-export default theme;
+editorTheme.typography.aboveEditor = {
+    fontFamily: 'Arial',
+    color: '#000000',
+    fontSize: 32,
+}
+
+export default editorTheme;
