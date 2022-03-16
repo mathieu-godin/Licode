@@ -14,6 +14,13 @@ export interface FormProps {}
 
 export interface FormState {}
 
+const EditorTextField = styled(TextField)({
+    '& .MuiInputBase-input': {
+        fontSize: 24,
+        padding: '16px',
+    }
+});
+
 const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
     color: theme.palette.getContrastText('#268acd'),
     backgroundColor: '#268acd',
@@ -24,7 +31,8 @@ const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
 
 class CodingEditor extends React.Component<FormProps, FormState> {
     render() {
-        const leftEditorCode: string = "for i in range(150):\n    if i < 5:\n        print(i)";
+        const leftEditorCode: string = "for i in range(150):\n    if i < 5:\n        print(i)",
+            rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*";
         return (
             <ThemeProvider theme={editorTheme}>
                 <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'primary.main', m: 0, p: 0 }}>
@@ -114,7 +122,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item xs={7}>
-                                    <TextField id="filled-multiline-static" multiline fullWidth rows={15} variant="filled"
+                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
                                         defaultValue={leftEditorCode} />
                                 </Grid>
                                 <Grid container item xs={2}>
@@ -208,7 +216,8 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item xs={7}>
-                                    <TextField id="filled-multiline-static" multiline fullWidth rows={15} variant="filled" />
+                                <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
+                                        defaultValue={rightEditorCode} InputProps={{ readOnly: true }} />
                                 </Grid>
                                 <Grid container item xs={2}>
                                     <Grid item xs={0.5} />
