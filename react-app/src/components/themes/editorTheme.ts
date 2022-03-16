@@ -1,6 +1,16 @@
 import { createTheme } from '@mui/material/styles';
 
 declare module '@mui/material/styles' {
+    interface PaletteColor {
+        checkmark?: string;
+        cross?: string;
+    }
+
+    interface SimplePaletteColorOptions {
+        checkmark?: string;
+        cross?: string;
+    }
+
     interface Palette {
         button: Palette['primary'];
     }
@@ -15,6 +25,7 @@ declare module '@mui/material/styles' {
         problemHighlightedItalicWord: React.CSSProperties;
         problemDescriptionItalic: React.CSSProperties;
         aboveEditor: React.CSSProperties;
+        buttonExponent: React.CSSProperties;
     }
 
     interface TypographyVariantsOptions {
@@ -23,6 +34,7 @@ declare module '@mui/material/styles' {
         problemHighlightedItalicWord: React.CSSProperties;
         problemDescriptionItalic: React.CSSProperties;
         aboveEditor: React.CSSProperties;
+        buttonExponent: React.CSSProperties;
     }
 }
 
@@ -39,6 +51,7 @@ declare module '@mui/material/Typography' {
         problemHighlightedItalicWord: true;
         problemDescriptionItalic: true;
         aboveEditor: true;
+        buttonExponent: true;
     }
 }
 
@@ -46,6 +59,8 @@ const editorTheme = createTheme({
     palette: {
         primary: {
             main: '#ffffff',
+            checkmark: '#11bb77',
+            cross: '#ff0000',
         },
         button: {
             main: '#000000',
@@ -83,6 +98,12 @@ editorTheme.typography.aboveEditor = {
     fontFamily: 'Arial',
     color: '#000000',
     fontSize: 32,
+}
+
+editorTheme.typography.buttonExponent = {
+    fontFamily: 'Arial',
+    color: '#000000',
+    fontSize: 16,
 }
 
 export default editorTheme;
