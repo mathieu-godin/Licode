@@ -17,23 +17,23 @@ class Home extends React.Component<HomeProps, HomeState> {
         <Typography variant="h2">
             Welcome to licode!
         </Typography>
-        <Grid container spacing={2}>
-            <Grid item xs={8}>
+        <Grid container direction="column" spacing={2}>
+            <Grid item xs={3}>
                 <Button variant="contained">
                     <Link to="/signin">Sign in</Link>
                 </Button>
             </Grid>
-            <Grid item xs={8}>
+            <Grid item xs={3}>
                 <Button variant="contained">
                     <Link to="/register">Register</Link>
                 </Button>
             </Grid>
-            <Grid item xs={8}>
+            <Grid item xs={3}>
                 <Button variant="contained">
                     <Link to="/editor">Code Editor</Link>
                 </Button>
             </Grid>
-            <Grid item xs={8}>
+            <Grid item xs={3}>
                 <Button variant="contained">
                     <Link to="/dashboard">Dashboard</Link>
                 </Button>
