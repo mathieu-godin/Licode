@@ -22,15 +22,15 @@ class Dashboard extends Form {
                     direction="column"
                     //style={{ width: "100%" }}
                 >
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Button 
                             fullWidth variant="contained"
                             style={{maxWidth: '200px', minWidth: '200px'}}
-                        >
-                            <Link to="/editor"> PLAY </Link>
+                            href="/editor">
+                            PLAY 
                         </Button>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Button 
                             fullWidth variant="contained"
                             style={{maxWidth: '200px', minWidth: '200px'}}
@@ -38,7 +38,7 @@ class Dashboard extends Form {
                             Username
                         </Button>
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item>
                         <Button 
                             fullWidth variant="contained"
                             style={{maxWidth: '200px', minWidth: '200px'}}

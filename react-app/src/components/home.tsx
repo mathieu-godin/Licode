@@ -19,23 +19,23 @@ class Home extends React.Component<HomeProps, HomeState> {
         </Typography>
         <Grid container direction="column" spacing={2}>
             <Grid item>
-                <Button variant="contained">
-                    <Link to="/signin">Sign in</Link>
+                <Button variant="contained" href="/signin">
+                    Sign in
                 </Button>
             </Grid>
             <Grid item>
-                <Button variant="contained">
-                    <Link to="/register">Register</Link>
+                <Button variant="contained" href="/register">
+                    Register
                 </Button>
             </Grid>
             <Grid item>
-                <Button variant="contained">
-                    <Link to="/editor">Code Editor</Link>
+                <Button variant="contained" href="/editor">
+                    Code Editor
                 </Button>
             </Grid>
             <Grid item>
-                <Button variant="contained">
-                    <Link to="/dashboard">Dashboard</Link>
+                <Button variant="contained" href="/dashboard">
+                    Dashboard
                 </Button>
             </Grid>
         </Grid>
