@@ -119,7 +119,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item mt={2}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
+                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
                                         defaultValue={leftEditorCode} />
                                 </Grid>
                                 <Grid container item mt={4}>
@@ -212,7 +212,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item mt={2}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
+                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
                                         defaultValue={rightEditorCode} InputProps={{ readOnly: true }} />
                                 </Grid>
                                 <Grid container item mt={4}>
