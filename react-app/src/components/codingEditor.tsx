@@ -37,11 +37,10 @@ class CodingEditor extends React.Component<FormProps, FormState> {
             <ThemeProvider theme={editorTheme}>
                 <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'primary.main', m: 0, p: 0 }}>
                     <Grid container direction="column">
-                        <Grid item xs={0.5} />
-                        <Grid container item xs={2}>
+                        <Grid container item mt={1}>
                             <Grid item xs={1} />
                             <Grid container direction="column" item xs={10}>
-                                <Grid item xs="auto">
+                                <Grid item mt={4}>
                                     <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
                                         Given an array of integers
                                     </Typography>
@@ -70,8 +69,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                         .
                                     </Typography>
                                 </Grid>
-                                <Grid item xs={2} />
-                                <Grid item xs="auto">
+                                <Grid item mt={3}>
                                     <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
                                         You may assume that each input would have
                                     </Typography>
@@ -88,8 +86,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                         &nbsp;element twice.
                                     </Typography>
                                 </Grid>
-                                <Grid item xs={2} />
-                                <Grid item xs="auto">
+                                <Grid item mt={3}>
                                     <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
                                         You can return the answer in any order.
                                     </Typography>
@@ -97,23 +94,23 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                             </Grid>
                             <Grid item xs ={1} />
                         </Grid>
-                        <Grid container item xs={8}>
+                        <Grid container item mt={1}>
                             <Grid item xs={0.75} />
                             <Grid container direction="column" item xs={5}>
-                                <Grid container item xs={3}>
+                                <Grid container item mt={4}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
-                                        <Grid item xs={4}>
+                                        <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
                                                 You: Rank 138
                                             </Typography>
                                         </Grid>
-                                        <Grid item xs={4}>
+                                        <Grid item>
                                             <IconButton color="button">
                                                 <CheckCircleIcon sx={{ fontSize: 32 }} />
                                             </IconButton>
                                         </Grid>
-                                        <Grid item xs={4}>
+                                        <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
                                                 Question 1/3
                                             </Typography>
@@ -121,20 +118,19 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                     </Grid>
                                     <Grid item xs={0.5} />
                                 </Grid>
-                                <Grid item xs={7}>
+                                <Grid item mt={2}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
                                         defaultValue={leftEditorCode} />
                                 </Grid>
-                                <Grid container item xs={2}>
+                                <Grid container item mt={4}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
-                                        <Grid item xs={1} />
-                                        <Grid item xs="auto">
+                                        <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
                                                 Test Cases
                                             </Typography>
                                         </Grid>
-                                        <Grid container item xs="auto">
+                                        <Grid container item>
                                             <Grid item xs={0.5} />
                                             <Grid item xs={1}>
                                                 <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
@@ -177,15 +173,15 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                             </Grid>
                             <Grid item xs={0.5} />
                             <Grid container direction="column" item xs={5}>
-                            <Grid container item xs={3}>
+                                <Grid container item mt={4}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
-                                        <Grid item xs={4}>
+                                        <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
                                                 Alex: Rank 150
                                             </Typography>
                                         </Grid>
-                                        <Grid container item xs={4}>
+                                        <Grid container>
                                             <Grid item xs="auto">
                                                 <IconButton color="button">
                                                     <SpeedIcon sx={{ fontSize: 32 }} />
@@ -207,7 +203,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                                 </Typography>
                                             </Grid>
                                         </Grid>
-                                        <Grid item xs={4}>
+                                        <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
                                                 Question 2/3
                                             </Typography>
@@ -215,20 +211,19 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                                     </Grid>
                                     <Grid item xs={0.5} />
                                 </Grid>
-                                <Grid item xs={7}>
-                                <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
+                                <Grid item mt={2}>
+                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
                                         defaultValue={rightEditorCode} InputProps={{ readOnly: true }} />
                                 </Grid>
-                                <Grid container item xs={2}>
+                                <Grid container item mt={4}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
-                                        <Grid item xs={1} />
-                                        <Grid item xs="auto">
+                                        <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
                                                 Test Cases
                                             </Typography>
                                         </Grid>
-                                        <Grid container item xs="auto">
+                                        <Grid container item>
                                             <Grid item xs={0.5} />
                                             <Grid item xs={1}>
                                                 <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
@@ -271,15 +266,13 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                             </Grid>
                             <Grid item xs={0.75} />
                         </Grid>
-                        <Grid item xs={0.25} />
-                        <Grid container item xs={1}>
+                        <Grid container item mt={4}>
                             <Grid item xs={0.5} />
                             <Grid item xs={1.5}>
                                 <ColorButton variant="contained" sx={{ minWidth: 125, fontSize: 24 }}>Run</ColorButton>
                             </Grid>
                             <Grid item xs={10} />
                         </Grid>
-                        <Grid item xs={0.25} />
                     </Grid>
                 </Box>
             </ThemeProvider>
