@@ -266,7 +266,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
                             </Grid>
                             <Grid item xs={0.75} />
                         </Grid>
-                        <Grid container item mt={4}>
+                        <Grid container item mt={3}>
                             <Grid item xs={0.5} />
                             <Grid item xs={1.5}>
                                 <ColorButton variant="contained" sx={{ minWidth: 125, fontSize: 24 }}>Run</ColorButton>
