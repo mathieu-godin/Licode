@@ -18,19 +18,24 @@ class Home extends React.Component<HomeProps, HomeState> {
             Welcome to licode!
         </Typography>
         <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
                 <Button variant="contained">
                     <Link to="/signin">Sign in</Link>
                 </Button>
             </Grid>
             <Grid item xs={8}>
                 <Button variant="contained">
-                    <Link to="/register">Sign in</Link>
+                    <Link to="/register">Register</Link>
                 </Button>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={8}>
                 <Button variant="contained">
-                    <Link to="/editor">Sign in</Link>
+                    <Link to="/editor">Code Editor</Link>
+                </Button>
+            </Grid>
+            <Grid item xs={8}>
+                <Button variant="contained">
+                    <Link to="/dashboard">Dashboard</Link>
                 </Button>
             </Grid>
         </Grid>
