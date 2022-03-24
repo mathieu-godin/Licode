@@ -1,0 +1,30 @@
+{
+  "headers": {
+    "x-frame-options": "deny",
+    "date": "Thu, 24 Mar 2022 19:05:42 GMT",
+    "x-xss-protection": "1; mode=block",
+    "x-cache": "MISS",
+    "content-type": "text/plain; charset=utf-8",
+    "accept-ranges": "bytes",
+    "strict-transport-security": "max-age=31536000",
+    "etag": "W/\"8ca3d6b3fb636fc14c328e30854a5f2a7a6874faad2f7f58cd741bd27ef2a483\"",
+    "source-age": "0",
+    "via": "1.1 varnish",
+    "vary": "Authorization,Accept-Encoding,Origin",
+    "x-fastly-request-id": "9d087853f47e1b5bef96c3c07e34380de06bccd6",
+    "expires": "Thu, 24 Mar 2022 19:10:42 GMT",
+    "x-timer": "S1648148742.051012,VS0,VE123",
+    "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+    "x-content-type-options": "nosniff",
+    "x-github-request-id": "6096:65D6:FC146:19DF11:623CC106",
+    "x-served-by": "cache-yyz4552-YYZ",
+    "cache-control": "max-age=300",
+    "x-cache-hits": "0",
+    "access-control-allow-origin": "*"
+  },
+  "url": "https://raw.githubusercontent.com/jshttp/mime-db/v1.52.0/db.json",
+  "now": {
+    "secs_since_epoch": 1648148742,
+    "nanos_since_epoch": 205218698
+  }
+}
