@@ -70,6 +70,12 @@ local   all             postgres                                md5
 
 This will let us execute SQL scripts to modify the database, which will let us use migrations.py.
 
+Perform all the database migrations.
+
+```bash
+curl -fsSL https://deno.land/x/install/install.sh | sh
+```
+
 ### Installing Deno
 
 #### Linux and Mac
@@ -119,10 +125,16 @@ Add the above two lines to ~/.profile (Linux) if you want these environment vari
 
 Packages will be saved in the licode repository by setting DENO_DIR with the above value. The packages are what we import using URLs at the top of our TypeScript files. For now, our server will be accessed from port 3000. The LICODE_PORT environment variable is what holds the port our server can be accessed from.
 
-#### Running the Server
+#### Performing the Database Migrations
 
 ```bash
 cd ..
+python migrations/migrations.py migrate
+```
+
+#### Running the Server
+
+```bash
 deno run --allow-net --allow-env --allow-read mod.ts
 ```
 
