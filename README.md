@@ -200,6 +200,8 @@ Edit the migration file that just got created (should be printed by the migratio
 To run all migration files and update the database accordingly, run the following.
 
 ```bash
+sudo apt install libpq-dev python3-dev
+pip install psycopg2
 python migrations/migrations.py migrate
 ```
 
