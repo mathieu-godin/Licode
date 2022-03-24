@@ -123,6 +123,8 @@ Packages will be saved in the licode repository by setting DENO_DIR with the abo
 
 ```bash
 cd ..
+sudo apt install libpq-dev python3-dev
+pip install psycopg2
 python migrations/migrations.py migrate
 ```
 
