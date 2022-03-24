@@ -70,12 +70,6 @@ local   all             postgres                                md5
 
 This will let us execute SQL scripts to modify the database, which will let us use migrations.py.
 
-Perform all the database migrations.
-
-```bash
-curl -fsSL https://deno.land/x/install/install.sh | sh
-```
-
 ### Installing Deno
 
 #### Linux and Mac
