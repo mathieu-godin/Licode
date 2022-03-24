@@ -23,7 +23,7 @@ app.addEventListener("error", (evt) => {
 router.get("/api/hello-world", (context) => {
     context.response.body = "Hello World";
 });
-router.post("/api/users", async (context: RouterContext<"/api/users", any, any>) => {
+router.post("/api/users", async (context: RouterContext) => {
     if (!context.request.hasBody) {
         context.throw(Status.BadRequest, "Bad Request");
     }
@@ -53,7 +53,7 @@ router.post("/api/users", async (context: RouterContext<"/api/users", any, any>)
 app.use(router.routes());
 app.use(router.allowedMethods());
 app.use(async (context) => {
-    await send(context, "/", {
+    await send(context, context.request.url.pathname, {
         root: `${Deno.cwd()}/react-app/build`,
         index: "index.html",
     });
