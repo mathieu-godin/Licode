@@ -35,7 +35,7 @@ class CodingEditor extends React.Component<FormProps, FormState> {
             rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*";
         return (
             <ThemeProvider theme={editorTheme}>
-                <Box sx={{ display: 'flex', height: '100vh', bgcolor: 'primary.main', m: 0, p: 0 }}>
+                <Box sx={{ display: 'flex', height: '100%', bgcolor: 'primary.main', m: 0, p: 0 }}>
                     <Grid container direction="column">
                         <Grid container item mt={1}>
                             <Grid item xs={1} />
