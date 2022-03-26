@@ -76,6 +76,7 @@ This will let us execute SQL scripts to modify the database, which will let us u
 
 ```bash
 curl -fsSL https://deno.land/x/install/install.sh | sh
+deno version --upgrade 1.20.3
 ```
 
 Add the following two lines to ~/.bashrc (on Linux).
@@ -85,10 +86,22 @@ export DENO_INSTALL="/$HOME/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 ```
 
+Use version 1.20.3.
+
+```bash
+deno version --upgrade 1.20.3
+```
+
 #### Windows
 
 ```powershell
 iwr https://deno.land/x/install/install.ps1 -useb | iex
+```
+
+Use version 1.20.3.
+
+```bash
+deno version --upgrade 1.20.3
 ```
 
 ### Server Installation and Execution
