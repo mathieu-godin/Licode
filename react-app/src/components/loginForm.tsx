@@ -11,7 +11,7 @@ class SigninForm extends Form {
         return (
             <div>
                 <h1>Login</h1>
-                <form onSubmit={this.handleSubmit}>
+                <form>
                     {this.renderInput("email_username", "Email or Username")}
                     {this.renderInput("password", "Password")}
                     {this.renderButton("Login")}

@@ -18,10 +18,6 @@ class Form extends React.Component<FormProps, FormState> {
         return false;
     };
 
-    handleSubmit = () => {
-        return null;
-    };
-
     handleChange = ({ currentTarget: input }: { currentTarget: {name: string, value: string} }) => {
         
     };
