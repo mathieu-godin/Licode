@@ -1,0 +1,29 @@
+export class ConnectionError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ConnectionError";
+    }
+}
+export class ConnectionParamsError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ConnectionParamsError";
+    }
+}
+export class PostgresError extends Error {
+    fields;
+    constructor(fields) {
+        super(fields.message);
+        this.fields = fields;
+        this.name = "PostgresError";
+    }
+}
+export class TransactionError extends Error {
+    cause;
+    constructor(transaction_name, cause) {
+        super(`The transaction "${transaction_name}" has been aborted due to \`${cause}\`. Check the "cause" property to get more details`);
+        this.cause = cause;
+        this.name = "TransactionError";
+    }
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiZXJyb3IuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJlcnJvci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFFQSxNQUFNLE9BQU8sZUFBZ0IsU0FBUSxLQUFLO0lBQ3hDLFlBQVksT0FBZ0I7UUFDMUIsS0FBSyxDQUFDLE9BQU8sQ0FBQyxDQUFDO1FBQ2YsSUFBSSxDQUFDLElBQUksR0FBRyxpQkFBaUIsQ0FBQztJQUNoQyxDQUFDO0NBQ0Y7QUFFRCxNQUFNLE9BQU8scUJBQXNCLFNBQVEsS0FBSztJQUM5QyxZQUFZLE9BQWU7UUFDekIsS0FBSyxDQUFDLE9BQU8sQ0FBQyxDQUFDO1FBQ2YsSUFBSSxDQUFDLElBQUksR0FBRyx1QkFBdUIsQ0FBQztJQUN0QyxDQUFDO0NBQ0Y7QUFFRCxNQUFNLE9BQU8sYUFBYyxTQUFRLEtBQUs7SUFDL0IsTUFBTSxDQUFTO0lBRXRCLFlBQVksTUFBYztRQUN4QixLQUFLLENBQUMsTUFBTSxDQUFDLE9BQU8sQ0FBQyxDQUFDO1FBQ3RCLElBQUksQ0FBQyxNQUFNLEdBQUcsTUFBTSxDQUFDO1FBQ3JCLElBQUksQ0FBQyxJQUFJLEdBQUcsZUFBZSxDQUFDO0lBQzlCLENBQUM7Q0FDRjtBQUlELE1BQU0sT0FBTyxnQkFBaUIsU0FBUSxLQUFLO0lBR2hDO0lBRlQsWUFDRSxnQkFBd0IsRUFDakIsS0FBb0I7UUFFM0IsS0FBSyxDQUNILG9CQUFvQixnQkFBZ0IsK0JBQStCLEtBQUssb0RBQW9ELENBQzdILENBQUM7UUFKSyxVQUFLLEdBQUwsS0FBSyxDQUFlO1FBSzNCLElBQUksQ0FBQyxJQUFJLEdBQUcsa0JBQWtCLENBQUM7SUFDakMsQ0FBQztDQUNGIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHR5cGUgeyBOb3RpY2UgfSBmcm9tIFwiLi4vY29ubmVjdGlvbi9tZXNzYWdlLnRzXCI7XG5cbmV4cG9ydCBjbGFzcyBDb25uZWN0aW9uRXJyb3IgZXh0ZW5kcyBFcnJvciB7XG4gIGNvbnN0cnVjdG9yKG1lc3NhZ2U/OiBzdHJpbmcpIHtcbiAgICBzdXBlcihtZXNzYWdlKTtcbiAgICB0aGlzLm5hbWUgPSBcIkNvbm5lY3Rpb25FcnJvclwiO1xuICB9XG59XG5cbmV4cG9ydCBjbGFzcyBDb25uZWN0aW9uUGFyYW1zRXJyb3IgZXh0ZW5kcyBFcnJvciB7XG4gIGNvbnN0cnVjdG9yKG1lc3NhZ2U6IHN0cmluZykge1xuICAgIHN1cGVyKG1lc3NhZ2UpO1xuICAgIHRoaXMubmFtZSA9IFwiQ29ubmVjdGlvblBhcmFtc0Vycm9yXCI7XG4gIH1cbn1cblxuZXhwb3J0IGNsYXNzIFBvc3RncmVzRXJyb3IgZXh0ZW5kcyBFcnJvciB7XG4gIHB1YmxpYyBmaWVsZHM6IE5vdGljZTtcblxuICBjb25zdHJ1Y3RvcihmaWVsZHM6IE5vdGljZSkge1xuICAgIHN1cGVyKGZpZWxkcy5tZXNzYWdlKTtcbiAgICB0aGlzLmZpZWxkcyA9IGZpZWxkcztcbiAgICB0aGlzLm5hbWUgPSBcIlBvc3RncmVzRXJyb3JcIjtcbiAgfVxufVxuXG4vLyBUT0RPXG4vLyBVc2UgZXJyb3IgY2F1c2Ugb25jZSBpdCdzIGFkZGVkIHRvIEphdmFTY3JpcHRcbmV4cG9ydCBjbGFzcyBUcmFuc2FjdGlvbkVycm9yIGV4dGVuZHMgRXJyb3Ige1xuICBjb25zdHJ1Y3RvcihcbiAgICB0cmFuc2FjdGlvbl9uYW1lOiBzdHJpbmcsXG4gICAgcHVibGljIGNhdXNlOiBQb3N0Z3Jlc0Vycm9yLFxuICApIHtcbiAgICBzdXBlcihcbiAgICAgIGBUaGUgdHJhbnNhY3Rpb24gXCIke3RyYW5zYWN0aW9uX25hbWV9XCIgaGFzIGJlZW4gYWJvcnRlZCBkdWUgdG8gXFxgJHtjYXVzZX1cXGAuIENoZWNrIHRoZSBcImNhdXNlXCIgcHJvcGVydHkgdG8gZ2V0IG1vcmUgZGV0YWlsc2AsXG4gICAgKTtcbiAgICB0aGlzLm5hbWUgPSBcIlRyYW5zYWN0aW9uRXJyb3JcIjtcbiAgfVxufVxuIl19

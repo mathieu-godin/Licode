@@ -5,6 +5,14 @@ import {
     Status,
     send,
 } from "https://deno.land/x/oak/mod.ts";
+import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
+const client = new Client({
+    user: "licode",
+    database: "licode",
+    password: "edocil",
+    hostname: "localhost",
+    port: 5432,
+});
 const env = Deno.env.toObject();
 const app = new Application();
 const router = new Router();
@@ -99,14 +107,32 @@ router
                 && typeof user?.username?.value === "string"
                 && typeof user?.password?.value === "string", Status.BadRequest);
             context.response.status = Status.OK;
-            if (user?.email?.value === userVar?.username?.value
-                || user?.email?.value === userVar?.email?.value) {
-                if (user?.password?.value === userVar?.password?.value) {
-                    context.response.body = user;
+            await client.connect();
+            const usernameResult = await client.queryArray("select email, username from users where username='"
+                + user?.email?.value + "'");
+            if (usernameResult.rows.length < 1) {
+                const emailResult = await client.queryArray("select email, username from users where email='"
+                    + user?.email?.value + "'");
+                if (emailResult.rows.length < 1) {
+                    context.response.body = { text: 'Given Email or Username Does Not Exist' };
                 } else {
-                    context.response.body = { text: 'Wrong Password' };
+                    let foundUser: User = {
+                        email: { value: emailResult.rows[0][0] as string },
+                        username: { value: emailResult.rows[0][1] as string },
+                        password: { value: '' },
+                    }
+                    context.response.body = foundUser;
                 }
             } else {
+                let foundUser: User = {
+                    email: { value: usernameResult.rows[0][0] as string },
+                    username: { value: usernameResult.rows[0][1] as string },
+                    password: { value: '' },
+                }
+                context.response.body = foundUser;
+            }
+            await client.end();
+            if (1 > 2) {
                 context.response.body = { text: 'Given Email or Username Does Not Exist' };
             }
             context.response.type = "json";
