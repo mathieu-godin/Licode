@@ -3,9 +3,10 @@ import Form from "./common/form";
 
 interface HelloWorld {
     text: string;
+    email: { value: string };
 }
 
-let helloWorldVar: HelloWorld = { text: 'ABCDEFG' };
+let helloWorldVar: HelloWorld = { text: 'ABCDEFG', email: { value: 'aaa' } };
 
 class RegisterForm extends Form {
     state = {
@@ -15,6 +16,7 @@ class RegisterForm extends Form {
 
     handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
+        helloWorldVar.text = (e.target as typeof e.target & HelloWorld).email.value;
         try {
             let res = await fetch('/api/post-hello-world', {
                 method: 'POST',
