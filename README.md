@@ -85,22 +85,10 @@ export DENO_INSTALL="/$HOME/.deno"
 export PATH="$DENO_INSTALL/bin:$PATH"
 ```
 
-Use version 1.20.3.
-
-```bash
-deno version --upgrade 1.20.3
-```
-
 #### Windows
 
 ```powershell
 iwr https://deno.land/x/install/install.ps1 -useb | iex
-```
-
-Use version 1.20.3.
-
-```bash
-deno version --upgrade 1.20.3
 ```
 
 ### Server Installation and Execution
@@ -138,6 +126,12 @@ cd ..
 sudo apt install libpq-dev python3-dev
 pip install psycopg2
 python migrations/migrations.py migrate
+```
+
+#### Setting the Version of Deno
+
+```bash
+deno version --upgrade 1.20.3
 ```
 
 #### Running the Server
