@@ -128,7 +128,7 @@ pip install psycopg2
 python migrations/migrations.py migrate
 ```
 
-#### Setting the Version of Deno
+#### Setting Deno to the Right Version
 
 ```bash
 deno version --upgrade 1.20.3
