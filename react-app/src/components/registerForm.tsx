@@ -1,43 +1,39 @@
 import * as React from "react";
 import Form from "./common/form";
 
-interface HelloWorld {
-    text: string;
+interface User {
     email: { value: string };
+    username: { value: string };
+    password: { value: string };
 }
 
-let helloWorldVar: HelloWorld = { text: 'ABCDEFG', email: { value: 'aaa' } };
+let userVar: User = {
+    email: { value: 'AAA' },
+    username: { value: 'BBB' },
+    password: { value: 'CCC' },
+}
 
 class RegisterForm extends Form {
-    state = {
-        data: { username: "", password: "", name: "" },
-        errors: {},
-    };
-
     handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
-        helloWorldVar.text = (e.target as typeof e.target & HelloWorld).email.value;
+        let user: User = {
+            email: { value: '' },
+            username: { value: '' },
+            password: { value: '' },
+        }
+        user.email.value = (e.target as typeof e.target & User).email.value;
+        user.username.value = (e.target as typeof e.target & User).username.value;
+        user.password.value = (e.target as typeof e.target & User).password.value;
         try {
-            let res = await fetch('/api/post-hello-world', {
+            let res = await fetch('/api/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(helloWorldVar),
+                body: JSON.stringify(user),
             })
                 .then(response => response.json())
-                .then(data => console.log(data.text));
-        } catch (err) {
-            console.log(err);
-        } 
-    };
-
-    handleHelloWorldGet = async (e: React.SyntheticEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        try {
-            let res = await fetch('/api/hello-world')
-                .then(response => response.json())
-                .then(data => console.log(data.text));
+                .then(data => console.log(data.email.value));
         } catch (err) {
             console.log(err);
         } 
@@ -48,13 +44,6 @@ class RegisterForm extends Form {
             <div>
                 <h1>Register</h1>
                 <form onSubmit={this.handleSubmit}>
-                    {this.renderInput("email", "Email")}
-                    {this.renderInput("username", "Username")}
-                    {this.renderInput("password", "Password")}
-                    {this.renderButton("Register")}
-                </form>
-                <h1>Hello World GET</h1>
-                <form onSubmit={this.handleHelloWorldGet}>
                     {this.renderInput("email", "Email")}
                     {this.renderInput("username", "Username")}
                     {this.renderInput("password", "Password")}
