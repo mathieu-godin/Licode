@@ -76,7 +76,6 @@ This will let us execute SQL scripts to modify the database, which will let us u
 
 ```bash
 curl -fsSL https://deno.land/x/install/install.sh | sh
-deno version --upgrade 1.20.3
 ```
 
 Add the following two lines to ~/.bashrc (on Linux).
