@@ -1,84 +1,59 @@
 import * as React from "react";
-import { Box, Button, Typography, Grid, Stack, Table, Paper, TableContainer, TableBody, TableRow, TableCell } from "@mui/material"
+import { AppBar, Toolbar, Box, Button, Typography, Grid, Stack, Table, Paper, TableContainer, TableBody, TableRow, TableCell } from "@mui/material"
 import Avatar from '@mui/material/Avatar';
 import Form from "./common/form";
 import { sizing } from '@mui/system';
-export interface HomeProps {}
+import Image from '../images/BlueBackground.png';
 
-export interface HomeState {}
+const styles = {
+    paperContainer: {
+        backgroundImage: `url(${Image})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+        border:"10px"
+    }
+};
 
 class Dashboard extends Form {
-  //state = { :  }
     render() {
         return (
-            <Box
-                height="96vh" 
-                display="flex" 
-                //flexDirection="column"
+            <Paper style={styles.paperContainer}
             >
-                <Grid container spacing = {2}>
-                    <Grid item 
-                        xs={2}
-                        //className={classes.outerColumn}
-                        direction="column"
-                        //align="left"
-                        style={{display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}
-                        //alignSelf= 'end'
-                        //position="relative" 
-                        //top = "20vh"
-                        //bottom="0vh"
-                        //style={{ minHeight: '82vh' }}
-                    >
-                        <Button 
-                            fullWidth variant="contained"
-                            style={{maxWidth: '150px', minWidth: '150px', minHeight: '50px', maxHeight: '50px'}}
-                        >
-                                Logout
-                        </Button>
-                    </Grid>
-                    <Grid item 
-                      xs={7}
-                      container 
-                      alignItems="center" 
-                      justifyContent="top"
-                      spacing={25}
-                      direction="column"
-                      style={{height:'calc(100vh - ${uiDefault.APPBAR_HEIGHT})'}}
-                      //style={{ minHeight: '82vh' }}
-                    >
-                        <Grid item xs={0}>
-                            <Typography align="center" variant="h1">
+                <Box
+                    height="96vh" 
+                    display="flex" 
+                    flexDirection="column"
+                >
+                    <AppBar position="static">
+                        <Toolbar>
+                            <Typography variant="h6" sx={{ mr: 55}}>
+                                Welcome, johndoe
+                            </Typography>
+                            <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
                                 licode
                             </Typography>
-                        </Grid>
-                        <Grid item xs={0}>
-                            <Button 
-                                fullWidth variant="contained"
-                                style={{maxWidth: '200px', minWidth: '200px', minHeight: '75px'}}
-                                href="/editor">
-                                PLAY 
-                            </Button>
-                        </Grid>
-                    </Grid>
-                    <Grid item 
-                        xs={3} 
-                        //display="flex"
-                        //justifyContent="flex-end"
-                        container
-                        direction="column"
-                        spacing={5}
+                        </Toolbar>
+                    </AppBar>
+                    <Box
+                        display="flex"
+                        alignItems="center" 
+                        justifyContent="center"
+                        minHeight="80vh"
                     >
-                        <Grid item xs={0}>
-                            <Stack direction="row" justifyContent="end">
-                                <Avatar src="/static/images/avatar/profile_pic.jpg" />
-                            </Stack>
-                        </Grid>
-                        <Grid item xs={0}>
+                        <Stack
+                            spacing={2}
+                            sx={{ bgcolor:'background.paper', border:5, p:2, borderColor: 'primary.main'}} 
+                        >
+                            <Typography
+                                align='center'
+                                variant='h6'
+                                color="common.white"
+                                sx={{bgcolor:'text.disabled', borderRadius:1, p:1}}
+                            >
+                                STATS
+                            </Typography>
                             <TableContainer component={Paper}>
-                                <Table 
-                                    //sx={{ maxWidth: 200 }} 
-                                    //</TableContainer>aria-label="simple table"
-                                >                          
+                                <Table>                          
                                     <TableBody>
                                         <TableRow>
                                             <TableCell>Number of Wins: </TableCell>
@@ -95,10 +70,19 @@ class Dashboard extends Form {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </Box>
+                            <Button 
+                                fullWidth variant="contained"
+                                href="/editor"                                           
+                            >
+                                PLAY 
+                            </Button>
+                            <Button variant="contained">
+                                LOGOUT
+                            </Button>
+                        </Stack>
+                    </Box>
+                </Box>
+            </Paper>
         );
     }
 }
