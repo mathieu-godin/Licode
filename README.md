@@ -40,7 +40,7 @@ ALTER USER postgres with password 'my-password';
 sudo systemctl restart postgresql
 ```
 
-We then install pgAdmin, the best GUI tool to manage a Postgres database.
+We then install pgAdmin, the best GUI tool to manage a Postgres database (only on development machine, not on server)
 
 ```bash
 sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
@@ -48,8 +48,7 @@ sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_
 sudo apt install pgadmin4
 ```
 
-### Setting up the Database
-
+#### On Development Machine
 Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to _edocil_ for now (simply licode spelled backwards).
 
 Click on **Add New Server** at the center of the pgAdmin window. In the new window, set **Name** to _pgServer1_. Switch to the **Connection** tab. Set **Host name/address** to _localhost_, **Username** to _licode_, and **Password** to _edocil_. Leave the remaining fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers**, **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**, and **licode** and **postgres** under **Databases** on the left panel.
@@ -58,6 +57,17 @@ Using pgAdmin to add or remove columns and tables in our database is ill-advised
 
 For this reason, we need something similar to Laravel Migrations. We will use our own migrations frameowrk, i.e., a simple Python script called migrations.py.
 
+#### On Server
+```bash
+sudo -u postgres psql
+CREATE EXTENSION postgres_fdw;
+CREATE SERVER pgServer1 FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host 'localhost');
+CREATE USER MAPPING FOR licode SERVER pgServer1 OPTIONS (user 'licode', password 'edocil');
+\q
+sudo systemctl restart postgresql
+```
+
+#### Development and Server
 We then need to replace the first line below with the second one below in */etc/postgresql/12/main/pg_hba.conf*.
 
 ```bash
@@ -69,6 +79,15 @@ local   all             postgres                                md5
 ```
 
 This will let us execute SQL scripts to modify the database, which will let us use migrations.py.
+
+### On Server, run these before continuing:
+```bash
+sudo apt update
+sudo apt install unzip
+sudo apt install npm
+ssh-keygen              (just hit enter to accept all defaults)
+```
+Add the key to a github account with access to this repo
 
 ### Installing Deno
 
@@ -101,7 +120,8 @@ git clone git@github.com:mathieu-godin/licode.git
 
 #### Building the Front-End Application
 
-Make sure you have Node.js and npm installed as React needs them.
+Make sure you have Node.js and npm installed as React needs them. This seems to take a long time on the server,
+try building on your machine and copying the build/ directory onto the server.
 
 ```bash
 cd licode/react-app

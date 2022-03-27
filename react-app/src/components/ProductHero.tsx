@@ -10,6 +10,7 @@ export default function ProductHero() {
         backgroundImage: `url(${backgroundImage})`,
         backgroundColor: '#7fc7d9', // Average color of the background image.
         backgroundPosition: 'center',
+        backgroundSize: 'contain'
       }}
     >
       {/* Increase the network loading priority of the background image. */}
@@ -27,7 +28,7 @@ export default function ProductHero() {
         variant="h5"
         sx={{ mb: 4, mt: { sx: 4, sm: 10 } }}
       >
-        Skip test cases, get a sneak peak of your opponents code and even slow them down!
+        Skip test cases, get a sneak peak of your opponent's code and even slow them down!
       </Typography>
     </ProductHeroLayout>
   );

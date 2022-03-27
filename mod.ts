@@ -6,12 +6,17 @@ import {
     send,
 } from "https://deno.land/x/oak/mod.ts";
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
+import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
 const client = new Client({
     user: "licode",
     database: "licode",
     password: "edocil",
     hostname: "localhost",
     port: 5432,
+    tls: {
+        enabled: false,
+        enforce: false,
+    },
 });
 const env = Deno.env.toObject();
 const app = new Application();
@@ -71,24 +76,64 @@ router
         context.throw(Status.BadRequest, "Bad Request");
     })
     .post("/api/register", async (context: RouterContext<"/api/register">) => {
-        if (!context.request.hasBody) {
-            context.throw(Status.BadRequest, "Bad Request");
-        }
-        const body = context.request.body();
-        let user: Partial<User> | undefined;
-        if (body.type === "json") {
-            user = await body.value;
-        }
-        if (user) {
-            context.assert(
-                typeof user?.email?.value === "string"
-                && typeof user?.username?.value === "string"
-                && typeof user?.password?.value === "string", Status.BadRequest);
-            userVar = user as User;
-            context.response.status = Status.OK;
-            context.response.body = user;
-            context.response.type = "json";
-            return;
+        try {
+            if (!context.request.hasBody) {
+                context.throw(Status.BadRequest, "Bad Request");
+            }
+            const body = context.request.body();
+            let user: Partial<User> | undefined;
+            if (body.type === "json") {
+                user = await body.value;
+            }
+            if (user) {
+                context.assert(
+                    typeof user?.email?.value === "string"
+                    && typeof user?.username?.value === "string"
+                    && typeof user?.password?.value === "string", Status.BadRequest);
+                userVar = user as User;
+                context.response.status = Status.OK;
+                await client.connect();
+                const usernameResult = await client.queryArray("select username from users where username='"
+                    + user?.username?.value + "'");
+                if (usernameResult.rows.length < 1) {
+                    const emailResult = await client.queryArray("select email from users where email='"
+                        + user?.email?.value + "'");
+                    if (emailResult.rows.length < 1) {
+                        let saltHexString = '';
+                        for (let i = 0; i < 32; ++i) {
+                            saltHexString += Math.floor(Math.random() * Math.pow(2, 32)).toString(16);
+                        }
+                        let textEncoder = new TextEncoder();
+                        let hashedPasswordUint8Array = new Uint8Array(await crypto.subtle.digest('SHA3-512',
+                            textEncoder.encode(user?.password?.value + saltHexString)));
+                        let hashedPasswordHexString = '';
+                        for (let i = 0; i < hashedPasswordUint8Array.length; ++i) {
+                            hashedPasswordHexString += hashedPasswordUint8Array[i].toString(16);
+                        }
+                        let saltHexStringLength = saltHexString.length;
+                        for (let i = 0; i < 256 - saltHexStringLength; ++i) {
+                            saltHexString = "0" + saltHexString;
+                        }
+                        let hashedPasswordHexStringLength = hashedPasswordHexString.length;
+                        for (let i = 0; i < 128 - hashedPasswordHexStringLength; ++i) {
+                            hashedPasswordHexString = "0" + hashedPasswordHexString;
+                        }
+                        await client.queryArray("insert into public.users(email, username, hashed_password, salt, created_at, updated_at)"
+                            + " values ('" + user?.email?.value + "', '" + user?.username?.value + "', '"
+                            + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', now(), now())");
+                        context.response.body = user;
+                    } else {
+                        context.response.body = { text: 'Given Email Already Exists' };
+                    }
+                } else {
+                    context.response.body = { text: 'Given Username Already Exists' };
+                }
+                await client.end();
+                context.response.type = "json";
+                return;
+            }
+        } catch (err) {
+            console.log(err);
         }
         context.throw(Status.BadRequest, "Bad Request");
     })

@@ -20,10 +20,10 @@ function AppAppBar() {
           licode
           </Typography>
           <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-            <LCButton href="/signin" sx={{color: 'secondary.main'}}>
+            <LCButton href="/signin" sx={{color: 'inherit'}}>
                 Sign In
             </LCButton>
-            <LCButton href="/register" sx={{color: 'secondary.main'}}>
+            <LCButton href="/register" sx={{color: 'inherit'}}>
                 Sign Up
             </LCButton>
           </Box>
