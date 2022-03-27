@@ -33,7 +33,7 @@ class RegisterForm extends Form {
                 body: JSON.stringify(user),
             })
                 .then(response => response.json())
-                .then(data => console.log(data.email.value));
+                .then(data => console.log(data));
         } catch (err) {
             console.log(err);
         } 
