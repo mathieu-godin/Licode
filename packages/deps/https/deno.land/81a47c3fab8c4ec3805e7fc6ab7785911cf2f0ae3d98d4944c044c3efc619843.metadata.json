@@ -1,0 +1,20 @@
+{
+  "headers": {
+    "x-amz-version-id": "jbTK3FTqrnx4ir6kUwUABHVvUBnjtyRB",
+    "etag": "\"34a320d85f28d8f439f72284383a2665\"",
+    "x-amz-id-2": "qJUNnbLQ7pGLiEkl89IKmq2/IWz+dWAwsOa7bQRHFebVNVCuHKTmM0vxIbXxxHC/DDvLMzOFXvM=",
+    "last-modified": "Fri, 11 Mar 2022 21:29:40 GMT",
+    "date": "Sun, 27 Mar 2022 08:45:59 GMT",
+    "cache-control": "public, max-age=31536000, immutable",
+    "content-type": "application/typescript; charset=utf-8",
+    "content-length": "1427",
+    "server": "deploy/northamerica-northeast2-c",
+    "x-amz-request-id": "M2M2RK0PA886TBST",
+    "access-control-allow-origin": "*"
+  },
+  "url": "https://deno.land/x/oak_sessions@v3.2.6/src/stores/SqliteStore.ts",
+  "now": {
+    "secs_since_epoch": 1648370758,
+    "nanos_since_epoch": 700488255
+  }
+}

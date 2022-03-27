@@ -1,0 +1,28 @@
+{
+  "headers": {
+    "x-goog-storage-class": "STANDARD",
+    "x-guploader-uploadid": "ADPycds_FVXaap6T7FDIf3H2Tk3GKIA-jz_S3YyCJWcEzrdBCZcudrLFDlcqYZB6BlLEYVHhAoIpr3BptDZji44sR10",
+    "date": "Sun, 27 Mar 2022 08:45:59 GMT",
+    "cross-origin-resource-policy": "cross-origin",
+    "accept-ranges": "bytes",
+    "cache-control": "public, max-age=31536000, s-maxage=604800, immutable",
+    "server": "UploadServer",
+    "last-modified": "Sun, 08 Aug 2021 19:38:20 GMT",
+    "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+    "x-goog-generation": "1628451500022340",
+    "content-type": "application/javascript; charset=utf-8",
+    "x-goog-stored-content-length": "48177",
+    "x-goog-hash": "crc32c=NbPKuQ==,md5=it5coae+eHedkeGuBdozFA==",
+    "x-goog-metageneration": "2",
+    "access-control-allow-origin": "*",
+    "x-goog-stored-content-encoding": "br",
+    "expires": "Sun, 03 Apr 2022 08:45:59 GMT",
+    "access-control-expose-headers": "Content-Type",
+    "etag": "\"8ade5ca1a7be78779d91e1ae05da3314\""
+  },
+  "url": "https://jspm.dev/npm:luxon@2.0.2!cjs",
+  "now": {
+    "secs_since_epoch": 1648370759,
+    "nanos_since_epoch": 296168979
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "headers": {
+    "last-modified": "Tue, 08 Mar 2022 04:02:06 GMT",
+    "cache-control": "public, max-age=31536000, immutable",
+    "content-length": "37296",
+    "x-amz-version-id": "L4KC7fQsPkGUtOkAqeISbWKjrkpWtXdU",
+    "access-control-allow-origin": "*",
+    "content-type": "application/typescript; charset=utf-8",
+    "date": "Sun, 27 Mar 2022 08:45:59 GMT",
+    "x-amz-request-id": "M2MBWDMDJGE709ZP",
+    "x-amz-id-2": "DSO3uTiB39vRsXF8Pw+XFMBSQPSO9BF/q/1/jX0fp/FH1p8WvmTJDg77BPzdm4gIrZsdw+Gugxs=",
+    "server": "deploy/northamerica-northeast2-c",
+    "etag": "\"67cce46695b4b862bbc177f8d153b243\""
+  },
+  "url": "https://deno.land/x/oak@v10.5.0/router.ts",
+  "now": {
+    "secs_since_epoch": 1648370758,
+    "nanos_since_epoch": 958462790
+  }
+}
