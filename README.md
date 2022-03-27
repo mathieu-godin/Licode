@@ -85,6 +85,10 @@ This will let us execute SQL scripts to modify the database, which will let us u
 sudo apt update
 sudo apt install unzip
 sudo apt install npm
+npm install -g n
+sudo n install stable
+sudo n                  (use arrow keys to select the version)
+source $HOME/.bashrc
 ssh-keygen              (just hit enter to accept all defaults)
 ```
 Add the key to a github account with access to this repo
@@ -154,10 +158,15 @@ python migrations/migrations.py migrate
 deno version --upgrade 1.20.3
 ```
 
-#### Running the Server
+#### Running the Server (on development machine)
 
 ```bash
 deno run --allow-net --allow-env --allow-read mod.ts
+```
+
+#### Running the Server (on the server)
+```bash
+sudo -E $DENO_INSTALL/bin/deno run --allow-net --allow-env --allow-read mod.ts
 ```
 
 If you go to localhost:3000 on a web browser, you should see our React application.

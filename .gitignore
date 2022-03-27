@@ -14,3 +14,5 @@
 /react-app/yarn-debug.log*
 /react-app/yarn-error.log*
 /react-app/node_modules/.cache
+
+/packages/gen/file/home*
