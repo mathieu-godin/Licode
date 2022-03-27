@@ -40,7 +40,8 @@ ALTER USER postgres with password 'my-password';
 sudo systemctl restart postgresql
 ```
 
-We then install pgAdmin, the best GUI tool to manage a Postgres database.
+If you are hosting the app yourself, then we now install pgAdmin, the best GUI tool to manage a Postgres database.
+Otherwise see the Ubuntu Server instructions below
 
 ```bash
 sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
@@ -48,11 +49,22 @@ sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_
 sudo apt install pgadmin4
 ```
 
-### Setting up the Database
+### Setting up the Database (for hosting the site yourself)
 
 Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to _edocil_ for now (simply licode spelled backwards).
 
 Click on **Add New Server** at the center of the pgAdmin window. In the new window, set **Name** to _pgServer1_. Switch to the **Connection** tab. Set **Host name/address** to _localhost_, **Username** to _licode_, and **Password** to _edocil_. Leave the remaining fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers**, **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**, and **licode** and **postgres** under **Databases** on the left panel.
+
+### Setting up the Database (Ubuntu Server)
+To create the server run this:
+```bash
+sudo -u postgres psql
+CREATE EXTENSION postgres_fdw;
+CREATE SERVER pgServer1 FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host 'localhost');
+CREATE USER MAPPING FOR licode SERVER pgServer1 OPTIONS (user 'licode', password 'edocil');
+\q
+sudo systemctl restart postgresql
+```
 
 Using pgAdmin to add or remove columns and tables in our database is ill-advised as it prevents us from restoring a previous version of our database.
 
@@ -69,6 +81,15 @@ local   all             postgres                                md5
 ```
 
 This will let us execute SQL scripts to modify the database, which will let us use migrations.py.
+
+### When using Ubuntu Server, run these before continuing:
+```bash
+sudo apt update
+sudo apt install unzip
+sudo apt install npm
+ssh-keygen              (just hit enter to accept all defaults)
+```
+Add the key to a github account with access to this repo
 
 ### Installing Deno
 
