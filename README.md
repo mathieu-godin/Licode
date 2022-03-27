@@ -180,11 +180,9 @@ npm start
 
 As done with other aspects of the application, we opt for state-of-the-art technologies when it comes to password encryption. As seen in **ECE 458: Computer Security**, MD5 is 100% insecure, SHA-1 is now considered breakable, and SHA-2 is what most applications are currently using. There's also SHA-3 which was released in 2015 and hasn't been used by many companies yet. However, it's definitely more secure than SHA-2 and that's why we should use it. More specifically, we should use SHA3-512, which has 256 bits security against collision attacks (considered military grade). SHA-3 is also much more secure than SHA-2 when it comes to length extension attacks. Most websites use scrypt or bcrypt to store their passwords which doesn't hold to the best security standards and isn't even approved by NIST.
 
-In most modern web applications, passwords can be captured in plaintext on the server each time someone logs in or registers. It would not be a bad idea to do better than the current norm and encrypt the password on the client as well (considering the user uses the same password elsewhere and doesn't want us to see it).
-
 #### User Registration
 
-We generate a client and server salt randomly. We send the client salt to the client. The client sends us _Hash_(_password_ || _client_salt_) and the server receives it (let's call that binary string _received_). We then save in the database: _Hash_(_received_ || _server_salt_), _client_salt_, and _server_salt_.
+We generate a salt on the server randomly. The client sends us his password and the server receives it. We then save in the database: _Hash_(_password_ || _salt_) and _salt_.
 
 #### User Logging In
 
