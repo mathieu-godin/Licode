@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import {  Button, Typography, Grid  } from "@mui/material"
+import AppAppBar from "./appAppBar";
+import ProductHero from "./ProductHero";
 
 export interface HomeProps {}
 
@@ -11,23 +13,11 @@ class Home extends React.Component<HomeProps, HomeState> {
   render() {
     return (
       <React.Fragment>
-        <Typography variant="h1">
-            licode
-        </Typography>
+        <AppAppBar />
         <Typography variant="h2">
             Welcome to licode!
         </Typography>
         <Grid container direction="column" spacing={2}>
-            <Grid item>
-                <Button variant="contained" href="/signin">
-                    Sign in
-                </Button>
-            </Grid>
-            <Grid item>
-                <Button variant="contained" href="/register">
-                    Register
-                </Button>
-            </Grid>
             <Grid item>
                 <Button variant="contained" href="/editor">
                     Code Editor
@@ -39,6 +29,7 @@ class Home extends React.Component<HomeProps, HomeState> {
                 </Button>
             </Grid>
         </Grid>
+        <ProductHero/>
       </React.Fragment>
     );
   }
