@@ -34,8 +34,6 @@ interface User {
 
 let helloWorldVar: HelloWorld = { text: 'Hello World' };
 
-let userVar: User;
-
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
     console.log(evt.error);
@@ -90,7 +88,6 @@ router
                     typeof user?.email?.value === "string"
                     && typeof user?.username?.value === "string"
                     && typeof user?.password?.value === "string", Status.BadRequest);
-                userVar = user as User;
                 context.response.status = Status.OK;
                 await client.connect();
                 const usernameResult = await client.queryArray("select username from users where username='"
@@ -103,16 +100,17 @@ router
                         for (let i = 0; i < 32; ++i) {
                             saltHexString += Math.floor(Math.random() * Math.pow(2, 32)).toString(16);
                         }
+                        let saltHexStringLength = saltHexString.length;
+                        for (let i = 0; i < 256 - saltHexStringLength; ++i) {
+                            saltHexString = "0" + saltHexString;
+                        }
                         let textEncoder = new TextEncoder();
                         let hashedPasswordUint8Array = new Uint8Array(await crypto.subtle.digest('SHA3-512',
                             textEncoder.encode(user?.password?.value + saltHexString)));
                         let hashedPasswordHexString = '';
                         for (let i = 0; i < hashedPasswordUint8Array.length; ++i) {
-                            hashedPasswordHexString += hashedPasswordUint8Array[i].toString(16);
-                        }
-                        let saltHexStringLength = saltHexString.length;
-                        for (let i = 0; i < 256 - saltHexStringLength; ++i) {
-                            saltHexString = "0" + saltHexString;
+                            hashedPasswordHexString += (hashedPasswordUint8Array[i] < 16 ? "0" : "")
+                                + hashedPasswordUint8Array[i].toString(16);
                         }
                         let hashedPasswordHexStringLength = hashedPasswordHexString.length;
                         for (let i = 0; i < 128 - hashedPasswordHexStringLength; ++i) {
@@ -132,58 +130,105 @@ router
                 context.response.type = "json";
                 return;
             }
+            context.throw(Status.BadRequest, "Bad Request");
         } catch (err) {
             console.log(err);
         }
-        context.throw(Status.BadRequest, "Bad Request");
     })
     .post("/api/login", async (context: RouterContext<"/api/login">) => {
-        if (!context.request.hasBody) {
-            context.throw(Status.BadRequest, "Bad Request");
-        }
-        const body = context.request.body();
-        let user: Partial<User> | undefined;
-        if (body.type === "json") {
-            user = await body.value;
-        }
-        if (user) {
-            context.assert(
-                typeof user?.email?.value === "string"
-                && typeof user?.username?.value === "string"
-                && typeof user?.password?.value === "string", Status.BadRequest);
-            context.response.status = Status.OK;
-            await client.connect();
-            const usernameResult = await client.queryArray("select email, username from users where username='"
-                + user?.email?.value + "'");
-            if (usernameResult.rows.length < 1) {
-                const emailResult = await client.queryArray("select email, username from users where email='"
+        try {
+            if (!context.request.hasBody) {
+                context.throw(Status.BadRequest, "Bad Request");
+            }
+            const body = context.request.body();
+            let user: Partial<User> | undefined;
+            if (body.type === "json") {
+                user = await body.value;
+            }
+            if (user) {
+                context.assert(
+                    typeof user?.email?.value === "string"
+                    && typeof user?.password?.value === "string", Status.BadRequest);
+                context.response.status = Status.OK;
+                await client.connect();
+                const usernameResult = await client.queryArray("select email, username, hashed_password, salt from users where username='"
                     + user?.email?.value + "'");
-                if (emailResult.rows.length < 1) {
-                    context.response.body = { text: 'Given Email or Username Does Not Exist' };
-                } else {
-                    let foundUser: User = {
-                        email: { value: emailResult.rows[0][0] as string },
-                        username: { value: emailResult.rows[0][1] as string },
-                        password: { value: '' },
+                if (usernameResult.rows.length < 1) {
+                    const emailResult = await client.queryArray("select email, username, hashed_password, salt from users where email='"
+                        + user?.email?.value + "'");
+                    if (emailResult.rows.length < 1) {
+                        context.response.body = { text: 'Given Email or Username Does Not Exist' };
+                    } else {
+                        let saltHexString = '';
+                        for (let i = 0; i < (emailResult.rows[0][3] as Uint8Array).length; ++i) {
+                            saltHexString += ((emailResult.rows[0][3] as Uint8Array)[i] < 16 ? "0" : "")
+                                + (emailResult.rows[0][3] as Uint8Array)[i].toString(16);
+                        }
+                        let textEncoder = new TextEncoder();
+                        let hashedPasswordUint8Array = new Uint8Array(await crypto.subtle.digest('SHA3-512',
+                            textEncoder.encode(user?.password?.value + saltHexString)));
+                        let hashedPasswordHexString = '';
+                        for (let i = 0; i < hashedPasswordUint8Array.length; ++i) {
+                            hashedPasswordHexString += (hashedPasswordUint8Array[i] < 16 ? "0" : "")
+                                + hashedPasswordUint8Array[i].toString(16);
+                        }
+                        let serverHashedPasswordHexString = '';
+                        for (let i = 0; i < (emailResult.rows[0][2] as Uint8Array).length; ++i) {
+                            serverHashedPasswordHexString += ((emailResult.rows[0][2] as Uint8Array)[i] < 16 ? "0" : "")
+                                + (emailResult.rows[0][2] as Uint8Array)[i].toString(16);
+                        }
+                        if (hashedPasswordHexString === serverHashedPasswordHexString) {
+                            let foundUser: User = {
+                                email: { value: emailResult.rows[0][0] as string },
+                                username: { value: emailResult.rows[0][1] as string },
+                                password: { value: '' },
+                            }
+                            context.response.body = foundUser;
+                        } else {
+                            context.response.body = { text: 'Wrong Password' };
+                        }
                     }
-                    context.response.body = foundUser;
+                } else {
+                    let saltHexString = '';
+                    for (let i = 0; i < (usernameResult.rows[0][3] as Uint8Array).length; ++i) {
+                        saltHexString += ((usernameResult.rows[0][3] as Uint8Array)[i] < 16 ? "0" : "")
+                            + (usernameResult.rows[0][3] as Uint8Array)[i].toString(16);
+                    }
+                    let textEncoder = new TextEncoder();
+                    let hashedPasswordUint8Array = new Uint8Array(await crypto.subtle.digest('SHA3-512',
+                        textEncoder.encode(user?.password?.value + saltHexString)));
+                    let hashedPasswordHexString = '';
+                    for (let i = 0; i < hashedPasswordUint8Array.length; ++i) {
+                        hashedPasswordHexString += (hashedPasswordUint8Array[i] < 16 ? "0" : "")
+                            + hashedPasswordUint8Array[i].toString(16);
+                    }
+                    let serverHashedPasswordHexString = '';
+                    for (let i = 0; i < (usernameResult.rows[0][2] as Uint8Array).length; ++i) {
+                        serverHashedPasswordHexString += ((usernameResult.rows[0][2] as Uint8Array)[i] < 16 ? "0" : "")
+                            + (usernameResult.rows[0][2] as Uint8Array)[i].toString(16);
+                    }
+                    if (hashedPasswordHexString === serverHashedPasswordHexString) {
+                        let foundUser: User = {
+                            email: { value: usernameResult.rows[0][0] as string },
+                            username: { value: usernameResult.rows[0][1] as string },
+                            password: { value: '' },
+                        }
+                        context.response.body = foundUser;
+                    } else {
+                        context.response.body = { text: 'Wrong Password' };
+                    }
                 }
-            } else {
-                let foundUser: User = {
-                    email: { value: usernameResult.rows[0][0] as string },
-                    username: { value: usernameResult.rows[0][1] as string },
-                    password: { value: '' },
+                await client.end();
+                if (1 > 2) {
+                    context.response.body = { text: 'Given Email or Username Does Not Exist' };
                 }
-                context.response.body = foundUser;
+                context.response.type = "json";
+                return;
             }
-            await client.end();
-            if (1 > 2) {
-                context.response.body = { text: 'Given Email or Username Does Not Exist' };
-            }
-            context.response.type = "json";
-            return;
+            context.throw(Status.BadRequest, "Bad Request");
+        } catch (err) {
+            console.log(err);
         }
-        context.throw(Status.BadRequest, "Bad Request");
     });
 app.use(router.routes());
 app.use(router.allowedMethods());
