@@ -86,7 +86,18 @@ router
                 && typeof user?.password?.value === "string", Status.BadRequest);
             userVar = user as User;
             context.response.status = Status.OK;
+            await client.connect();
+            const usernameResult = await client.queryArray("select username from users where username='"
+                + user?.username?.value + "'");
+            if (usernameResult.rows.length < 1) {
+                const emailResult = await client.queryArray("select email from users where email='"
+                    + user?.email?.value + "'");
+                if (emailResult.rows.length < 1) {
+                    //await client.queryArray("insert into public.users(email, username, hashed_password, salt, created_at, updated_at)")
+                }
+            }
             context.response.body = user;
+            await client.end();
             context.response.type = "json";
             return;
         }
