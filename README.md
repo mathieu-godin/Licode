@@ -62,7 +62,7 @@ For this reason, we need something similar to Laravel Migrations. We will use ou
 
 #### On Server
 
-<place above instructions for server here>
+**place above instructions for server here**
 
 We then need to replace the first line below with the second one below in */etc/postgresql/12/main/pg_hba.conf*.
 
