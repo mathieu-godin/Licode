@@ -1,0 +1,20 @@
+{
+  "headers": {
+    "server": "deploy/northamerica-northeast2-c",
+    "date": "Sun, 27 Mar 2022 01:04:24 GMT",
+    "x-amz-request-id": "B6M73N6JGVZ0YEVT",
+    "last-modified": "Sun, 06 Feb 2022 18:14:56 GMT",
+    "content-length": "1094",
+    "x-amz-version-id": "7g076saYkQnmeERrw2M2l0YhqwsBhi__",
+    "cache-control": "public, max-age=31536000, immutable",
+    "content-type": "application/typescript; charset=utf-8",
+    "etag": "\"2bcba2c6a3dea97eaae37a73bd2160e8\"",
+    "x-amz-id-2": "195pYZG8vP9sriEeDAvBeIlLN/dMrJXXV0PUwNh0/xIBEwXwbCw/rq1oDfmTY8pyqSDzbxsTniA=",
+    "access-control-allow-origin": "*"
+  },
+  "url": "https://deno.land/x/denon@2.5.0/src/templates.ts",
+  "now": {
+    "secs_since_epoch": 1648343063,
+    "nanos_since_epoch": 605650831
+  }
+}
