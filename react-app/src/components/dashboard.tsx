@@ -32,7 +32,6 @@ class Dashboard extends Form {
                             <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
                                 licode
                             </Typography>
-                            <Avatar src="/static/images/avatar/profile_pic.jpg"> J </Avatar>
                         </Toolbar>
                     </AppBar>
                     <Box
@@ -47,9 +46,9 @@ class Dashboard extends Form {
                         >
                             <Typography
                                 align='center'
-                                variant='button'
+                                variant='h6'
                                 color="common.white"
-                                sx={{bgcolor:'primary.main', borderRadius:1, p:1}}
+                                sx={{bgcolor:'text.disabled', borderRadius:1, p:1}}
                             >
                                 STATS
                             </Typography>
