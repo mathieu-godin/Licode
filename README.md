@@ -182,7 +182,7 @@ As done with other aspects of the application, we opt for state-of-the-art techn
 
 #### User Registration
 
-We generate a salt on the server randomly. The client sends us his password and the server receives it. We then save in the database: _Hash_(_password_ || _salt_) and _salt_.
+We generate a random salt. We then save: _Hash_(_password_ || _salt_) and _salt_.
 
 #### User Logging In
 
