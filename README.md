@@ -40,7 +40,7 @@ ALTER USER postgres with password 'my-password';
 sudo systemctl restart postgresql
 ```
 
-We then install pgAdmin, the best GUI tool to manage a Postgres database (only on devlopment machine, not on server)
+We then install pgAdmin, the best GUI tool to manage a Postgres database (only on development machine, not on server)
 
 ```bash
 sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
