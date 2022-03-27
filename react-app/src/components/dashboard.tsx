@@ -12,7 +12,9 @@ class Dashboard extends Form {
     render() {
         return (
             <Box
-                height="0vh" display="flex" flexDirection="column"
+                height="96vh" 
+                display="flex" 
+                //flexDirection="column"
             >
                 <Grid container spacing = {2}>
                     <Grid item 
@@ -20,7 +22,7 @@ class Dashboard extends Form {
                         //className={classes.outerColumn}
                         direction="column"
                         //align="left"
-                        style={{display: "flex", justifyContent: "flex-end"}}
+                        style={{display: "flex", justifyContent: "flex-end", alignItems: "flex-end"}}
                         //alignSelf= 'end'
                         //position="relative" 
                         //top = "20vh"
@@ -29,12 +31,13 @@ class Dashboard extends Form {
                     >
                         <Button 
                             fullWidth variant="contained"
-                            style={{maxWidth: '150px', minWidth: '150px', minHeight: '50px'}}
+                            style={{maxWidth: '150px', minWidth: '150px', minHeight: '50px', maxHeight: '50px'}}
                         >
                                 Logout
                         </Button>
                     </Grid>
-                    <Grid item xs={7}
+                    <Grid item 
+                      xs={7}
                       container 
                       alignItems="center" 
                       justifyContent="top"
@@ -57,7 +60,8 @@ class Dashboard extends Form {
                             </Button>
                         </Grid>
                     </Grid>
-                    <Grid item xs={3} 
+                    <Grid item 
+                        xs={3} 
                         //display="flex"
                         //justifyContent="flex-end"
                         container
