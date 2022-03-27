@@ -174,7 +174,6 @@ router
                         }
                         let serverHashedPasswordHexString = '';
                         for (let i = 0; i < (emailResult.rows[0][2] as Uint8Array).length; ++i) {
-                            console.log((emailResult.rows[0][2] as Uint8Array)[i]);
                             serverHashedPasswordHexString += ((emailResult.rows[0][2] as Uint8Array)[i] < 16 ? "0" : "")
                                 + (emailResult.rows[0][2] as Uint8Array)[i].toString(16);
                         }
