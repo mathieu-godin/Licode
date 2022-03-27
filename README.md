@@ -52,11 +52,17 @@ sudo apt install pgadmin4
 
 Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to _edocil_ for now (simply licode spelled backwards).
 
+#### On Development Machine
+
 Click on **Add New Server** at the center of the pgAdmin window. In the new window, set **Name** to _pgServer1_. Switch to the **Connection** tab. Set **Host name/address** to _localhost_, **Username** to _licode_, and **Password** to _edocil_. Leave the remaining fields with their default values. Press **Save**. You should now have **pgServer1** under **Servers**, **Databases**, **Login/Group Roles**, and **Tablespaces** under **pgServer1**, and **licode** and **postgres** under **Databases** on the left panel.
 
 Using pgAdmin to add or remove columns and tables in our database is ill-advised as it prevents us from restoring a previous version of our database.
 
 For this reason, we need something similar to Laravel Migrations. We will use our own migrations frameowrk, i.e., a simple Python script called migrations.py.
+
+#### On Server
+
+<place above instructions for server here>
 
 We then need to replace the first line below with the second one below in */etc/postgresql/12/main/pg_hba.conf*.
 
