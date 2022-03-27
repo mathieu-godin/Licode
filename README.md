@@ -184,9 +184,9 @@ As done with other aspects of the application, we opt for state-of-the-art techn
 
 We generate a random salt. We then save: _Hash_(_password_ || _salt_) and _salt_.
 
-#### User Logging In
+#### User Authentication
 
-We send the client salt to the client. The client sends _Hash_(_password_ || _client_salt_). On the server side, we perform Hash(_received_ || _server_salt_) and compare it with the hash that was saved when the user registered. If the two hashes match, the user logs in succesfully.
+We perform Hash(_password_ || _salt_) and compare it with the saved hash. If the two hashes match, the user logs in succesfully.
 
 
 ## Database Management
