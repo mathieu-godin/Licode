@@ -26,17 +26,39 @@ function Copyright(props: any) {
   );
 }
 
+interface User {
+  email: { value: string };
+  username: { value: string };
+  password: { value: string };
+}
+
 const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    let user: User = {
+        email: { value: '' },
+        username: { value: '' },
+        password: { value: '' },
+    }
+    user.email.value = (e.target as typeof e.target & User).email.value;
+    user.username.value = (e.target as typeof e.target & User).username.value;
+    user.password.value = (e.target as typeof e.target & User).password.value;
+    try {
+        let res = await fetch('/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        })
+            .then(response => response.json())
+            .then(data => console.log(data));
+    } catch (err) {
+        console.log(err);
+    } 
+};
 
   return (
     <ThemeProvider theme={theme}>
@@ -77,6 +99,16 @@ export default function SignUp() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>

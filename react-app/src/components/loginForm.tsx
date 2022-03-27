@@ -28,15 +28,36 @@ function Copyright(props: any) {
 
 const theme = createTheme();
 
+interface User {
+    email: { value: string };
+    username: { value: string };
+    password: { value: string };
+}
+
 export default function SignIn() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        let user: User = {
+            email: { value: '' },
+            username: { value: '' },
+            password: { value: '' },
+        }
+        user.email.value = (e.target as typeof e.target & User).email.value;
+        user.password.value = (e.target as typeof e.target & User).password.value;
+        try {
+            let res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user),
+            })
+                .then(response => response.json())
+                .then(data => console.log(data));
+        } catch (err) {
+            console.log(err);
+        } 
+    };
 
   return (
     <ThemeProvider theme={theme}>
@@ -62,7 +83,7 @@ export default function SignIn() {
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label="Username or Email Address"
               name="email"
               autoComplete="email"
               autoFocus
