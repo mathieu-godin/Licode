@@ -124,9 +124,10 @@ router
                         for (let i = 0; i < 128 - hashedPasswordHexStringLength; ++i) {
                             hashedPasswordHexString = "0" + hashedPasswordHexString;
                         }
-                        await client.queryArray("insert into public.users(email, username, hashed_password, salt, created_at, updated_at)"
+                        await client.queryArray(
+                            "insert into public.users(email, username, hashed_password, salt, num_wins, num_losses, created_at, updated_at)"
                             + " values ('" + user?.email?.value + "', '" + user?.username?.value + "', '"
-                            + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', now(), now())");
+                            + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', '0', '0', now(), now())");
                         let sid = await nanoid(40);
                         sids[sid] = user.username.value;
                         await context.cookies.set('sid', sid);
