@@ -15,4 +15,4 @@
 /react-app/yarn-error.log*
 /react-app/node_modules/.cache
 
-/packages/gen/file/home*
+/packages/gen/file/home/*
