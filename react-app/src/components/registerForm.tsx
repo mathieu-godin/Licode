@@ -35,7 +35,9 @@ interface User {
 
 const theme = createTheme();
 
-export interface RegisterFormProps {}
+export interface RegisterFormProps {
+    setToken: Function
+}
 
 export interface RegisterFormState {
     errorMessage: string;
@@ -50,7 +52,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
     
     async handleSubmit (e: React.SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
-        let user: User = {
+        /*let user: User = {
             email: { value: '' },
             username: { value: '' },
             password: { value: '' },
@@ -68,10 +70,13 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
             }).then(response => response.json());
             if (res.text) {
                 this.setState({ errorMessage: res.text });
+            } else {
+                this.props.setToken();
             }
         } catch (err) {
             console.log(err);
-        }
+        }*/
+        this.props.setToken();
     };
 
     render() {
