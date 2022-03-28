@@ -35,6 +35,8 @@ interface User {
 
 let helloWorldVar: HelloWorld = { text: 'Hello World' };
 
+let sids: { [name: string]: string } = {};
+
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
     console.log(evt.error);
@@ -142,11 +144,6 @@ router
         }
     })
     .post("/api/login", async (context: RouterContext<"/api/login">) => {
-        let sid = await context.cookies.get('sid');
-        if (!sid) {
-            sid = await nanoid(40);
-            context.cookies.set('sid', sid);
-        }
         try {
             if (!context.request.hasBody) {
                 context.throw(Status.BadRequest, "Bad Request");
@@ -194,6 +191,9 @@ router
                                 username: { value: emailResult.rows[0][1] as string },
                                 password: { value: '' },
                             }
+                            let sid = await nanoid(40);
+                            sids[sid] = foundUser.username.value;
+                            context.cookies.set('sid', sid);
                             context.response.body = foundUser;
                         } else {
                             context.response.body = { text: 'Wrong Password' };
@@ -224,6 +224,9 @@ router
                             username: { value: usernameResult.rows[0][1] as string },
                             password: { value: '' },
                         }
+                        let sid = await nanoid(40);
+                        sids[sid] = foundUser.username.value;
+                        await context.cookies.set('sid', sid);
                         context.response.body = foundUser;
                     } else {
                         context.response.body = { text: 'Wrong Password' };
@@ -237,6 +240,39 @@ router
                 return;
             }
             context.throw(Status.BadRequest, "Bad Request");
+        } catch (err) {
+            console.log(err);
+        }
+    })
+    .get("/api/user", async (context) => {
+        try {
+            let sid = await context.cookies.get('sid');
+            if (sid && typeof sid === 'string') {
+                let username = sids[sid as string];
+                if (username) {
+                    await client.connect();
+                    const usernameResult = await client.queryArray("select email, username from users where username='"
+                        + username + "'");
+                    let foundUser: User = {
+                        email: { value: usernameResult.rows[0][0] as string },
+                        username: { value: usernameResult.rows[0][1] as string },
+                        password: { value: '' },
+                    }
+                    context.response.body = foundUser;
+                    await client.end();
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    })
+    .get("/api/logout", async (context) => {
+        try {
+            let sid = await context.cookies.get('sid');
+            if (sid && typeof sid === 'string') {
+                delete sids[sid as string];
+                context.response.body = { text: 'Successfully Logged Out' };
+            }
         } catch (err) {
             console.log(err);
         }

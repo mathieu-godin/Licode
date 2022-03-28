@@ -14,19 +14,60 @@ const styles = {
     }
 };
 
+interface User {
+    email: { value: string };
+    username: { value: string };
+    password: { value: string };
+  }
+
 export interface DashboardProps {
     setToken: Function
 }
 
-export interface DashboardState {}
+export interface DashboardState {
+    user: User,
+    loaded: boolean,
+}
+
+export interface GreetingProps {
+    username: string,
+    loaded: boolean,
+}
+
+function Greeting(props: GreetingProps) {
+    const loaded: boolean = props.loaded;
+    if (loaded) {
+        return <Typography variant="h6" sx={{ mr: 55 }}>Welcome, {props.username}</Typography>;
+    } else {
+        return <Typography variant="h6" sx={{ mr: 55, display: "none"  }} />;
+    }
+}
 
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
     constructor(props: DashboardProps) {
         super(props);
         this.handleLogout = this.handleLogout.bind(this);
+        this.state = {
+            user: {
+                email: { value: '' },
+                username: { value: '' },
+                password: { value: '' },
+            },
+            loaded: false,
+        }
     }
 
-    handleLogout () {
+    componentDidMount() {
+        fetch('/api/user').then(response => response.json()).then((json) => {
+            this.setState({
+                user: json,
+                loaded: true,
+            });
+        })
+    }
+
+    async handleLogout () {
+        await fetch('/api/logout');
         this.props.setToken();
     };
 
@@ -41,9 +82,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 >
                     <AppBar position="static">
                         <Toolbar>
-                            <Typography variant="h6" sx={{ mr: 55}}>
-                                Welcome, johndoe
-                            </Typography>
+                            <Greeting loaded={this.state.loaded} username={this.state.user.username.value} />
                             <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
                                 licode
                             </Typography>
