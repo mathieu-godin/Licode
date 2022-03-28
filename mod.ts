@@ -127,6 +127,9 @@ router
                         await client.queryArray("insert into public.users(email, username, hashed_password, salt, created_at, updated_at)"
                             + " values ('" + user?.email?.value + "', '" + user?.username?.value + "', '"
                             + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', now(), now())");
+                        let sid = await nanoid(40);
+                        sids[sid] = user.username.value;
+                        await context.cookies.set('sid', sid);
                         context.response.body = user;
                     } else {
                         context.response.body = { text: 'Given Email Already Exists' };
@@ -193,7 +196,7 @@ router
                             }
                             let sid = await nanoid(40);
                             sids[sid] = foundUser.username.value;
-                            context.cookies.set('sid', sid);
+                            await context.cookies.set('sid', sid);
                             context.response.body = foundUser;
                         } else {
                             context.response.body = { text: 'Wrong Password' };
