@@ -49,7 +49,7 @@ router
             console.log(err);
         }
     })
-    .post("/api/post-hello-world", async (context: RouterContext<"/api/post-hello-world">) => {
+    .post("/api/post-hello-world", async (context: RouterContext<any>) => {
         if (!context.request.hasBody) {
             context.throw(Status.BadRequest, "Bad Request");
         }
@@ -76,7 +76,7 @@ router
         }
         context.throw(Status.BadRequest, "Bad Request");
     })
-    .post("/api/register", async (context: RouterContext<"/api/register">) => {
+    .post("/api/register", async (context: RouterContext<any>) => {
         let sid = await context.cookies.get('sid');
         if (!sid) {
             sid = await nanoid(40);
@@ -143,7 +143,7 @@ router
             console.log(err);
         }
     })
-    .post("/api/login", async (context: RouterContext<"/api/login">) => {
+    .post("/api/login", async (context: RouterContext<any>) => {
         try {
             if (!context.request.hasBody) {
                 context.throw(Status.BadRequest, "Bad Request");
