@@ -18,7 +18,7 @@ function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://licode.ca/">
+      <Link color="inherit" href="/">
         licode
       </Link>{' '}
       {new Date().getFullYear()}
