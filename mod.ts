@@ -7,6 +7,7 @@ import {
 } from "https://deno.land/x/oak/mod.ts";
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
+import { nanoid } from 'https://deno.land/x/nanoid@v3.0.0/async.ts'
 const client = new Client({
     user: "licode",
     database: "licode",
@@ -74,6 +75,11 @@ router
         context.throw(Status.BadRequest, "Bad Request");
     })
     .post("/api/register", async (context: RouterContext<"/api/register">) => {
+        let sid = await context.cookies.get('sid');
+        if (!sid) {
+            sid = await nanoid(40);
+            context.cookies.set('sid', sid);
+        }
         try {
             if (!context.request.hasBody) {
                 context.throw(Status.BadRequest, "Bad Request");
@@ -136,6 +142,11 @@ router
         }
     })
     .post("/api/login", async (context: RouterContext<"/api/login">) => {
+        let sid = await context.cookies.get('sid');
+        if (!sid) {
+            sid = await nanoid(40);
+            context.cookies.set('sid', sid);
+        }
         try {
             if (!context.request.hasBody) {
                 context.throw(Status.BadRequest, "Bad Request");
