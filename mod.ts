@@ -255,14 +255,18 @@ router
                 let username = sids[sid as string];
                 if (username) {
                     await client.connect();
-                    const usernameResult = await client.queryArray("select email, username from users where username='"
+                    const usernameResult = await client.queryArray("select email, username, num_wins, num_losses from users where username='"
                         + username + "'");
                     let foundUser: User = {
                         email: { value: usernameResult.rows[0][0] as string },
                         username: { value: usernameResult.rows[0][1] as string },
                         password: { value: '' },
                     }
-                    context.response.body = foundUser;
+                    context.response.body = {
+                        user: foundUser,
+                        numWins: usernameResult.rows[0][2] as number,
+                        numLosses: usernameResult.rows[0][3] as number,
+                    };
                     await client.end();
                 }
             }

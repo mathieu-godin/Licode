@@ -26,6 +26,8 @@ export interface DashboardProps {
 
 export interface DashboardState {
     user: User,
+    numWins: number,
+    numLosses: number,
     loaded: boolean,
 }
 
@@ -43,6 +45,59 @@ function Greeting(props: GreetingProps) {
     }
 }
 
+export interface WinLossProps {
+    numWins: number,
+    numLosses: number,
+    loaded: boolean,
+}
+
+function WinLossTable(props: WinLossProps) {
+    const loaded: boolean = props.loaded;
+    if (loaded) {
+        return (
+            <TableContainer component={Paper}>
+                <Table>                          
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>Number of Wins: </TableCell>
+                            <TableCell>{props.numWins}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Number of Losses: </TableCell>
+                            <TableCell>{props.numLosses}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Winrate: </TableCell>
+                            <TableCell>{props.numWins / (props.numWins + props.numLosses)}</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        );
+    } else {
+        return (
+            <TableContainer component={Paper}>
+                <Table>                          
+                    <TableBody>
+                        <TableRow>
+                            <TableCell />
+                            <TableCell />
+                        </TableRow>
+                        <TableRow>
+                            <TableCell />
+                            <TableCell />
+                        </TableRow>
+                        <TableRow>
+                            <TableCell />
+                            <TableCell />
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        );
+    }
+}
+
 class Dashboard extends React.Component<DashboardProps, DashboardState> {
     constructor(props: DashboardProps) {
         super(props);
@@ -53,6 +108,8 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 username: { value: '' },
                 password: { value: '' },
             },
+            numWins: 500,
+            numLosses: 500,
             loaded: false,
         }
     }
@@ -60,7 +117,9 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     componentDidMount() {
         fetch('/api/user').then(response => response.json()).then((json) => {
             this.setState({
-                user: json,
+                user: json.user,
+                numWins: json.numWins,
+                numLosses: json.numLosses,
                 loaded: true,
             });
         })
@@ -106,24 +165,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                             >
                                 STATS
                             </Typography>
-                            <TableContainer component={Paper}>
-                                <Table>                          
-                                    <TableBody>
-                                        <TableRow>
-                                            <TableCell>Number of Wins: </TableCell>
-                                            <TableCell>5</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell>Number of Losses: </TableCell>
-                                            <TableCell>3</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell>Winrate: </TableCell>
-                                            <TableCell>62.5%</TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                            <WinLossTable loaded={this.state.loaded} numWins={this.state.numWins} numLosses={this.state.numLosses} />
                             <Button 
                                 fullWidth variant="contained"
                                 href="/editor"                                           
