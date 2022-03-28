@@ -6,6 +6,8 @@ import LoginForm from "./components/loginForm";
 import RegisterForm from "./components/registerForm";
 import CodingEditor from "./components/codingEditor";
 import Dashboard from "./components/dashboard";
+import DashboardRedirect from "./components/dashboardRedirect";
+import HomeRedirect from "./components/homeRedirect";
 
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token') === '1');
@@ -23,7 +25,7 @@ function App() {
             <React.Fragment>
                 <main className="container">
                     <Routes>
-                        <Route path="/dashboard" element={<Dashboard setToken={giveToken} />} />
+                        <Route path="/dashboard" element={<HomeRedirect />} />
                         <Route path="/editor" element={<CodingEditor />} />
                         <Route path="/register" element={<RegisterForm setToken={getToken} />} />
                         <Route path="/signin" element={<LoginForm setToken={getToken} />} />
@@ -40,9 +42,9 @@ function App() {
                 <Routes>
                 <Route path="/dashboard" element={<Dashboard setToken={giveToken} />} />
                         <Route path="/editor" element={<CodingEditor />} />
-                        <Route path="/register" element={<Dashboard setToken={giveToken} />} />
-                        <Route path="/signin" element={<Dashboard setToken={giveToken} />} />
-                        <Route path="/" element={<Dashboard setToken={giveToken} />} />
+                        <Route path="/register" element={<DashboardRedirect />} />
+                        <Route path="/signin" element={<DashboardRedirect />} />
+                        <Route path="/" element={<DashboardRedirect />} />
                 </Routes>
             </main>
         </React.Fragment>
