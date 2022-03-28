@@ -13,16 +13,20 @@ function App() {
         setToken(true);
         localStorage.setItem('token', '1');
     }, []);
+    const giveToken = useCallback(() => {
+        setToken(false);
+        localStorage.setItem('token', '0');
+    }, []);
 
     if (!token) {
         return (
             <React.Fragment>
                 <main className="container">
                     <Routes>
-                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/dashboard" element={<Dashboard setToken={giveToken} />} />
                         <Route path="/editor" element={<CodingEditor />} />
                         <Route path="/register" element={<RegisterForm setToken={getToken} />} />
-                        <Route path="/signin" element={<LoginForm />} />
+                        <Route path="/signin" element={<LoginForm setToken={getToken} />} />
                         <Route path="/" element={<Home />} />
                     </Routes>
                 </main>
@@ -34,11 +38,11 @@ function App() {
         <React.Fragment>
             <main className="container">
                 <Routes>
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard setToken={giveToken} />} />
                         <Route path="/editor" element={<CodingEditor />} />
-                        <Route path="/register" element={<Dashboard />} />
-                        <Route path="/signin" element={<LoginForm />} />
-                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/register" element={<Dashboard setToken={giveToken} />} />
+                        <Route path="/signin" element={<Dashboard setToken={giveToken} />} />
+                        <Route path="/" element={<Dashboard setToken={giveToken} />} />
                 </Routes>
             </main>
         </React.Fragment>

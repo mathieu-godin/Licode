@@ -14,7 +14,22 @@ const styles = {
     }
 };
 
-class Dashboard extends Form {
+export interface DashboardProps {
+    setToken: Function
+}
+
+export interface DashboardState {}
+
+class Dashboard extends React.Component<DashboardProps, DashboardState> {
+    constructor(props: DashboardProps) {
+        super(props);
+        this.handleLogout = this.handleLogout.bind(this);
+    }
+
+    handleLogout () {
+        this.props.setToken();
+    };
+
     render() {
         return (
             <Paper style={styles.paperContainer}
@@ -76,7 +91,7 @@ class Dashboard extends Form {
                             >
                                 PLAY 
                             </Button>
-                            <Button variant="contained">
+                            <Button variant="contained" onClick={this.handleLogout}>
                                 LOGOUT
                             </Button>
                         </Stack>

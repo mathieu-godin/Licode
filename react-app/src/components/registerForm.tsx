@@ -52,7 +52,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
     
     async handleSubmit (e: React.SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
-        /*let user: User = {
+        let user: User = {
             email: { value: '' },
             username: { value: '' },
             password: { value: '' },
@@ -75,9 +75,8 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
             }
         } catch (err) {
             console.log(err);
-        }*/
-        this.props.setToken();
-    };
+        }
+    }
 
     render() {
         const errorMessage  = this.state.errorMessage;
