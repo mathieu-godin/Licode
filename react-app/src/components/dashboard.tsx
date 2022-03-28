@@ -51,6 +51,15 @@ export interface WinLossProps {
     loaded: boolean,
 }
 
+function computeWinRate(numWins: number, numLosses: number) {
+    let numGames = numWins + numLosses;
+    if (numGames > 0) {
+        return (numWins / numGames).toString() + '%';
+    } else {
+        return '0%';
+    }
+}
+
 function WinLossTable(props: WinLossProps) {
     const loaded: boolean = props.loaded;
     if (loaded) {
@@ -68,7 +77,7 @@ function WinLossTable(props: WinLossProps) {
                         </TableRow>
                         <TableRow>
                             <TableCell>Winrate: </TableCell>
-                            <TableCell>{props.numWins / (props.numWins + props.numLosses)}</TableCell>
+                            <TableCell>{computeWinRate(props.numWins, props.numLosses)}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
