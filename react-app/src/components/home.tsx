@@ -27,7 +27,7 @@ class Home extends React.Component<HomeProps, HomeState> {
                     Dashboard
                 </Button>
             </Grid>
-            <Grid item>
+            {/* <Grid item>
                 <Button variant="contained" href="/victory">
                     Victory
                 </Button>
@@ -36,7 +36,7 @@ class Home extends React.Component<HomeProps, HomeState> {
                 <Button variant="contained" href="/defeat">
                     Defeat
                 </Button>
-            </Grid>
+            </Grid> */}
         </Grid>
         <ProductHero/>
       </React.Fragment>

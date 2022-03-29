@@ -9,6 +9,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import { Navigate } from "react-router-dom";
 
 interface CodeSubmission {
     value: string;
@@ -82,9 +83,23 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.setState({ code: e.currentTarget.value });
     }
 
+    playerWon() : boolean {
+        const testsPassed: number = this.state.testCasesPassed.reduce((numPassed: number, passed: boolean) => {
+            if(passed){
+                return numPassed + 1;
+            } else {
+                return numPassed;
+            }
+        }, 0);
+        return testsPassed == 11;
+    }
+
     render() {
         const leftEditorCode: string = "def makeSum(nums, target):",
             rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*";
+        if(this.playerWon()){
+            return <Navigate to="/victory"/>
+        }
         return (
             <ThemeProvider theme={editorTheme}>
                 <Box sx={{ display: 'flex', height: '100%', bgcolor: 'primary.main', m: 0, p: 0 }}>

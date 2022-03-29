@@ -4,7 +4,7 @@ def makeSum(nums, target):
     end = len(nums) - 1
     while True:
         if (nums[idxs[start]] + nums[idxs[end]]) == target:
-            return (0, 0)
+            return (2, 0)
         elif (nums[idxs[start]] + nums[idxs[end]]) < target:
             start += 1
         else:
