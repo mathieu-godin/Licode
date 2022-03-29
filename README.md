@@ -161,12 +161,12 @@ deno version --upgrade 1.20.3
 #### Running the Server (on development machine)
 
 ```bash
-deno run --allow-net --allow-env --allow-read mod.ts
+sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
 ```
 
 #### Running the Server (on the server)
 ```bash
-sudo -E $DENO_INSTALL/bin/deno run --allow-net --allow-env --allow-read mod.ts
+sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
 ```
 
 If you go to localhost:3000 on a web browser, you should see our React application.
@@ -179,7 +179,7 @@ All the packages used by our Deno server were saved in the _packages_ folder the
 To reload the packages, run the following.
 
 ```bash
-deno run --allow-net --allow-env --allow-read --reload mod.ts
+sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
 ```
 
 ### How to Not Have to Restart the Server Each Time a Change Is Made
@@ -193,7 +193,7 @@ deno install -qAf --unstable https://deno.land/x/denon/denon.ts
 #### Starting the Server Such That It Doesn’t Have to Be Restarted Each Time a Change Is Made
 
 ```bash
-denon run --allow-net --allow-env --allow-read mod.ts
+sudo -E $DENO_INSTALL/bin/denon run --allow-all mod.ts
 ```
 
 ### How to Quickly Test the Frontend Application Without a Backend
