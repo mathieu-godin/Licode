@@ -1,15 +1,5 @@
 def makeSum(nums, target):
-    idxs = sorted(range(len(nums)), key=lambda x: nums[x])
-    start = 0
-    end = len(nums) - 1
-    while True:
-        if (nums[idxs[start]] + nums[idxs[end]]) == target:
-            return (2, 0)
-        elif (nums[idxs[start]] + nums[idxs[end]]) < target:
-            start += 1
-        else:
-            end -= 1
-
+    return (0,2)
 
 if __name__ == "__main__":
     target = int(input())
