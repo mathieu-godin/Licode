@@ -27,6 +27,16 @@ class Home extends React.Component<HomeProps, HomeState> {
                     Dashboard
                 </Button>
             </Grid>
+            <Grid item>
+                <Button variant="contained" href="/victory">
+                    Victory
+                </Button>
+            </Grid>
+            <Grid item>
+                <Button variant="contained" href="/defeat">
+                    Defeat
+                </Button>
+            </Grid>
         </Grid>
         <ProductHero/>
       </React.Fragment>
