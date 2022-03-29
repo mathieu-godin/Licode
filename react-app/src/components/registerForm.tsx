@@ -31,6 +31,7 @@ interface User {
   email: { value: string };
   username: { value: string };
   password: { value: string };
+  confirmpassword: { value: string };
 }
 
 const theme = createTheme();
@@ -56,25 +57,31 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
             email: { value: '' },
             username: { value: '' },
             password: { value: '' },
+            confirmpassword: { value: '' },
         }
         user.email.value = (e.target as typeof e.target & User).email.value;
         user.username.value = (e.target as typeof e.target & User).username.value;
         user.password.value = (e.target as typeof e.target & User).password.value;
-        try {
-            let res = await fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(user),
-            }).then(response => response.json());
-            if (res.text) {
-                this.setState({ errorMessage: res.text });
-            } else {
-                this.props.setToken();
+        user.confirmpassword.value = (e.target as typeof e.target & User).confirmpassword.value;
+        if(user.confirmpassword.value != user.password.value){
+            this.setState({ errorMessage: "Passwords do not match" });
+        } else {
+            try {
+                let res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(user),
+                }).then(response => response.json());
+                if (res.text) {
+                    this.setState({ errorMessage: res.text });
+                } else {
+                    this.props.setToken();
+                }
+            } catch (err) {
+                console.log(err);
             }
-        } catch (err) {
-            console.log(err);
         }
     }
 
@@ -137,9 +144,8 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         fullWidth
                         name="confirmpassword"
                         label="Confirm Password"
-                        type="confirmpassword"
+                        type="password"
                         id="confirmpassword"
-                        autoComplete="new-password"
                         />
                     </Grid>
                     <Grid item xs={12}>
