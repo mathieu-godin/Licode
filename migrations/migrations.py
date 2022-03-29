@@ -10,10 +10,10 @@ try:
     CONFIG_FILE = MIGRATIONS_PATH + 'migrations.conf'
     if len(sys.argv) == 3 and sys.argv[1] == 'make':
         date_time = datetime.now()
-        file_name = str(date_time.year) + '_' + str(date_time.month) + '_' \
-            + str(date_time.day) + '_' + str(date_time.hour) + '_' \
-            + str(date_time.minute) + '_' + str(date_time.second) + '_' \
-            + str(date_time.microsecond) + '_' + sys.argv[2] + '.sql'
+        file_name = f'{date_time.year:04}' + '_' + f'{date_time.month:02}' + '_' \
+            + f'{date_time.day:02}' + '_' + f'{date_time.hour:02}' + '_' \
+            + f'{date_time.minute:02}' + '_' + f'{date_time.second:02}' + '_' \
+            + f'{date_time.month:07}' + '_' + sys.argv[2] + '.sql'
         f = open(MIGRATIONS_PATH + file_name, 'w')
         f.close()
         print("\nMigration " + file_name + " was created\n")

@@ -124,9 +124,13 @@ router
                         for (let i = 0; i < 128 - hashedPasswordHexStringLength; ++i) {
                             hashedPasswordHexString = "0" + hashedPasswordHexString;
                         }
-                        await client.queryArray("insert into public.users(email, username, hashed_password, salt, created_at, updated_at)"
+                        await client.queryArray(
+                            "insert into public.users(email, username, hashed_password, salt, num_wins, num_losses, created_at, updated_at)"
                             + " values ('" + user?.email?.value + "', '" + user?.username?.value + "', '"
-                            + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', now(), now())");
+                            + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', '0', '0', now(), now())");
+                        let sid = await nanoid(40);
+                        sids[sid] = user.username.value;
+                        await context.cookies.set('sid', sid);
                         context.response.body = user;
                     } else {
                         context.response.body = { text: 'Given Email Already Exists' };
@@ -193,7 +197,7 @@ router
                             }
                             let sid = await nanoid(40);
                             sids[sid] = foundUser.username.value;
-                            context.cookies.set('sid', sid);
+                            await context.cookies.set('sid', sid);
                             context.response.body = foundUser;
                         } else {
                             context.response.body = { text: 'Wrong Password' };
@@ -251,14 +255,18 @@ router
                 let username = sids[sid as string];
                 if (username) {
                     await client.connect();
-                    const usernameResult = await client.queryArray("select email, username from users where username='"
+                    const usernameResult = await client.queryArray("select email, username, num_wins, num_losses from users where username='"
                         + username + "'");
                     let foundUser: User = {
                         email: { value: usernameResult.rows[0][0] as string },
                         username: { value: usernameResult.rows[0][1] as string },
                         password: { value: '' },
                     }
-                    context.response.body = foundUser;
+                    context.response.body = {
+                        user: foundUser,
+                        numWins: usernameResult.rows[0][2] as number,
+                        numLosses: usernameResult.rows[0][3] as number,
+                    };
                     await client.end();
                 }
             }
