@@ -10,9 +10,17 @@ import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
-export interface FormProps {}
+interface User {
+    email: { value: string };
+    username: { value: string };
+    password: { value: string };
+}
 
-export interface FormState {}
+export interface CodingEditorProps {}
+
+export interface CodingEditorState {
+    testCasesPassed: boolean[],
+}
 
 const EditorTextField = styled(TextField)({
     '& .MuiInputBase-input': {
@@ -29,7 +37,25 @@ const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
     },
 }));
 
-class CodingEditor extends React.Component<FormProps, FormState> {
+class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState> {
+    constructor(props: CodingEditorProps) {
+        super(props);
+        this.handleRun = this.handleRun.bind(this);
+        this.state = {
+            testCasesPassed: [false, false, false, false, false, false, false, false],
+        }
+    }
+
+    async handleRun () {
+        let res = await fetch('/api/run', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        }).then(response => response.json());
+    };
+
     render() {
         const leftEditorCode: string = "for i in range(150):\n    if i < 5:\n        print(i)",
             rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*";
