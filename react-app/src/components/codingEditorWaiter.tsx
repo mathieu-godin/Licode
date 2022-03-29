@@ -9,7 +9,7 @@ const CodingEditorWaiter = () => {
         );
     }
     return (
-        <div />
+        <div> Waiting for another player to join . . . </div>
     );
 }
 

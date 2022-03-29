@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./components/home";
 import LoginForm from "./components/loginForm";
 import RegisterForm from "./components/registerForm";
-import CodingEditor from "./components/codingEditor";
+import CodingEditorWaiter from "./components/codingEditorWaiter";
 import Dashboard from "./components/dashboard";
 import DashboardRedirect from "./components/dashboardRedirect";
 import HomeRedirect from "./components/homeRedirect";
@@ -26,7 +26,7 @@ function App() {
                 <main className="container">
                     <Routes>
                         <Route path="/dashboard" element={<HomeRedirect />} />
-                        <Route path="/editor" element={<CodingEditor />} />
+                        <Route path="/editor" element={<CodingEditorWaiter />} />
                         <Route path="/register" element={<RegisterForm setToken={getToken} />} />
                         <Route path="/signin" element={<LoginForm setToken={getToken} />} />
                         <Route path="/" element={<Home />} />
@@ -41,7 +41,7 @@ function App() {
             <main className="container">
                 <Routes>
                 <Route path="/dashboard" element={<Dashboard setToken={giveToken} />} />
-                        <Route path="/editor" element={<CodingEditor />} />
+                        <Route path="/editor" element={<CodingEditorWaiter />} />
                         <Route path="/register" element={<DashboardRedirect />} />
                         <Route path="/signin" element={<DashboardRedirect />} />
                         <Route path="/" element={<DashboardRedirect />} />

@@ -45,6 +45,8 @@ let helloWorldVar: HelloWorld = { text: 'Hello World' };
 
 let sids: { [name: string]: string } = {};
 
+let waiting = false;
+
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
     console.log(evt.error);
