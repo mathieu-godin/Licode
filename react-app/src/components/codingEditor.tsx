@@ -53,6 +53,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     constructor(props: CodingEditorProps) {
         super(props);
         this.handleRun = this.handleRun.bind(this);
+        this.handleCodeChange = this.handleCodeChange.bind(this);
         this.state = {
             testCasesPassed: [false, false, false, false, false, false, false, false],
             code: 'for i in range(150):\n    if i < 5:\n        print(i)',
@@ -77,7 +78,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     };
 
     handleCodeChange (e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({code: e.currentTarget.value});
+        console.log(e.currentTarget.value);
+        this.setState({ code: e.currentTarget.value });
     }
 
     render() {
@@ -170,7 +172,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={2}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
-                                        defaultValue={leftEditorCode} value={this.state.code} onChange={this.handleCodeChange} />
+                                        onChange={this.handleCodeChange} />
                                 </Grid>
                                 <Grid container item mt={4}>
                                     <Grid item xs={0.5} />

@@ -305,6 +305,7 @@ router
             }
             if (code) {
                 context.assert(typeof code?.value === "string", Status.BadRequest);
+                console.log(code.value);
                 context.response.status = Status.OK;
                 let testCasesPassed: TestCasesPassed = {
                     testCasesPassed: [true, true, true, true, true, true, true, false, false, false, false],
