@@ -6,6 +6,9 @@ const HomeRedirect = () => {
     useEffect(() => {
         navigate('/');
     });
+    setTimeout(function() {
+        document.getElementsByTagName('div')[0].click();
+    }, 100);
     return (
         <div />
     );

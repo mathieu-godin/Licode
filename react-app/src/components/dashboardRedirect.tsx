@@ -6,6 +6,9 @@ const DashboardRedirect = () => {
     useEffect(() => {
         navigate('/dashboard');
     });
+    setTimeout(function() {
+        document.getElementsByTagName('div')[0].click();
+    }, 100);
     return (
         <div />
     );
