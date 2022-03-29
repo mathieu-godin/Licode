@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const HomeRedirect = () => {
@@ -6,6 +6,9 @@ const HomeRedirect = () => {
     useEffect(() => {
         navigate('/');
     });
+    setTimeout(function() {
+        document.getElementsByTagName('div')[0].click();
+    }, 100);
     return (
         <div />
     );
