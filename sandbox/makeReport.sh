@@ -1,5 +1,7 @@
 #!/bin/bash
 
+(cat stub.py) >> answer.py
+
 containerID=$(docker run -dit py-sandbox)
 #echo $containerID
 docker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/

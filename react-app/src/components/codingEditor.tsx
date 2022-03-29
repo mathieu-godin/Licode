@@ -83,7 +83,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     }
 
     render() {
-        const leftEditorCode: string = "for i in range(150):\n    if i < 5:\n        print(i)",
+        const leftEditorCode: string = "def makeSum(nums, target):",
             rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*";
         return (
             <ThemeProvider theme={editorTheme}>
