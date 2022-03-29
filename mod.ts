@@ -310,17 +310,8 @@ router
             }
             if (code) {
                 context.assert(typeof code?.value === "string", Status.BadRequest);
-                console.log(code.value);
                 context.response.status = Status.OK;
-                // let testCasesPassed: TestCasesPassed = {
-                //     testCasesPassed: [true, true, true, true, true, true, true, false, false, false, false],
-                // }
-                // const dylib = Deno.dlopen("./sandbox/report_creator.so", {
-                //     "createReport": {parameters: [], result: "i32"}
-                // });
-                //console.log(dylib)
                 await Deno.writeTextFile("./sandbox/answer.py", code.value);
-                //const res: number = dylib.symbols.createReport();
                 const reportProcess = Deno.run({
                     cmd: ["./makeReport.sh"],
                     cwd: "./sandbox",
@@ -335,7 +326,6 @@ router
                     testCasesPassed: testResults.map((tr: TestResult) => tr.passed)
                 };
                 context.response.body = testCasesPassed;
-                //dylib.close();
             }
         } catch (err) {
             console.log(err);
