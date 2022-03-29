@@ -33,6 +33,14 @@ interface User {
     password: { value: string };
 }
 
+interface CodeSubmission {
+    value: string;
+}
+
+interface TestCasesPassed {
+    testCasesPassed: boolean[];
+}
+
 let helloWorldVar: HelloWorld = { text: 'Hello World' };
 
 let sids: { [name: string]: string } = {};
@@ -280,6 +288,28 @@ router
             if (sid && typeof sid === 'string') {
                 delete sids[sid as string];
                 context.response.body = { text: 'Successfully Logged Out' };
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    })
+    .post("/api/run", async (context: RouterContext<any>) => {
+        try {
+            if (!context.request.hasBody) {
+                context.throw(Status.BadRequest, "Bad Request");
+            }
+            const body = context.request.body();
+            let code: Partial<CodeSubmission> | undefined;
+            if (body.type === "json") {
+                code = await body.value;
+            }
+            if (code) {
+                context.assert(typeof code?.value === "string", Status.BadRequest);
+                context.response.status = Status.OK;
+                let testCasesPassed: TestCasesPassed = {
+                    testCasesPassed: [true, true, true, true, true, true, true, false, false, false, false],
+                }
+                context.response.body = testCasesPassed;
             }
         } catch (err) {
             console.log(err);

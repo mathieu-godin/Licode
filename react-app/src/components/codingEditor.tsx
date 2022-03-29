@@ -10,16 +10,15 @@ import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
-interface User {
-    email: { value: string };
-    username: { value: string };
-    password: { value: string };
+interface CodeSubmission {
+    value: string;
 }
 
 export interface CodingEditorProps {}
 
 export interface CodingEditorState {
     testCasesPassed: boolean[],
+    code: string,
 }
 
 const EditorTextField = styled(TextField)({
@@ -37,24 +36,49 @@ const ColorButton = styled(Button)<ButtonProps>(({ theme }) => ({
     },
 }));
 
+export interface TestCaseIndicatorProps {
+    passed: boolean,
+}
+
+function TestCaseIndicator(props: TestCaseIndicatorProps) {
+    const passed: boolean = props.passed;
+    if (passed) {
+        return <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />;
+    } else {
+        return <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />;
+    }
+}
+
 class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState> {
     constructor(props: CodingEditorProps) {
         super(props);
         this.handleRun = this.handleRun.bind(this);
         this.state = {
             testCasesPassed: [false, false, false, false, false, false, false, false],
+            code: 'for i in range(150):\n    if i < 5:\n        print(i)',
         }
     }
 
     async handleRun () {
+        let codeSubmission: CodeSubmission = {
+            value: '',
+        }
+        codeSubmission.value = this.state.code;
         let res = await fetch('/api/run', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(user),
+            body: JSON.stringify(codeSubmission),
         }).then(response => response.json());
+        if (res.testCasesPassed) {
+            this.setState({ testCasesPassed: res.testCasesPassed });
+        }
     };
+
+    handleCodeChange (e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({code: e.currentTarget.value});
+    }
 
     render() {
         const leftEditorCode: string = "for i in range(150):\n    if i < 5:\n        print(i)",
@@ -146,7 +170,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={2}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
-                                        defaultValue={leftEditorCode} />
+                                        defaultValue={leftEditorCode} value={this.state.code} onChange={this.handleCodeChange} />
                                 </Grid>
                                 <Grid container item mt={4}>
                                     <Grid item xs={0.5} />
@@ -159,37 +183,37 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         <Grid container item>
                                             <Grid item xs={0.5} />
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[0]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[1]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[2]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[3]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[4]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[5]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[6]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[7]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[8]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[9]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.testCasesPassed[10]} />
                                             </Grid>
                                             <Grid item xs={0.5} />
                                         </Grid>
@@ -295,7 +319,9 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                         <Grid container item mt={3}>
                             <Grid item xs={0.5} />
                             <Grid item xs={1.5}>
-                                <ColorButton variant="contained" sx={{ minWidth: 125, fontSize: 24 }}>Run</ColorButton>
+                                <ColorButton variant="contained" sx={{ minWidth: 125, fontSize: 24 }} onClick={this.handleRun}>
+                                    Run
+                                </ColorButton>
                             </Grid>
                             <Grid item xs={10} />
                         </Grid>
