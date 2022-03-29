@@ -8,6 +8,8 @@ import CodingEditor from "./components/codingEditor";
 import Dashboard from "./components/dashboard";
 import DashboardRedirect from "./components/dashboardRedirect";
 import HomeRedirect from "./components/homeRedirect";
+import VictoryScreen from "./components/victoryScreen";
+import DefeatScreen from "./components/defeatScreen";
 
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token') === '1');
@@ -29,6 +31,8 @@ function App() {
                         <Route path="/editor" element={<CodingEditor />} />
                         <Route path="/register" element={<RegisterForm setToken={getToken} />} />
                         <Route path="/signin" element={<LoginForm setToken={getToken} />} />
+                        <Route path="/victory" element={<VictoryScreen />} />
+                        <Route path="/defeat" element={<DefeatScreen />} />
                         <Route path="/" element={<Home />} />
                     </Routes>
                 </main>
