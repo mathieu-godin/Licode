@@ -29,8 +29,7 @@ function App() {
                 <main className="container">
                     <Routes>
                         <Route path="/dashboard" element={<HomeRedirect />} />
-                        {/* <Route path="/editor" element={<CodingEditorWaiter />} /> */}
-                        <Route path="/editor" element={<CodingEditor/>} />
+                        <Route path="/editor" element={<CodingEditorWaiter id={1} />} />
                         <Route path="/register" element={<RegisterForm setToken={getToken} />} />
                         <Route path="/signin" element={<LoginForm setToken={getToken} />} />
                         <Route path="/victory" element={<VictoryScreen />} />
@@ -48,7 +47,7 @@ function App() {
                 <Routes>
                 <Route path="/dashboard" element={<Dashboard setToken={giveToken} />} />
                         {/* <Route path="/editor" element={<CodingEditorWaiter />} /> */}
-                        <Route path="/editor" element={<CodingEditor/>} />
+                        <Route path="/editor" element={<CodingEditor id={1}/>} />
                         <Route path="/register" element={<DashboardRedirect />} />
                         <Route path="/signin" element={<DashboardRedirect />} />
                         <Route path="/" element={<DashboardRedirect />} />

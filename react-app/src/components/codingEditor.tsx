@@ -9,17 +9,29 @@ import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { Navigate } from "react-router-dom";
 
 interface CodeSubmission {
     value: string;
 }
 
-export interface CodingEditorProps {}
+interface Msg {
+    MsgType: number,
+    Ok: boolean,
+    What: string,
+}
+
+export interface CodingEditorProps {
+    id: number,
+}
 
 export interface CodingEditorState {
     testCasesPassed: boolean[],
     code: string,
+    socket:  WebSocket,
+    id: number,
+    typingSlow: boolean,
+    sendingCodeUpdates: boolean,
+    firstMsg: boolean,
 }
 
 const EditorTextField = styled(TextField)({
@@ -55,10 +67,87 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         super(props);
         this.handleRun = this.handleRun.bind(this);
         this.handleCodeChange = this.handleCodeChange.bind(this);
+        this.peekOpponent = this.peekOpponent.bind(this)
+        this.slowOpponent = this.slowOpponent.bind(this)
+        this.skipTestCase = this.skipTestCase.bind(this)
+        
+        const sock = new WebSocket("ws://localhost:8080/ws");
         this.state = {
             testCasesPassed: [false, false, false, false, false, false, false, false],
             code: 'for i in range(150):\n    if i < 5:\n        print(i)',
+            socket: sock,
+            id: props.id,
+            typingSlow: false,
+            sendingCodeUpdates: false,
+            firstMsg: true,
         }
+        console.log("Attempting Connection...");
+        this.state.socket.onopen = () => {
+            console.log("Successfully Connected");
+            //development way of requesting an id
+            sock.send("Connected")
+        };
+        
+        this.state.socket.onclose = () => {
+            console.log("Client Closed!")
+            //sock.send("Client Closed!")
+            //probably need some reconnect scheme
+            //may need to make a helper for all writing to
+            //server to detect disconnects
+        };
+        
+        this.state.socket.onmessage = (event) => {
+            //development way of receiving id
+            if(this.state.firstMsg) {
+                this.setState({
+                    id: parseInt(event.data),
+                    firstMsg: false,
+                })
+                //register with our id
+                this.state.socket.send("1 ".concat(this.state.id.toString()))
+                return
+            }
+            console.log(event)
+            const msgObj: Msg = JSON.parse(event.data)
+            console.log(msgObj)
+            switch(msgObj.MsgType) {
+                case 1:
+                    //type=Connection
+                    if(msgObj.Ok) {
+                        console.log("Registered!")
+                    } else {
+                        console.log("Registration Failed! ".concat(msgObj.What))
+                    }
+                    break
+                case 2:
+                    //type=CodeUpdate
+                    console.log(msgObj.What)
+                    break
+                case 3:
+                    //type=Peek
+                    this.setState({
+                        sendingCodeUpdates: !msgObj.Ok
+                    })
+                    break
+                case 4:
+                    //type=Slow
+                    this.setState({
+                        typingSlow: !msgObj.Ok
+                    })
+                    break      
+                case 6:
+                    //type=Error
+                    console.log(msgObj.What)
+                    break
+                default:
+                    break
+            }
+        }
+
+        this.state.socket.onerror = (error) => {
+            console.log("Socket Error: ", error);
+        };
+
     }
 
     async handleRun () {
@@ -78,9 +167,36 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         }
     };
 
+    peekOpponent () {
+        console.log("Sending Peek")
+        this.state.socket.send("3")
+    }
+    slowOpponent () {
+        console.log("Sending Slow")
+        this.state.socket.send("4")
+    }
+    skipTestCase () {
+        console.log("Sending Skip")
+        this.state.socket.send("5")
+    }
+
     handleCodeChange (e: React.ChangeEvent<HTMLInputElement>) {
-        console.log(e.currentTarget.value);
-        this.setState({ code: e.currentTarget.value });
+        const newCode = e.currentTarget.value
+        const update = () => {
+            if(this.state.sendingCodeUpdates) {
+                this.state.socket.send("2 ".concat(e.currentTarget.value));
+                this.setState({ code: e.currentTarget.value });
+            }
+        }
+        if(this.state.typingSlow) {
+            e.currentTarget.value = this.state.code
+            setTimeout(() => {
+                e.currentTarget.value = newCode
+                update()
+            })
+        } else {
+            update()
+        }
     }
 
     playerWon() : boolean {
@@ -97,9 +213,9 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     render() {
         const leftEditorCode: string = "def makeSum(nums, target):",
             rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*";
-        if(this.playerWon()){
-            return <Navigate to="/victory"/>
-        }
+        // if(this.playerWon()){
+        //     return <Navigate to="/victory"/>
+        // }
         return (
             <ThemeProvider theme={editorTheme}>
                 <Box sx={{ display: 'flex', height: '100%', bgcolor: 'primary.main', m: 0, p: 0 }}>
@@ -173,7 +289,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                             </Typography>
                                         </Grid>
                                         <Grid item>
-                                            <IconButton color="button">
+                                            <IconButton color="button" onClick={this.skipTestCase}>
                                                 <CheckCircleIcon sx={{ fontSize: 32 }} />
                                             </IconButton>
                                         </Grid>
@@ -250,7 +366,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         </Grid>
                                         <Grid container>
                                             <Grid item xs="auto">
-                                                <IconButton color="button">
+                                                <IconButton color="button" onClick={this.slowOpponent}>
                                                     <SpeedIcon sx={{ fontSize: 32 }} />
                                                 </IconButton>
                                             </Grid>
@@ -260,7 +376,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs="auto">
-                                                <IconButton color="button">
+                                                <IconButton color="button" onClick={this.peekOpponent}>
                                                     <RemoveRedEyeIcon sx={{ fontSize: 32 }} />
                                                 </IconButton>
                                             </Grid>
