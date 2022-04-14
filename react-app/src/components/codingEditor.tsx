@@ -14,6 +14,18 @@ interface CodeSubmission {
     value: string;
 }
 
+enum MSGTYPE {
+    MsgTypeBegin  = 0,
+	Connection    = 1,
+	CodeUpdate    = 2,
+	Peek          = 3,
+	Slow          = 4,
+	Skip          = 5,
+	Error         = 6,
+	MsgTypeEnd    = 7,
+}
+const AlwaysSendCodeUpdate = true
+
 interface Msg {
     MsgType: number,
     Ok: boolean,
@@ -27,11 +39,14 @@ export interface CodingEditorProps {
 export interface CodingEditorState {
     testCasesPassed: boolean[],
     code: string,
+    rightEditorCode: string,
     socket:  WebSocket,
     id: number,
     typingSlow: boolean,
     sendingCodeUpdates: boolean,
     firstMsg: boolean,
+    peeking: boolean,
+    skipping: boolean,
 }
 
 const EditorTextField = styled(TextField)({
@@ -70,16 +85,23 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.peekOpponent = this.peekOpponent.bind(this)
         this.slowOpponent = this.slowOpponent.bind(this)
         this.skipTestCase = this.skipTestCase.bind(this)
+        this.opponentEditorChange = this.opponentEditorChange.bind(this)
+        this.processOpponentCode = this.processOpponentCode.bind(this)
+        this.sendCodeUpdate = this.sendCodeUpdate.bind(this)
+        this.playerWon = this.playerWon.bind(this)
         
         const sock = new WebSocket("ws://localhost:8080/ws");
         this.state = {
             testCasesPassed: [false, false, false, false, false, false, false, false],
             code: 'for i in range(150):\n    if i < 5:\n        print(i)',
+            rightEditorCode: '',
             socket: sock,
             id: props.id,
             typingSlow: false,
             sendingCodeUpdates: false,
             firstMsg: true,
+            peeking: false,
+            skipping: false,
         }
         console.log("Attempting Connection...");
         this.state.socket.onopen = () => {
@@ -104,40 +126,60 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                     firstMsg: false,
                 })
                 //register with our id
-                this.state.socket.send("1 ".concat(this.state.id.toString()))
+                this.state.socket.send(MSGTYPE.Connection.toString().concat(" ".concat(this.state.id.toString())))
                 return
             }
-            console.log(event)
             const msgObj: Msg = JSON.parse(event.data)
             console.log(msgObj)
             switch(msgObj.MsgType) {
-                case 1:
-                    //type=Connection
+                case MSGTYPE.Connection: //connecting and reconnecting
                     if(msgObj.Ok) {
                         console.log("Registered!")
+                        //send initial code update
+                        this.sendCodeUpdate(this.state.code)
                     } else {
                         console.log("Registration Failed! ".concat(msgObj.What))
                     }
                     break
-                case 2:
-                    //type=CodeUpdate
-                    console.log(msgObj.What)
+                case MSGTYPE.CodeUpdate: 
+                    if(msgObj.Ok) {
+                        //receiving a code update
+                        this.setState({
+                            rightEditorCode: this.processOpponentCode(msgObj.What)
+                        })
+                    } else if (msgObj.What == "B") {
+                        //handle request for code updates
+                        this.setState({
+                            sendingCodeUpdates: true
+                        })
+                        //since we are being asked to send updates, 
+                        //we have to send one now
+                        if(this.state.sendingCodeUpdates) {
+                            this.state.socket.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(this.state.code)))
+                        }
+                    } else if (msgObj.What == "E") {
+                        //stop sending code updates
+                        this.setState({
+                            sendingCodeUpdates: false
+                        })
+                    }
                     break
-                case 3:
-                    //type=Peek
+                case MSGTYPE.Peek:
+                    //stop peaking
                     this.setState({
-                        sendingCodeUpdates: !msgObj.Ok
+                        peeking: false
+                    })
+                    this.setState({
+                        rightEditorCode: this.processOpponentCode(this.state.rightEditorCode)
                     })
                     break
-                case 4:
-                    //type=Slow
+                case MSGTYPE.Slow:
                     this.setState({
                         typingSlow: !msgObj.Ok
                     })
                     break      
-                case 6:
-                    //type=Error
-                    console.log(msgObj.What)
+                case MSGTYPE.Error:
+                    console.log("Error: ".concat(msgObj.What))
                     break
                 default:
                     break
@@ -169,34 +211,62 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
 
     peekOpponent () {
         console.log("Sending Peek")
-        this.state.socket.send("3")
+        this.state.socket.send(MSGTYPE.Peek.toString())
+        this.setState({
+            peeking: true
+        })
     }
     slowOpponent () {
         console.log("Sending Slow")
-        this.state.socket.send("4")
+        this.state.socket.send(MSGTYPE.Slow.toString())
     }
     skipTestCase () {
         console.log("Sending Skip")
-        this.state.socket.send("5")
+        this.setState({
+            skipping: true
+        })
+        this.state.socket.send(MSGTYPE.Skip.toString())
+    }
+
+    processOpponentCode (code: string) : string {
+        if(this.state.peeking) {
+            return code;
+        }
+        var r = 0
+        var randomChars : string = "#!$*?~"
+        var ret = code.replace(/[^\s]/g, (substr: string, ..._args: any[]) : string => {
+            console.log("substr: ".concat(substr))
+            const oldR = r
+            r = (r + 1) % randomChars.length
+            return randomChars[oldR]
+        })  
+
+        return ret
+    }  
+
+    sendCodeUpdate(code: string) {
+        if(this.state.sendingCodeUpdates || AlwaysSendCodeUpdate) {
+            this.state.socket.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(code)));
+        }
     }
 
     handleCodeChange (e: React.ChangeEvent<HTMLInputElement>) {
-        const newCode = e.currentTarget.value
-        const update = () => {
-            if(this.state.sendingCodeUpdates) {
-                this.state.socket.send("2 ".concat(e.currentTarget.value));
-                this.setState({ code: e.currentTarget.value });
-            }
-        }
+        const oldCode = this.state.code
+        this.setState({ code: e.currentTarget.value });
         if(this.state.typingSlow) {
-            e.currentTarget.value = this.state.code
+            e.currentTarget.value = oldCode
+            var target = e.currentTarget
             setTimeout(() => {
-                e.currentTarget.value = newCode
-                update()
-            })
+                target.value = this.state.code
+                this.sendCodeUpdate(this.state.code)
+            }, 500)
         } else {
-            update()
+            this.sendCodeUpdate(this.state.code)
         }
+    }
+
+    opponentEditorChange (e: React.ChangeEvent<HTMLInputElement>) {
+        console.log("Opponent Editor Change")
     }
 
     playerWon() : boolean {
@@ -207,7 +277,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 return numPassed;
             }
         }, 0);
-        return testsPassed == 11;
+        const pWon = testsPassed == 11 || testsPassed == 10 && this.state.skipping;
+        this.setState({
+            skipping: false
+        })
+        return pWon
     }
 
     render() {
@@ -303,7 +377,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={2}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
-                                        onChange={this.handleCodeChange} />
+                                        onChange={this.handleCodeChange} defaultValue={this.state.code}/>
                                 </Grid>
                                 <Grid container item mt={4}>
                                     <Grid item xs={0.5} />
@@ -396,7 +470,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={2}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
-                                        defaultValue={rightEditorCode} InputProps={{ readOnly: true }} />
+                                        value={this.state.rightEditorCode} InputProps={{ readOnly: true }} />
                                 </Grid>
                                 <Grid container item mt={4}>
                                     <Grid item xs={0.5} />

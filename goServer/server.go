@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -25,6 +26,7 @@ const (
 	Error              = 6
 	MsgTypeEnd         = 7
 )
+const AlwaysSendCodeUpdates = true
 
 //the only struct sent to clients
 type Msg struct {
@@ -79,8 +81,8 @@ func makeSlow(stop bool) Msg {
 }
 
 //CodeUpdate ctor
-func makeCodeUpdate(code string) Msg {
-	return makeMsg(CodeUpdate, true, code)
+func makeCodeUpdate(code string, ok bool) Msg {
+	return makeMsg(CodeUpdate, ok, code)
 }
 
 //Error ctor
@@ -138,6 +140,8 @@ type Player struct {
 
 	//queue of messages to be sent
 	inbox []WrappedMsg
+
+	mu sync.Mutex
 }
 
 //Player ctor
@@ -154,6 +158,7 @@ func makePlayer(connected bool, id int, opponentId int, conn *websocket.Conn) Pl
 
 //list to store players
 var players = []Player{}
+var playersMU sync.Mutex
 
 //id to index for constant time mutable access
 var idxOf = make(map[int]int)
@@ -167,14 +172,27 @@ type Pair struct {
 }
 
 func addPair(pair Pair) {
+	playersMU.Lock()
+
 	//save index of the first new player
 	idxOf[pair.id1] = len(players)
+	//same for second new player
+	idxOf[pair.id2] = len(players) + 1
+
+	for i := 0; i < len(players); i += 1 {
+		players[i].mu.Lock()
+	}
+
 	//make first new player
 	players = append(players, makePlayer(false, pair.id1, pair.id2, nil))
-
-	//same for second new player
-	idxOf[pair.id2] = len(players)
+	//same for second
 	players = append(players, makePlayer(false, pair.id2, pair.id1, nil))
+
+	for i := 0; i < len(players)-2; i += 1 {
+		players[i].mu.Unlock()
+	}
+
+	playersMU.Unlock()
 }
 
 //register a pair of players who will compete
@@ -218,8 +236,8 @@ func registerPair(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 	} else {
 		w.WriteHeader(405)
-		player1 := players[player1Idx]
-		player2 := players[player2Idx]
+		var player1 *Player = &players[player1Idx]
+		var player2 *Player = &players[player2Idx]
 		if ok1 && ok2 && player1.opponentId == pair.id2 && player2.opponentId == pair.id1 {
 			//this pair is already registered
 			w.Write([]byte("Error: Pair already registered."))
@@ -240,9 +258,9 @@ func registerPair(w http.ResponseWriter, r *http.Request) {
 //contains id
 func isRegistered(id int) bool {
 	//commented for testing
-	// _, ok := players[id]
-	// return ok
-	return true
+	_, ok := idxOf[id]
+	return ok
+	//return true
 }
 
 func addMsg(id int, defMsgType int, msg Msg, callback Callback) {
@@ -258,7 +276,9 @@ func addMsg(id int, defMsgType int, msg Msg, callback Callback) {
 //Returns false if the message was queued
 func safeWrite(id int, defMsgType int, msg Msg, callback Callback, queueOnFail bool) bool {
 	if players[idxOf[id]].conn == nil {
+		players[idxOf[id]].mu.Lock()
 		players[idxOf[id]].connected = false
+		players[idxOf[id]].mu.Unlock()
 		if queueOnFail {
 			addMsg(id, defMsgType, msg, callback)
 		}
@@ -272,10 +292,14 @@ func safeWrite(id int, defMsgType int, msg Msg, callback Callback, queueOnFail b
 		return false
 	}
 
+	players[idxOf[id]].mu.Lock()
 	err = players[idxOf[id]].conn.WriteMessage(defMsgType, data)
+	players[idxOf[id]].mu.Unlock()
 	if err != nil {
+		players[idxOf[id]].mu.Lock()
 		players[idxOf[id]].connected = false
 		players[idxOf[id]].conn = nil
+		players[idxOf[id]].mu.Unlock()
 		if queueOnFail {
 			addMsg(id, defMsgType, msg, callback)
 		}
@@ -377,16 +401,20 @@ func reader(conn *websocket.Conn) {
 				//maybe want to error, but what if they silently disconnected?
 				log.Println("Already connected")
 			}
+			players[idxOf[id]].mu.Lock()
 			//ensure we know the player is connected
 			players[idxOf[id]].connected = true
 			//ensure their connection is up to date (i.e. not an invalid pointer
 			//from a dropped connection.)
 			players[idxOf[id]].conn = conn
+			players[idxOf[id]].mu.Unlock()
 
 			//give missed updates
 			for i := 0; i < len(players[idxOf[id]].inbox); i += 1 {
 				if safeWrite(id, players[idxOf[id]].inbox[i].defMsgType, players[idxOf[id]].inbox[i].msg, players[idxOf[id]].inbox[i].callback, false) {
+					players[idxOf[id]].mu.Lock()
 					players[idxOf[id]].inbox = append(players[idxOf[id]].inbox[:i], players[idxOf[id]].inbox[i+1:]...)
+					players[idxOf[id]].mu.Unlock()
 				} else {
 					idSet = false
 					goto ConnectionDropped
@@ -412,7 +440,7 @@ func reader(conn *websocket.Conn) {
 		case CodeUpdate:
 			opponentId := players[idxOf[id]].opponentId
 			opponentIdx := idxOf[opponentId]
-			if players[opponentIdx].isPeeking {
+			if players[opponentIdx].isPeeking || AlwaysSendCodeUpdates {
 				//recover code
 				code := msg
 				msgTypeStr := fmt.Sprint(msgType)
@@ -421,8 +449,11 @@ func reader(conn *websocket.Conn) {
 				for ; i < len(code) && code[i] == ' '; i += 1 {
 				}
 				//read msgType
-				for j := 0; j < len(msgTypeStr) && (i+j) < len(code) && code[i+j] == msgTypeStr[j]; j += 1 {
+				j := 0
+				for j < len(msgTypeStr) && (i+j) < len(code) && code[i+j] == msgTypeStr[j] {
+					j += 1
 				}
+				i += j
 				//read white space
 				for ; i < len(code) && code[i] == ' '; i += 1 {
 				}
@@ -432,9 +463,8 @@ func reader(conn *websocket.Conn) {
 				} else {
 					code = ""
 				}
-
 				//package the code in a msg
-				codeUpdate := makeCodeUpdate(code)
+				codeUpdate := makeCodeUpdate(code, true)
 				callback := func() {}
 				//if this is the first update then we
 				//want to wait until the update has been given...
@@ -444,25 +474,30 @@ func reader(conn *websocket.Conn) {
 						players[opponentId].updated = true
 						//after 15 seconds, tell the player to stop sending their code
 						time.AfterFunc(15*time.Second, func() {
+							log.Println("in initial code update callback")
 							players[opponentId].isPeeking = false
-							safeWrite2(id, defMsgType, makePeek(true), true)
+							safeWrite2(opponentId, defMsgType, makePeek(true), true)
+							safeWrite2(id, defMsgType, makeCodeUpdate("E", false), true)
 						})
 					}
 				}
 				safeWrite(opponentId, defMsgType, codeUpdate, callback, true)
 			} else {
-				//if their opponent isn't peeking then just tell this player
-				//to stop
-				safeWrite2(id, defMsgType, makePeek(true), true)
+				//if their opponent isn't peeking and we are not always sending updates
+				//then just tell this player to stop
+				safeWrite2(id, defMsgType, makeCodeUpdate("E", false), true)
 			}
 			break
 		case Peek:
 			//just mark that player is peeking
+			players[idxOf[id]].mu.Lock()
 			players[idxOf[id]].isPeeking = true
+			players[idxOf[id]].updated = false
+			players[idxOf[id]].mu.Unlock()
 			//tell the opponent to start sending updates (they are told to stop)
 			//via callback in the CodeUpdate case so that their time doesn't start
 			//until they actually receive a CodeUpdate
-			safeWrite2(players[idxOf[id]].opponentId, defMsgType, makePeek(false), true)
+			safeWrite2(players[idxOf[id]].opponentId, defMsgType, makeCodeUpdate("B", false), true)
 			break
 		case Slow:
 			opponentId := players[idxOf[id]].opponentId
@@ -536,6 +571,8 @@ func setupRoutes() {
 
 func main() {
 	fmt.Println("Start server...")
+	//this is what a call to /register will ultimately do
+	//player with id id1 will compete with player with id id2
 	addPair(Pair{
 		id1: 0,
 		id2: 1,
