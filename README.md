@@ -118,14 +118,16 @@ iwr https://deno.land/x/install/install.ps1 -useb | iex
 
 ### Installing Go
 
-Version go1.18
+Install version go1.18
+
 This is probably the best resource, you may have to set GOROOT and/or GOPATH if you
 deviate from the install instructions
+
 https://go.dev/doc/install
 
-You also have to install github.com/gorilla/websocket
+You also have to install github.com/gorilla/websocket.
 I used go get github.com/gorilla/websocket which is deprecated,
-maybe try go install instead
+maybe try go install instead.
 
 
 ### Server Installation and Execution
