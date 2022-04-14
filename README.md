@@ -249,3 +249,29 @@ https://github.com/mathieu-godin/migrations
 ### Unstable SSL/TLS Support
 
 As Deno is a recent back-end framework, not everything is stable or well supported. SSL/TLS support, i.e., what makes handling HTTPS requests possible, is not well supported yet and requires the _--unstable_ flag when running Deno and it usually doesn't work very well.
+TODO (Is this still an issue, I think Nginx fixed it)
+
+
+### The Ubuntu Server
+
+The Ubuntu server; runs the deno server, runs the go server and may run another server for sandboxing.
+
+To manage the server you can ssh in with ssh -i keyfile.pem ubuntu@licode.io. 
+
+You will need to add your ip to the white list on AWS
+
+EC2 -> Instances -> Click the instance -> Security -> Click the security group -> 
+Edit the rule for ssh.) 
+
+You will also need the key file. AWS only allows one download, so ask me
+for it then store it somewhere.
+
+It uses Nginx to forward requests from default ports and with given protocols to the ports that the deno
+and go servers expect. This is managed from /etc/nginx/sites-available/default. This is where TLS is handled,
+i.e. that file specifies our certificate. I used certbot from Let's Encrypt to generate the certificate.
+
+The deno server is run as a systemd service. The unit file for this service is found /etc/systemd/system/licode.server.service.
+It specifies the same environment variables specified above, and runs as root in the ~/licode directory. It runs on start up and will restart
+if it crashes.
+
+The go server(s) will be the same
