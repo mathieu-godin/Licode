@@ -28,6 +28,7 @@ export interface DashboardState {
     user: User,
     numWins: number,
     numLosses: number,
+    eloRating: number,
     loaded: boolean,
 }
 
@@ -48,6 +49,7 @@ function Greeting(props: GreetingProps) {
 export interface WinLossProps {
     numWins: number,
     numLosses: number,
+    eloRating: number,
     loaded: boolean,
 }
 
@@ -67,6 +69,10 @@ function WinLossTable(props: WinLossProps) {
             <TableContainer component={Paper}>
                 <Table>                          
                     <TableBody>
+                        <TableRow>
+                            <TableCell>Rating: </TableCell>
+                            <TableCell>{props.eloRating}</TableCell>
+                        </TableRow>
                         <TableRow>
                             <TableCell>Number of Wins: </TableCell>
                             <TableCell>{props.numWins}</TableCell>
@@ -119,6 +125,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
             },
             numWins: 500,
             numLosses: 500,
+            eloRating: 5000,
             loaded: false,
         }
     }
@@ -129,6 +136,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                 user: json.user,
                 numWins: json.numWins,
                 numLosses: json.numLosses,
+                eloRating: json.eloRating,
                 loaded: true,
             });
         })
@@ -174,7 +182,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                             >
                                 STATS
                             </Typography>
-                            <WinLossTable loaded={this.state.loaded} numWins={this.state.numWins} numLosses={this.state.numLosses} />
+                            <WinLossTable loaded={this.state.loaded} numWins={this.state.numWins} numLosses={this.state.numLosses} eloRating={this.state.eloRating} />
                             <Button 
                                 fullWidth variant="contained"
                                 href="/editor"                                           

@@ -140,9 +140,9 @@ router
                             hashedPasswordHexString = "0" + hashedPasswordHexString;
                         }
                         await client.queryArray(
-                            "insert into public.users(email, username, hashed_password, salt, num_wins, num_losses, created_at, updated_at)"
+                            "insert into public.users(email, username, hashed_password, salt, num_wins, num_losses, created_at, updated_at, elo_rating, has_2400_rating_history)"
                             + " values ('" + user?.email?.value + "', '" + user?.username?.value + "', '"
-                            + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', '0', '0', now(), now())");
+                            + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', '0', '0', now(), now(), '1000', 'false')");
                         let sid = await nanoid(40);
                         sids[sid] = user.username.value;
                         await context.cookies.set('sid', sid);
@@ -270,7 +270,7 @@ router
                 let username = sids[sid as string];
                 if (username) {
                     await client.connect();
-                    const usernameResult = await client.queryArray("select email, username, num_wins, num_losses from users where username='"
+                    const usernameResult = await client.queryArray("select email, username, num_wins, num_losses, elo_rating from users where username='"
                         + username + "'");
                     let foundUser: User = {
                         email: { value: usernameResult.rows[0][0] as string },
@@ -281,6 +281,7 @@ router
                         user: foundUser,
                         numWins: usernameResult.rows[0][2] as number,
                         numLosses: usernameResult.rows[0][3] as number,
+                        eloRating: usernameResult.rows[0][4] as number,
                     };
                     await client.end();
                 }
