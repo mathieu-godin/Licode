@@ -18,8 +18,28 @@ interface CodeSubmission {
 export interface CodingEditorProps {}
 
 export interface CodingEditorState {
+    username: string,
+    eloRating: number,
+    opponentUsername: string,
+    opponentEloRating: number,
+    loaded: boolean,
     testCasesPassed: boolean[],
     code: string,
+}
+
+export interface PlayerInformationProps {
+    username: string,
+    eloRating: number,
+    loaded: boolean,
+}
+
+function PlayerInformation(props: PlayerInformationProps) {
+    const loaded: boolean = props.loaded;
+    if (loaded) {
+        return <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>{props.username}: Rank {props.eloRating}</Typography>;
+    } else {
+        return <Typography variant="aboveEditor" sx={{ m: 0, p: 0, display: "none" }} />;
+    }
 }
 
 const EditorTextField = styled(TextField)({
@@ -56,9 +76,26 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.handleRun = this.handleRun.bind(this);
         this.handleCodeChange = this.handleCodeChange.bind(this);
         this.state = {
+            username: '',
+            eloRating: 5000,
+            opponentUsername: '',
+            opponentEloRating: 5000,
+            loaded: false,
             testCasesPassed: [false, false, false, false, false, false, false, false],
             code: 'for i in range(150):\n    if i < 5:\n        print(i)',
         }
+    }
+
+    componentDidMount() {
+        fetch('/api/opponent').then(response => response.json()).then((json) => {
+            this.setState({
+                username: json.username,
+                eloRating: json.eloRating,
+                opponentUsername: json.opponentUsername,
+                opponentEloRating: json.opponentEloRating,
+                loaded: true,
+            });
+        })
     }
 
     async handleRun () {
@@ -168,9 +205,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
                                         <Grid item>
-                                            <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
-                                                You: Rank 138
-                                            </Typography>
+                                            <PlayerInformation loaded={this.state.loaded} username="You" eloRating={this.state.eloRating} />
                                         </Grid>
                                         <Grid item>
                                             <IconButton color="button">
@@ -244,9 +279,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
                                         <Grid item>
-                                            <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
-                                                Alex: Rank 150
-                                            </Typography>
+                                            <PlayerInformation loaded={this.state.loaded} username={this.state.opponentUsername}
+                                                eloRating={this.state.opponentEloRating} />
                                         </Grid>
                                         <Grid container>
                                             <Grid item xs="auto">

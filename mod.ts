@@ -302,13 +302,37 @@ router
             console.log(err);
         }
     })
+    .get("/api/opponent", async (context) => {
+        try {
+            let sid = await context.cookies.get('sid');
+            if (sid && typeof sid === 'string') {
+                let username = sids[sid as string];
+                let opponentUsername = sids[matches[sid as string] as string];
+                if (username && opponentUsername) {
+                    await client.connect();
+                    const usernameResult = await client.queryArray("select elo_rating from users where username='"
+                        + username + "'");
+                    const opponentUsernameResult = await client.queryArray("select elo_rating from users where username='"
+                        + opponentUsername + "'");
+                    context.response.body = {
+                        username: username,
+                        eloRating: usernameResult.rows[0][0] as number,
+                        opponentUsername: opponentUsername,
+                        opponentEloRating: opponentUsernameResult.rows[0][0] as number,
+                    };
+                    await client.end();
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    })
     .get("/api/matchmaking", async (context) => {
         try {
             let sid = await context.cookies.get('sid');
             if (sid && typeof sid === 'string') {
                 let username = sids[sid as string];
                 if (username) {
-                    console.log("AAA");
                     await client.connect();
                     const usernameResult = await client.queryArray("select elo_rating from users where username='"
                         + username + "'");
@@ -318,7 +342,6 @@ router
                     }
                     await client.end();
                     let foundMatch: boolean = false;
-                    console.log("BBB");
                     let matchmakingUserIndex = matchmakingQueue25.length;
                     matchmakingQueue25.push(matchmakingUser);
                     for (let i = 0; i < matchmakingQueue25.length; ++i) {
@@ -338,13 +361,10 @@ router
                             break;
                         }
                     }
-                    console.log("CCC");
                     while (!foundMatch) {
-                        console.log("DDD");
                         await delay(1000);
                         if (sid in matches) {
-                            console.log("EEE");
-                            let opponentUername = sids[matches[sid]];
+                            let opponentUsername = sids[matches[sid]];
                             await client.connect();
                             const usernameResult = await client.queryArray("select elo_rating from users where username='"
                                 + username + "'");
@@ -353,7 +373,7 @@ router
                             context.response.body = {
                                 username: sids[sid],
                                 eloRating: matchmakingUser.eloRating,
-                                opponentUsername: opponentUername,
+                                opponentUsername: opponentUsername,
                                 opponentEloRating: opponentEloRating,
                             };
                             foundMatch = true;
