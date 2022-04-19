@@ -33,6 +33,11 @@ interface User {
     password: { value: string };
 }
 
+interface MatchmakingUser {
+    eloRating: number;
+    sid: string;
+}
+
 interface CodeSubmission {
     value: string;
 }
@@ -50,7 +55,17 @@ let helloWorldVar: HelloWorld = { text: 'Hello World' };
 
 let sids: { [name: string]: string } = {};
 
-let waiting = false;
+let matchmakingQueue25: MatchmakingUser[] = [];
+let matchmakingQueue50: MatchmakingUser[] = [];
+let matchmakingQueue100: MatchmakingUser[] = [];
+let matchmakingQueue200: MatchmakingUser[] = [];
+let matchmakingQueue500: MatchmakingUser[] = [];
+
+let matches: { [name: string]: string } = {};
+
+function delay(time: number) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
 
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
@@ -252,9 +267,6 @@ router
                     }
                 }
                 await client.end();
-                if (1 > 2) {
-                    context.response.body = { text: 'Given Email or Username Does Not Exist' };
-                }
                 context.response.type = "json";
                 return;
             }
@@ -284,6 +296,69 @@ router
                         eloRating: usernameResult.rows[0][4] as number,
                     };
                     await client.end();
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    })
+    .get("/api/matchmaking", async (context) => {
+        try {
+            let sid = await context.cookies.get('sid');
+            if (sid && typeof sid === 'string') {
+                let username = sids[sid as string];
+                if (username) {
+                    console.log("AAA");
+                    await client.connect();
+                    const usernameResult = await client.queryArray("select elo_rating from users where username='"
+                        + username + "'");
+                    let matchmakingUser: MatchmakingUser = {
+                        eloRating: usernameResult.rows[0][0] as number,
+                        sid: sid,
+                    }
+                    await client.end();
+                    let foundMatch: boolean = false;
+                    console.log("BBB");
+                    let matchmakingUserIndex = matchmakingQueue25.length;
+                    matchmakingQueue25.push(matchmakingUser);
+                    for (let i = 0; i < matchmakingQueue25.length; ++i) {
+                        if (matchmakingQueue25[i].sid != matchmakingUser.sid
+                                && Math.abs(matchmakingUser.eloRating - matchmakingQueue25[i].eloRating) <= 25) {
+                            matches[matchmakingQueue25[i].sid] = sid;
+                            matches[sid] = matchmakingQueue25[i].sid;
+                            context.response.body = {
+                                username: sids[sid],
+                                eloRating: matchmakingUser.eloRating,
+                                opponentUsername: sids[matchmakingQueue25[i].sid],
+                                opponentEloRating: matchmakingQueue25[i].eloRating,
+                            };
+                            matchmakingQueue25.splice(i, 1);
+                            matchmakingQueue25.splice(matchmakingUserIndex, 1);
+                            foundMatch = true;
+                            break;
+                        }
+                    }
+                    console.log("CCC");
+                    while (!foundMatch) {
+                        console.log("DDD");
+                        await delay(1000);
+                        if (sid in matches) {
+                            console.log("EEE");
+                            let opponentUername = sids[matches[sid]];
+                            await client.connect();
+                            const usernameResult = await client.queryArray("select elo_rating from users where username='"
+                                + username + "'");
+                            let opponentEloRating = usernameResult.rows[0][0] as number;
+                            await client.end();
+                            context.response.body = {
+                                username: sids[sid],
+                                eloRating: matchmakingUser.eloRating,
+                                opponentUsername: opponentUername,
+                                opponentEloRating: opponentEloRating,
+                            };
+                            foundMatch = true;
+                        }
+                    }
                 }
             }
         } catch (err) {

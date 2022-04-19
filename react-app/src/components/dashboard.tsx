@@ -185,7 +185,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                             <WinLossTable loaded={this.state.loaded} numWins={this.state.numWins} numLosses={this.state.numLosses} eloRating={this.state.eloRating} />
                             <Button 
                                 fullWidth variant="contained"
-                                href="/editor"                                           
+                                href="/waitlist"                                           
                             >
                                 PLAY 
                             </Button>
