@@ -342,7 +342,6 @@ router
                     }
                     await client.end();
                     let foundMatch: boolean = false;
-                    let matchmakingUserIndex = matchmakingQueue25.length;
                     matchmakingQueue25.push(matchmakingUser);
                     for (let i = 0; i < matchmakingQueue25.length; ++i) {
                         if (matchmakingQueue25[i].sid != matchmakingUser.sid
@@ -356,7 +355,7 @@ router
                                 opponentEloRating: matchmakingQueue25[i].eloRating,
                             };
                             matchmakingQueue25.splice(i, 1);
-                            matchmakingQueue25.splice(matchmakingUserIndex, 1);
+                            matchmakingQueue25.pop();
                             foundMatch = true;
                             break;
                         }
