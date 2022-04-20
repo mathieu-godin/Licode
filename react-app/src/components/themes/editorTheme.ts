@@ -25,6 +25,7 @@ declare module '@mui/material/styles' {
         problemHighlightedItalicWord: React.CSSProperties;
         problemDescriptionItalic: React.CSSProperties;
         aboveEditor: React.CSSProperties;
+        inputOutput: React.CSSProperties;
         buttonExponent: React.CSSProperties;
     }
 
@@ -34,6 +35,7 @@ declare module '@mui/material/styles' {
         problemHighlightedItalicWord: React.CSSProperties;
         problemDescriptionItalic: React.CSSProperties;
         aboveEditor: React.CSSProperties;
+        inputOutput: React.CSSProperties;
         buttonExponent: React.CSSProperties;
     }
 }
@@ -51,6 +53,7 @@ declare module '@mui/material/Typography' {
         problemHighlightedItalicWord: true;
         problemDescriptionItalic: true;
         aboveEditor: true;
+        inputOutput: true;
         buttonExponent: true;
     }
 }
@@ -71,39 +74,45 @@ const editorTheme = createTheme({
 editorTheme.typography.problemDescription = {
     fontFamily: 'Arial',
     color: '#000000',
-    fontSize: 24,
+    fontSize: 16,
 }
 
 editorTheme.typography.problemHighlightedWord = {
     fontFamily: 'Arial',
     color: '#1468ab',
-    fontSize: 24,
+    fontSize: 16,
 }
 
 editorTheme.typography.problemDescriptionItalic = {
     fontFamily: 'Arial',
     color: '#000000',
-    fontSize: 24,
+    fontSize: 16,
     fontStyle: 'italic',
 }
 
 editorTheme.typography.problemHighlightedItalicWord = {
     fontFamily: 'Arial',
     color: '#1468ab',
-    fontSize: 24,
+    fontSize: 16,
     fontStyle: 'italic',
 }
 
 editorTheme.typography.aboveEditor = {
     fontFamily: 'Arial',
     color: '#000000',
-    fontSize: 32,
+    fontSize: 18,
+}
+
+editorTheme.typography.inputOutput = {
+    fontFamily: 'Arial',
+    color: '#000000',
+    fontSize: 16,
 }
 
 editorTheme.typography.buttonExponent = {
     fontFamily: 'Arial',
     color: '#000000',
-    fontSize: 16,
+    fontSize: 12,
 }
 
 export default editorTheme;

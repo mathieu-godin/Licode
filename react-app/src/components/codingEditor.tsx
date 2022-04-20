@@ -35,7 +35,7 @@ export interface PlayerInformationProps {
 
 function PlayerInformation(props: PlayerInformationProps) {
     const loaded: boolean = props.loaded;
-    if (loaded) {
+    if (loaded || true) {
         return <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>{props.username}: Rank {props.eloRating}</Typography>;
     } else {
         return <Typography variant="aboveEditor" sx={{ m: 0, p: 0, display: "none" }} />;
@@ -44,8 +44,8 @@ function PlayerInformation(props: PlayerInformationProps) {
 
 const EditorTextField = styled(TextField)({
     '& .MuiInputBase-input': {
-        fontSize: 24,
-        padding: '16px',
+        fontSize: 16,
+        padding: '2px',
     }
 });
 
@@ -132,8 +132,10 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     }
 
     render() {
-        const leftEditorCode: string = "def makeSum(nums, target):",
-            rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*";
+        const leftEditorCode: string = "def twoSum(self, nums, target):\n    ",
+            rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*",
+            leftInput = "[2,7,11,15]\n9",
+            rightInput = "*#&#^#%@&@*\n*";
         if(this.playerWon()){
             return <Navigate to="/victory"/>
         }
@@ -144,7 +146,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                         <Grid container item mt={1}>
                             <Grid item xs={1} />
                             <Grid container direction="column" item xs={10}>
-                                <Grid item mt={4}>
+                                <Grid item mt={2}>
                                     <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
                                         Given an array of integers
                                     </Typography>
@@ -173,7 +175,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         .
                                     </Typography>
                                 </Grid>
-                                <Grid item mt={3}>
+                                <Grid item mt={1.5}>
                                     <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
                                         You may assume that each input would have
                                     </Typography>
@@ -190,7 +192,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         &nbsp;element twice.
                                     </Typography>
                                 </Grid>
-                                <Grid item mt={3}>
+                                <Grid item mt={1.5}>
                                     <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
                                         You can return the answer in any order.
                                     </Typography>
@@ -198,10 +200,10 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                             </Grid>
                             <Grid item xs ={1} />
                         </Grid>
-                        <Grid container item mt={1}>
+                        <Grid container item mt={0.5}>
                             <Grid item xs={0.75} />
                             <Grid container direction="column" item xs={5}>
-                                <Grid container item mt={4}>
+                                <Grid container item mt={2}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
                                         <Grid item>
@@ -220,11 +222,50 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={0.5} />
                                 </Grid>
-                                <Grid item mt={2}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
-                                        onChange={this.handleCodeChange} />
+                                <Grid item mt={1}>
+                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
+                                        defaultValue={leftEditorCode} onChange={this.handleCodeChange} />
                                 </Grid>
-                                <Grid container item mt={4}>
+                                <Grid item container mt={1} alignItems="center">
+                                    <Grid item container xs={2} direction="column" alignItems="center">
+                                        <Grid item >
+                                            <Typography variant="inputOutput" sx={{ m: 0, p: 0 }}>
+                                                Input
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={10}>
+                                        <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            defaultValue={leftInput} onChange={this.handleCodeChange} />
+                                    </Grid>
+                                </Grid>
+                                <Grid item container mt={1} alignItems="center">
+                                    <Grid item container xs={2} direction="column" alignItems="center">
+                                        <Grid item >
+                                            <Typography variant="inputOutput" sx={{ m: 0, p: 0 }}>
+                                                Standard Output
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={10}>
+                                        <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                    </Grid>
+                                </Grid>
+                                <Grid item container mt={1} alignItems="center">
+                                    <Grid item container xs={2} direction="column" alignItems="center">
+                                        <Grid item >
+                                            <Typography variant="inputOutput" sx={{ m: 0, p: 0 }}>
+                                                Output
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={10}>
+                                        <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                    </Grid>
+                                </Grid>
+                                <Grid container item mt={2}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
                                         <Grid item>
@@ -275,7 +316,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                             </Grid>
                             <Grid item xs={0.5} />
                             <Grid container direction="column" item xs={5}>
-                                <Grid container item mt={4}>
+                                <Grid container item mt={2}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
                                         <Grid item>
@@ -312,11 +353,50 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={0.5} />
                                 </Grid>
-                                <Grid item mt={2}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={14} variant="filled"
+                                <Grid item mt={1}>
+                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
                                         defaultValue={rightEditorCode} InputProps={{ readOnly: true }} />
                                 </Grid>
-                                <Grid container item mt={4}>
+                                <Grid item container mt={1} alignItems="center">
+                                    <Grid item container xs={2} direction="column" alignItems="center">
+                                        <Grid item >
+                                            <Typography variant="inputOutput" sx={{ m: 0, p: 0 }}>
+                                                Input
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={10}>
+                                        <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            defaultValue={rightInput} onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                    </Grid>
+                                </Grid>
+                                <Grid item container mt={1} alignItems="center">
+                                    <Grid item container xs={2} direction="column" alignItems="center">
+                                        <Grid item >
+                                            <Typography variant="inputOutput" sx={{ m: 0, p: 0 }}>
+                                                Standard Output
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={10}>
+                                        <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                    </Grid>
+                                </Grid>
+                                <Grid item container mt={1} alignItems="center">
+                                    <Grid item container xs={2} direction="column" alignItems="center">
+                                        <Grid item >
+                                            <Typography variant="inputOutput" sx={{ m: 0, p: 0 }}>
+                                                Output
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item xs={10}>
+                                        <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                    </Grid>
+                                </Grid>
+                                <Grid container item mt={2}>
                                     <Grid item xs={0.5} />
                                     <Grid container direction="column" item xs={11}>
                                         <Grid item>
@@ -367,7 +447,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                             </Grid>
                             <Grid item xs={0.75} />
                         </Grid>
-                        <Grid container item mt={3}>
+                        <Grid container item mt={1.5}>
                             <Grid item xs={0.5} />
                             <Grid item xs={1.5}>
                                 <ColorButton variant="contained" sx={{ minWidth: 125, fontSize: 24 }} onClick={this.handleRun}>
