@@ -105,8 +105,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 testCasesPassed: this.state.testCasesPassed,
                 code: this.state.code,
                 input: this.state.input,
-                standardOutput: '',
-                output: '',
+                standardOutput: this.state.standardOutput,
+                output: this.state.output,
             });
         })
     }
@@ -125,8 +125,14 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             },
             body: JSON.stringify(codeSubmission),
         }).then(response => response.json());
-        if (res.testCasesPassed && res.standardOutput) {
-            this.setState({ testCasesPassed: res.testCasesPassed, standardOutput: res.standardOutput });
+        if (res.testCasesPassed) {
+            this.setState({ testCasesPassed: res.testCasesPassed });
+        }
+        if (res.standardOutput) {
+            this.setState({ standardOutput: res.standardOutput });
+        }
+        if (res.output) {
+            this.setState({ output: res.output });
         }
     };
 
@@ -278,7 +284,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            InputProps={{ readOnly: true }} />
+                                            InputProps={{ readOnly: true }} value={this.state.output} />
                                     </Grid>
                                 </Grid>
                                 <Grid container item mt={2}>

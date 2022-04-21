@@ -1,7 +1,5 @@
 def makeSum(nums, target):
-    print('AAasdfasdfasfdAAasdfAAA')
-    print('aasdfasdfasdfdsaasdfdad')
-    return [0,0]
+    return [1,2]
 
 if __name__ == "__main__":
     target = int(input())

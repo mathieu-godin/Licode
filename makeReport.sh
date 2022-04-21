@@ -28,3 +28,4 @@ echo "]" >> "${reportName}"
 
 input=customInput.in
 cat "${input}" | python3 answerCustomInput.py > "${standardOutputName}"
+cat "${input}" | python3 answer.py | python3 clean.py > "${outputName}"

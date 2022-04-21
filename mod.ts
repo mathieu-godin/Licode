@@ -46,6 +46,7 @@ interface CodeSubmission {
 interface TestCasesPassed {
     testCasesPassed: boolean[];
     standardOutput: string;
+    output: string;
 }
 
 interface TestResult {
@@ -429,12 +430,14 @@ router
                 await reportProcess.output();
                 let jsonResults: String = await Deno.readTextFile("./sandbox/reportFromPySandbox.txt");
                 let standardOutputResults: string = await Deno.readTextFile("./sandbox/standardOutputFromPySandbox.txt");
+                let outputResults: string = await Deno.readTextFile("./sandbox/outputFromPySandbox.txt");
                 jsonResults = jsonResults.replace(/\s/g, "");
                 jsonResults = jsonResults.substring(0, jsonResults.length - 2) + "]"
                 let testResults: TestResult[]  = JSON.parse(jsonResults.toString());
                 let testCasesPassed: TestCasesPassed = {
                     testCasesPassed: testResults.map((tr: TestResult) => tr.passed),
                     standardOutput: standardOutputResults,
+                    output: outputResults,
                 };
                 context.response.body = testCasesPassed;
             }

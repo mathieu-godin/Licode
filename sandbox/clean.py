@@ -1,7 +1,13 @@
 import sys
 
 if __name__ == "__main__":
-    nums = input().split()
+    nums = []
+    while True:
+        try:
+            tryNums = input().split()
+        except:
+            break
+        nums = tryNums
     nums.sort()
     ret = ""
     if len(nums) > 0:
