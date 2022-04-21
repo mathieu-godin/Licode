@@ -1,5 +1,6 @@
 def makeSum(nums, target):
-    return [1,2]
+    while True:
+        pass
 
 if __name__ == "__main__":
     target = int(input())

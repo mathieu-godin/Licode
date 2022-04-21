@@ -12,7 +12,7 @@ docker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in
 docker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py
 docker cp clean.py ${containerID}:home/TestEnvironment/clean.py
 
-docker exec ${containerID} sh -c "cd home/TestEnvironment/ && ./makeReport.sh"
+docker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"
 
 docker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt
 docker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt
