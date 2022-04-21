@@ -6,7 +6,9 @@ Licode is a confrontational coding platform.
 
 ### Back End
 
-The back-end Deno server uses Oak. Deno is a modern and nascent equivalent of Node.js that uses TypeScript, is more secure and offers other new features. Oak is to Deno what Express is to Node.js. Actually, Koa is a recent successor of Express for Node.js and Oak could be as seen as what Koa is to Node.js for Deno. The Deno backend server will be used for one time HTTPS requests. A Go server will be used for realtime WebSocket interactions between the client and the server.
+The back-end Deno server uses Oak. Deno is a modern and nascent equivalent of Node.js that uses TypeScript, is more secure and offers other new features. Oak is to Deno what Express is to Node.js. Actually, Koa is a recent successor of Express for Node.js and Oak could be as seen as what Koa is to Node.js for Deno. The Deno backend server will be used for one time HTTPS requests.
+
+A Go server will be used for realtime WebSocket interactions between the client and the server.
 
 ### Front End
 
@@ -114,6 +116,20 @@ export PATH="$DENO_INSTALL/bin:$PATH"
 iwr https://deno.land/x/install/install.ps1 -useb | iex
 ```
 
+### Installing Go
+
+Install version go1.18
+
+This is probably the best resource, you may have to set GOROOT and/or GOPATH if you
+deviate from the install instructions
+
+https://go.dev/doc/install
+
+You also have to install github.com/gorilla/websocket.
+I used go get github.com/gorilla/websocket which is deprecated,
+maybe try go install instead.
+
+
 ### Server Installation and Execution
 
 #### Cloning the Repository
@@ -162,6 +178,13 @@ deno version --upgrade 1.20.3
 
 ```bash
 sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
+```
+
+#### Running the GO Server (on development machine)
+
+(in /goServer)
+```bash
+go run server.go
 ```
 
 #### Running the Server (on the server)
