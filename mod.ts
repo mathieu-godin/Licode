@@ -40,10 +40,12 @@ interface MatchmakingUser {
 
 interface CodeSubmission {
     value: string;
+    input: string;
 }
 
 interface TestCasesPassed {
     testCasesPassed: boolean[];
+    standardOutput: string;
 }
 
 interface TestResult {
@@ -407,8 +409,18 @@ router
             }
             if (code) {
                 context.assert(typeof code?.value === "string", Status.BadRequest);
+                context.assert(typeof code?.input === "string", Status.BadRequest);
                 context.response.status = Status.OK;
                 await Deno.writeTextFile("./sandbox/answer.py", code.value);
+                await Deno.writeTextFile("./sandbox/answerCustomInput.py", code.value);
+                let inputLines: string[] = code.input.split('\n');
+                let customInputContent: string = '';
+                customInputContent += parseInt(inputLines[1]).toString() + '\n';
+                let inputCommaSeparatedValues: string[] = inputLines[0].split('[')[1].split(']')[0].split(',');
+                for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
+                    customInputContent += parseInt(inputCommaSeparatedValues[i]).toString() + '\n';
+                }
+                await Deno.writeTextFile("./sandbox/customInput.in", customInputContent);
                 const reportProcess = Deno.run({
                     cmd: ["./makeReport.sh"],
                     cwd: "./sandbox",
@@ -416,11 +428,13 @@ router
                 });
                 await reportProcess.output();
                 let jsonResults: String = await Deno.readTextFile("./sandbox/reportFromPySandbox.txt");
+                let standardOutputResults: string = await Deno.readTextFile("./sandbox/standardOutputFromPySandbox.txt");
                 jsonResults = jsonResults.replace(/\s/g, "");
                 jsonResults = jsonResults.substring(0, jsonResults.length - 2) + "]"
                 let testResults: TestResult[]  = JSON.parse(jsonResults.toString());
                 let testCasesPassed: TestCasesPassed = {
-                    testCasesPassed: testResults.map((tr: TestResult) => tr.passed)
+                    testCasesPassed: testResults.map((tr: TestResult) => tr.passed),
+                    standardOutput: standardOutputResults,
                 };
                 context.response.body = testCasesPassed;
             }

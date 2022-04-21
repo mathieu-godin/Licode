@@ -1,7 +1,4 @@
-def makeSum(nums, target):
-    print('AAasdfasdfasfdAAasdfAAA')
-    print('aasdfasdfasdfdsaasdfdad')
-    return [0,0]
+
 
 if __name__ == "__main__":
     target = int(input())
@@ -10,4 +7,3 @@ if __name__ == "__main__":
     for i in range(n):
         nums.append(int(input()))
     (start, end) = makeSum(nums, target)
-    print(str(start), str(end))

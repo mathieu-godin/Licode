@@ -13,6 +13,7 @@ import { Navigate } from "react-router-dom";
 
 interface CodeSubmission {
     value: string;
+    input: string;
 }
 
 export interface CodingEditorProps {}
@@ -25,6 +26,9 @@ export interface CodingEditorState {
     loaded: boolean,
     testCasesPassed: boolean[],
     code: string,
+    input: string,
+    standardOutput: string,
+    output: string,
 }
 
 export interface PlayerInformationProps {
@@ -75,6 +79,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         super(props);
         this.handleRun = this.handleRun.bind(this);
         this.handleCodeChange = this.handleCodeChange.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
         this.state = {
             username: '',
             eloRating: 5000,
@@ -82,7 +87,10 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             opponentEloRating: 5000,
             loaded: false,
             testCasesPassed: [false, false, false, false, false, false, false, false],
-            code: 'for i in range(150):\n    if i < 5:\n        print(i)',
+            code: 'def makeSum(nums, target):\n    ',
+            input: '[2,7,11,15]\n9',
+            standardOutput: '',
+            output: '',
         }
     }
 
@@ -94,6 +102,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 opponentUsername: json.opponentUsername,
                 opponentEloRating: json.opponentEloRating,
                 loaded: true,
+                testCasesPassed: this.state.testCasesPassed,
+                code: this.state.code,
+                input: this.state.input,
+                standardOutput: '',
+                output: '',
             });
         })
     }
@@ -101,8 +114,10 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     async handleRun () {
         let codeSubmission: CodeSubmission = {
             value: '',
+            input: '',
         }
         codeSubmission.value = this.state.code;
+        codeSubmission.input = this.state.input;
         let res = await fetch('/api/run', {
             method: 'POST',
             headers: {
@@ -110,14 +125,17 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             },
             body: JSON.stringify(codeSubmission),
         }).then(response => response.json());
-        if (res.testCasesPassed) {
-            this.setState({ testCasesPassed: res.testCasesPassed });
+        if (res.testCasesPassed && res.standardOutput) {
+            this.setState({ testCasesPassed: res.testCasesPassed, standardOutput: res.standardOutput });
         }
     };
 
     handleCodeChange (e: React.ChangeEvent<HTMLInputElement>) {
-        console.log(e.currentTarget.value);
         this.setState({ code: e.currentTarget.value });
+    }
+
+    handleInputChange (e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({ input: e.currentTarget.value });
     }
 
     playerWon() : boolean {
@@ -132,9 +150,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     }
 
     render() {
-        const leftEditorCode: string = "def twoSum(self, nums, target):\n    ",
-            rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*",
-            leftInput = "[2,7,11,15]\n9",
+        const rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*",
             rightInput = "*#&#^#%@&@*\n*";
         if(this.playerWon()){
             return <Navigate to="/victory"/>
@@ -224,7 +240,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={1}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
-                                        defaultValue={leftEditorCode} onChange={this.handleCodeChange} />
+                                        defaultValue={this.state.code} onChange={this.handleCodeChange} />
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
                                     <Grid item container xs={2} direction="column" alignItems="center">
@@ -236,7 +252,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            defaultValue={leftInput} onChange={this.handleCodeChange} />
+                                            defaultValue={this.state.input} onChange={this.handleInputChange} />
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -249,7 +265,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                            InputProps={{ readOnly: true }} value={this.state.standardOutput} />
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -262,7 +278,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                            InputProps={{ readOnly: true }} />
                                     </Grid>
                                 </Grid>
                                 <Grid container item mt={2}>
@@ -367,7 +383,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            defaultValue={rightInput} onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                            defaultValue={rightInput} InputProps={{ readOnly: true }} />
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -380,7 +396,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                            InputProps={{ readOnly: true }} />
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -393,7 +409,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            onChange={this.handleCodeChange} InputProps={{ readOnly: true }} />
+                                            InputProps={{ readOnly: true }} />
                                     </Grid>
                                 </Grid>
                                 <Grid container item mt={2}>
