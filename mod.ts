@@ -479,10 +479,8 @@ router
     })
     .post("/api/run", async (context: RouterContext<any>) => {
         try {
-            console.log("AAA");
             let sid = await context.cookies.get('sid');
             if (sid && typeof sid === 'string') {
-                console.log("BBB");
                 if (!context.request.hasBody) {
                     context.throw(Status.BadRequest, "Bad Request");
                 }
@@ -492,7 +490,6 @@ router
                     code = await body.value;
                 }
                 if (code) {
-                    console.log("CCC");
                     context.assert(typeof code?.value === "string", Status.BadRequest);
                     context.assert(typeof code?.input === "string", Status.BadRequest);
                     context.response.status = Status.OK;
@@ -524,7 +521,6 @@ router
                         output: outputResults,
                     };
                     if (!testCasesPassed.testCasesPassed.some(element => !element) && ++sidsProgress[sid] === 3) {
-                        console.log("DDD");
                         let opponentSid = matches[sid];
                         delete matches[sid];
                         delete matches[opponentSid];
@@ -540,7 +536,6 @@ router
                             opponentHas2400RatingHistory: boolean = false;
                         let username = sids[sid as string];
                         if (username) {
-                            console.log("EEE");
                             await client.connect();
                             const usernameResult = await client.queryArray("select num_wins, num_losses, elo_rating, has_2400_rating_history from users where username='"
                                 + username + "'");
@@ -551,7 +546,6 @@ router
                             await client.end();
                             let opponentUsername = sids[opponentSid as string];
                             if (opponentUsername) {
-                                console.log("FFF");
                                 await client.connect();
                                 const usernameResult = await client.queryArray(
                                     "select num_wins, num_losses, elo_rating, has_2400_rating_history from users where username='"
@@ -563,14 +557,11 @@ router
                                 await client.end();
                                 ++numWins;
                                 let eloRatingVariation: number = 1 - 1.0 / (1 + Math.pow(10, (opponentEloRating - eloRating) / 400.0));
-                                console.log(eloRating);
-                                console.log(opponentEloRating);
                                 eloRating += Math.floor((numGames < 30 ? (eloRating < 2300 ? 40 : 20) : (has2400RatingHistory ? 10 : 20)) * eloRatingVariation);
                                 ++opponentNumLosses;
                                 opponentEloRating -= Math.ceil((opponentNumGames < 30 ? (opponentEloRating < 2300 ? 40 : 20) : (opponentHas2400RatingHistory ? 10 : 20))
                                     * eloRatingVariation);
                                 if (username) {
-                                    console.log("GGG");
                                     await client.connect();
                                     await client.queryArray("update users set num_wins = " + numWins.toString()
                                         + ", elo_rating = " + eloRating.toString() + ", has_2400_rating_history = "
@@ -579,7 +570,6 @@ router
                                     await client.end();
                                 }
                                 if (opponentUsername) {
-                                    console.log("HHH");
                                     await client.connect();
                                     await client.queryArray("update users set num_losses = " + opponentNumLosses.toString()
                                         + ", elo_rating = " + opponentEloRating.toString() + ", has_2400_rating_history = "
