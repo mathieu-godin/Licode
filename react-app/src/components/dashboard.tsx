@@ -56,7 +56,7 @@ export interface WinLossProps {
 function computeWinRate(numWins: number, numLosses: number) {
     let numGames = numWins + numLosses;
     if (numGames > 0) {
-        return (numWins / numGames).toString() + '%';
+        return (numWins / numGames * 100).toFixed(2).toString() + '%';
     } else {
         return '0%';
     }
