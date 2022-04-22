@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
+import { MatchmakingData } from "./common/interfaces/matchmakingData";
 
 interface CodeSubmission {
     value: string;
@@ -33,9 +34,7 @@ interface Msg {
     What: string,
 }
 
-export interface CodingEditorProps {
-    id: number,
-}
+export interface CodingEditorProps {}
 
 export interface CodingEditorState {
     username: string,
@@ -46,8 +45,8 @@ export interface CodingEditorState {
     testCasesPassed: boolean[],
     code: string,
     rightEditorCode: string,
-    socket:  WebSocket,
-    id: number,
+    socket:  WebSocket | null,
+    sid: string,
     typingSlow: boolean,
     sendingCodeUpdates: boolean,
     firstMsg: boolean,
@@ -111,7 +110,6 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.sendCodeUpdate = this.sendCodeUpdate.bind(this)
         this.playerWon = this.playerWon.bind(this)
         
-        const sock = new WebSocket("ws://localhost:8080/ws");
         this.state = {
             username: '',
             eloRating: 5000,
@@ -121,19 +119,35 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             testCasesPassed: [false, false, false, false, false, false, false, false],
             code: 'for i in range(150):\n    if i < 5:\n        print(i)',
             rightEditorCode: '',
-            socket: sock,
-            id: props.id,
+            socket: null,
+            sid: '',
             typingSlow: false,
             sendingCodeUpdates: false,
             firstMsg: true,
             peeking: false,
             skipping: false,
         }
+    }
+
+    async componentDidMount() {
         console.log("Attempting Connection...");
+
+        const data: MatchmakingData = await fetch('/api/opponent').then(response => response.json());
+        console.log(data)
+        this.setState({
+            username: data.you.username,
+            eloRating: data.you.eloRating,
+            opponentUsername: data.opponent.username,
+            opponentEloRating: data.opponent.eloRating,
+            sid: data.you.sid,
+            socket: new WebSocket("ws://localhost:8080/ws"),
+            loaded: true,
+        });
+
+        if(this.state.socket == null) return;
         this.state.socket.onopen = () => {
-            console.log("Successfully Connected");
-            //development way of requesting an id
-            sock.send("Connected")
+            console.log(`Successfully Connected with sid: ${this.state.sid}`);
+            this.state.socket?.send(`${MSGTYPE.Connection} ${this.state.sid}`);
         };
         
         this.state.socket.onclose = () => {
@@ -145,16 +159,6 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         };
         
         this.state.socket.onmessage = (event) => {
-            //development way of receiving id
-            if(this.state.firstMsg) {
-                this.setState({
-                    id: parseInt(event.data),
-                    firstMsg: false,
-                })
-                //register with our id
-                this.state.socket.send(MSGTYPE.Connection.toString().concat(" ".concat(this.state.id.toString())))
-                return
-            }
             const msgObj: Msg = JSON.parse(event.data)
             console.log(msgObj)
             switch(msgObj.MsgType) {
@@ -181,7 +185,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                         //since we are being asked to send updates, 
                         //we have to send one now
                         if(this.state.sendingCodeUpdates) {
-                            this.state.socket.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(this.state.code)))
+                            this.state.socket?.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(this.state.code)))
                         }
                     } else if (msgObj.What == "E") {
                         //stop sending code updates
@@ -215,19 +219,6 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.state.socket.onerror = (error) => {
             console.log("Socket Error: ", error);
         };
-
-    }
-
-    componentDidMount() {
-        fetch('/api/opponent').then(response => response.json()).then((json) => {
-            this.setState({
-                username: json.username,
-                eloRating: json.eloRating,
-                opponentUsername: json.opponentUsername,
-                opponentEloRating: json.opponentEloRating,
-                loaded: true,
-            });
-        })
     }
 
     async handleRun () {
@@ -249,21 +240,21 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
 
     peekOpponent () {
         console.log("Sending Peek")
-        this.state.socket.send(MSGTYPE.Peek.toString())
+        this.state.socket?.send(MSGTYPE.Peek.toString())
         this.setState({
             peeking: true
         })
     }
     slowOpponent () {
         console.log("Sending Slow")
-        this.state.socket.send(MSGTYPE.Slow.toString())
+        this.state.socket?.send(MSGTYPE.Slow.toString())
     }
     skipTestCase () {
         console.log("Sending Skip")
         this.setState({
             skipping: true
         })
-        this.state.socket.send(MSGTYPE.Skip.toString())
+        this.state.socket?.send(MSGTYPE.Skip.toString())
     }
 
     processOpponentCode (code: string) : string {
@@ -284,7 +275,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
 
     sendCodeUpdate(code: string) {
         if(this.state.sendingCodeUpdates || AlwaysSendCodeUpdate) {
-            this.state.socket.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(code)));
+            this.state.socket?.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(code)));
         }
     }
 
@@ -316,9 +307,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             }
         }, 0);
         const pWon = testsPassed == 11 || testsPassed == 10 && this.state.skipping;
-        this.setState({
-            skipping: false
-        })
+        if(this.state.skipping) {
+            this.setState({
+                skipping: false
+            })
+        }
         return pWon
     }
 
@@ -327,6 +320,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*",
             leftInput = "[2,7,11,15]\n9",
             rightInput = "*#&#^#%@&@*\n*";
+        console.log("rendering")
         if(this.playerWon()){
             return <Navigate to="/victory"/>
         }
@@ -546,7 +540,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={1}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
-                                        defaultValue={rightEditorCode} InputProps={{ readOnly: true }} />
+                                        value={this.state.rightEditorCode} InputProps={{ readOnly: true }} />
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
                                     <Grid item container xs={2} direction="column" alignItems="center">

@@ -5,6 +5,9 @@ import {
     Status,
     send,
 } from "https://deno.land/x/oak/mod.ts";
+
+import { MatchmakingData } from "./react-app/src/components/common/interfaces/matchmakingData.ts"
+
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
 import { nanoid } from 'https://deno.land/x/nanoid@v3.0.0/async.ts'
@@ -314,12 +317,19 @@ router
                         + username + "'");
                     const opponentUsernameResult = await client.queryArray("select elo_rating from users where username='"
                         + opponentUsername + "'");
-                    context.response.body = {
-                        username: username,
-                        eloRating: usernameResult.rows[0][0] as number,
-                        opponentUsername: opponentUsername,
-                        opponentEloRating: opponentUsernameResult.rows[0][0] as number,
+                    const responseBody : MatchmakingData = {
+                        you: {
+                            username: username,
+                            eloRating: usernameResult.rows[0][0] as number,
+                            sid: sid,
+                        },
+                        opponent: {
+                            username: opponentUsername,
+                            eloRating: opponentUsernameResult.rows[0][0] as number,
+                            sid: ''
+                        },
                     };
+                    context.response.body = responseBody;
                     await client.end();
                 }
             }
@@ -348,6 +358,21 @@ router
                                 && Math.abs(matchmakingUser.eloRating - matchmakingQueue25[i].eloRating) <= 25) {
                             matches[matchmakingQueue25[i].sid] = sid;
                             matches[sid] = matchmakingQueue25[i].sid;
+                            //can call goServer/registerPair here
+                            console.log("attempting register pair " + sid + ", " + matchmakingQueue25[i].sid)
+                            const response = await fetch("http://localhost:8080/registerPair", {
+                                method: "POST",
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    Id1: sid,
+                                    Id2: matchmakingQueue25[i].sid,
+                                }),
+                            }); //TODO - Check response 
+                            console.log(response.status)
+                            //can probably eliminate this, main purpose of this api
+                            //method is to match users and register them with the go server
                             context.response.body = {
                                 username: sids[sid],
                                 eloRating: matchmakingUser.eloRating,

@@ -44,6 +44,7 @@ func makeMsg(MsgType int64, Ok bool, What string) Msg {
 	}
 }
 
+//TODO UPDATE --- PROBABLY OUTDATED
 //SERVER, replies with Msg as json
 //connected/not connected:  			type=Connection, ok=>connected, !ok=>not connected, what= ok ? id : error message
 //start giving code updates,
@@ -124,10 +125,10 @@ type Player struct {
 	connected bool
 
 	//id provided by matchmaking
-	id int
+	id string
 
 	//id of the player's opponent
-	opponentId int
+	opponentId string
 
 	//the player's connection
 	conn *websocket.Conn
@@ -145,7 +146,7 @@ type Player struct {
 }
 
 //Player ctor
-func makePlayer(connected bool, id int, opponentId int, conn *websocket.Conn) Player {
+func makePlayer(connected bool, id string, opponentId string, conn *websocket.Conn) Player {
 	return Player{
 		connected:  connected,
 		id:         id,
@@ -161,36 +162,38 @@ var players = []Player{}
 var playersMU sync.Mutex
 
 //id to index for constant time mutable access
-var idxOf = make(map[int]int)
+var idxOf = make(map[string]int)
 
 //input to the /register method
 //specifies two players that will
 //compete
 type Pair struct {
-	id1 int
-	id2 int
+	Id1 string `json:"Id1"`
+	Id2 string `json:"Id2"`
 }
 
 func addPair(pair Pair) {
 	playersMU.Lock()
 
 	//save index of the first new player
-	idxOf[pair.id1] = len(players)
+	idxOf[pair.Id1] = len(players)
 	//same for second new player
-	idxOf[pair.id2] = len(players) + 1
+	idxOf[pair.Id2] = len(players) + 1
 
 	for i := 0; i < len(players); i += 1 {
 		players[i].mu.Lock()
 	}
 
 	//make first new player
-	players = append(players, makePlayer(false, pair.id1, pair.id2, nil))
+	players = append(players, makePlayer(false, pair.Id1, pair.Id2, nil))
 	//same for second
-	players = append(players, makePlayer(false, pair.id2, pair.id1, nil))
+	players = append(players, makePlayer(false, pair.Id2, pair.Id1, nil))
 
 	for i := 0; i < len(players)-2; i += 1 {
 		players[i].mu.Unlock()
 	}
+
+	log.Println(fmt.Sprintf("registered pair: %s, %s", pair.Id1, pair.Id2))
 
 	playersMU.Unlock()
 }
@@ -213,35 +216,37 @@ func registerPair(w http.ResponseWriter, r *http.Request) {
 
 	//parse body
 	var pair Pair
-	err = json.Unmarshal(body, &pair)
+	log.Println(fmt.Sprintf("parsing body: %s", body))
+	err = json.Unmarshal([]byte(body), &pair)
 	if err != nil {
 		w.WriteHeader(400)
 		log.Println(err)
 		return
 	}
 
+	log.Println(fmt.Sprintf("attempting to register %s, %s", pair.Id1, pair.Id2))
+
 	//make sure ids are distinct
-	if pair.id1 == pair.id2 {
+	if pair.Id1 == pair.Id2 {
 		w.WriteHeader(405)
-		w.Write([]byte("Error: id1 and id2 must be distinct."))
+		w.Write([]byte("Error: Id1 and Id2 must be distinct."))
 		return
 	}
 
 	//see if players are already registered
-	player1Idx, ok1 := idxOf[pair.id1]
-	player2Idx, ok2 := idxOf[pair.id2]
+	player1Idx, ok1 := idxOf[pair.Id1]
+	player2Idx, ok2 := idxOf[pair.Id2]
 
 	if !(ok1 || ok2) {
-		//neither are registered, we're good
+		//neither are registered
 		w.WriteHeader(200)
+	} else if ok1 && ok2 && players[player1Idx].opponentId == pair.Id2 && players[player2Idx].opponentId == pair.Id1 {
+		//this is a duplicate, it's fine but we don't want to add it again
+		w.WriteHeader(200)
+		return
 	} else {
 		w.WriteHeader(405)
-		var player1 *Player = &players[player1Idx]
-		var player2 *Player = &players[player2Idx]
-		if ok1 && ok2 && player1.opponentId == pair.id2 && player2.opponentId == pair.id1 {
-			//this pair is already registered
-			w.Write([]byte("Error: Pair already registered."))
-		} else if ok1 && ok2 {
+		if ok1 && ok2 {
 			//one of the players has a different opponent
 			w.Write([]byte("Error: At least one player has a different partner."))
 		} else {
@@ -256,14 +261,14 @@ func registerPair(w http.ResponseWriter, r *http.Request) {
 
 //helper to check if the map
 //contains id
-func isRegistered(id int) bool {
+func isRegistered(id string) bool {
 	//commented for testing
 	_, ok := idxOf[id]
 	return ok
 	//return true
 }
 
-func addMsg(id int, defMsgType int, msg Msg, callback Callback) {
+func addMsg(id string, defMsgType int, msg Msg, callback Callback) {
 	log.Println("delaying")
 	players[idxOf[id]].inbox = append(players[idxOf[id]].inbox, wrapMsg(defMsgType, msg, callback))
 }
@@ -274,7 +279,7 @@ func addMsg(id int, defMsgType int, msg Msg, callback Callback) {
 //It's minimal now, but various retry approaches might be needed.
 //Returns true if the message was sent
 //Returns false if the message was queued
-func safeWrite(id int, defMsgType int, msg Msg, callback Callback, queueOnFail bool) bool {
+func safeWrite(id string, defMsgType int, msg Msg, callback Callback, queueOnFail bool) bool {
 	if players[idxOf[id]].conn == nil {
 		players[idxOf[id]].mu.Lock()
 		players[idxOf[id]].connected = false
@@ -310,26 +315,19 @@ func safeWrite(id int, defMsgType int, msg Msg, callback Callback, queueOnFail b
 	return true
 }
 
-func safeWrite2(id int, defMsgType int, msg Msg, queueOnFail bool) bool {
+func safeWrite2(id string, defMsgType int, msg Msg, queueOnFail bool) bool {
 	return safeWrite(id, defMsgType, msg, func() {}, queueOnFail)
 }
-
-var nextId int = 0
 
 //the "reader" that communicates with the
 //websocket throughout its lifecycle
 func reader(conn *websocket.Conn) {
-	var id int
+	var id string
 	var idSet bool = false
 
-	log.Println(fmt.Sprintf("Top of reader %d", nextId))
-	temp, _, _ := conn.ReadMessage()
-	conn.WriteMessage(temp, []byte(fmt.Sprint(nextId)))
-	nextId += 1
 	//parse a command, do the thing
 	for {
 		//variables declared before gotos
-		//I think they're fair
 		var errMsg []byte
 		var msgType int64
 		var msg string
@@ -382,7 +380,7 @@ func reader(conn *websocket.Conn) {
 			}
 
 			//parse the id
-			id, err = strconv.Atoi(args[1])
+			id = args[1]
 			if err != nil {
 				log.Println(err)
 				connMsg = makeConnectMsg(false, "Invalid id")
@@ -468,14 +466,14 @@ func reader(conn *websocket.Conn) {
 				callback := func() {}
 				//if this is the first update then we
 				//want to wait until the update has been given...
-				if !players[opponentId].updated {
+				if !players[idxOf[opponentId]].updated {
 					callback = func() {
 						//mark that an update has been received
-						players[opponentId].updated = true
+						players[idxOf[opponentId]].updated = true
 						//after 15 seconds, tell the player to stop sending their code
 						time.AfterFunc(15*time.Second, func() {
 							log.Println("in initial code update callback")
-							players[opponentId].isPeeking = false
+							players[idxOf[opponentId]].isPeeking = false
 							safeWrite2(opponentId, defMsgType, makePeek(true), true)
 							safeWrite2(id, defMsgType, makeCodeUpdate("E", false), true)
 						})
@@ -513,7 +511,7 @@ func reader(conn *websocket.Conn) {
 			break
 		case Skip:
 			//dumby response
-			log.Println(fmt.Sprintf("Player %d is skipping", id))
+			log.Println(fmt.Sprintf("Player %s is skipping", id))
 			break
 		default:
 			//error
@@ -553,30 +551,24 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	reader(ws)
 }
 
-//test method
-//query response with r
-//write response with w
-//format write with fmt
-//log on server with log
-func homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Home Page")
-	log.Println("Home Page")
-}
+// //test method
+// //query response with r
+// //write response with w
+// //format write with fmt
+// //log on server with log
+// func homePage(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintf(w, "Home Page")
+// 	log.Println("Home Page")
+// }
 
 func setupRoutes() {
-	http.HandleFunc("/", homePage)
+	// http.HandleFunc("/", homePage)
 	http.HandleFunc("/registerPair", registerPair)
 	http.HandleFunc("/ws", wsEndpoint)
 }
 
 func main() {
 	fmt.Println("Start server...")
-	//this is what a call to /register will ultimately do
-	//player with id id1 will compete with player with id id2
-	addPair(Pair{
-		id1: 0,
-		id2: 1,
-	})
 	setupRoutes()
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
