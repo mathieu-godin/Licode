@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
-import { MatchmakingData } from "./common/interfaces/matchmakingData";
+import { MatchmakingData, QuestionData } from "./common/interfaces/matchmakingData";
 
 interface CodeSubmission {
     value: string;
@@ -145,32 +145,32 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         console.log("Attempting Connection...");
 
         const data: MatchmakingData = await fetch('/api/opponent').then(response => response.json());
-        console.log(data)
+        //const questionData: QuestionData = await fetch('/api/question').then(response => response.json());
         this.setState({
             username: data.you.username,
             eloRating: data.you.eloRating,
             opponentUsername: data.opponent.username,
             opponentEloRating: data.opponent.eloRating,
             sid: data.you.sid,
-            socket: new WebSocket("ws://localhost:8080/ws"),
+            //socket: new WebSocket("ws://localhost:8080/ws"),
             loaded: true,
         });
 
-        if(this.state.socket == null) return;
+        /*if(this.state.socket == null) return;
         this.state.socket.onopen = () => {
             console.log(`Successfully Connected with sid: ${this.state.sid}`);
             this.state.socket?.send(`${MSGTYPE.Connection} ${this.state.sid}`);
-        };
+        };*/
         
-        this.state.socket.onclose = () => {
+        /*this.state.socket.onclose = () => {
             console.log("Client Closed!")
             //sock.send("Client Closed!")
             //probably need some reconnect scheme
             //may need to make a helper for all writing to
             //server to detect disconnects
-        };
+        };*/
         
-        this.state.socket.onmessage = (event) => {
+        /*this.state.socket.onmessage = (event) => {
             const msgObj: Msg = JSON.parse(event.data)
             console.log(msgObj)
             switch(msgObj.MsgType) {
@@ -230,7 +230,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
 
         this.state.socket.onerror = (error) => {
             console.log("Socket Error: ", error);
-        };
+        };*/
     }
 
     async handleRun () {

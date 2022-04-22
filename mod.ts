@@ -6,7 +6,8 @@ import {
     send,
 } from "https://deno.land/x/oak/mod.ts";
 
-import { MatchmakingData } from "./react-app/src/components/common/interfaces/matchmakingData.ts"
+import { MatchmakingData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
+import { QuestionData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
 
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
@@ -336,6 +337,21 @@ router
                     await client.end();
                 }
             }
+        } catch (err) {
+            console.log(err);
+        }
+    })
+    .get("/api/question", async (context) => {
+        try {
+            await client.connect();
+            const questionResult = await client.queryArray("select question, function_signature, default_custom_input from questions where input_output_format='2;a;n|1;a'");
+            const responseBody : QuestionData = {
+                question: questionResult.rows[0][0] as string,
+                function_signature: questionResult.rows[0][1] as string,
+                default_custom_input: questionResult.rows[0][2] as string,
+            };
+            context.response.body = responseBody;
+            await client.end();
         } catch (err) {
             console.log(err);
         }
