@@ -7,7 +7,6 @@ def makeSum(nums, target):
                 return [i, j]
             j += 1
         i += 1
-    
 
 if __name__ == "__main__":
     target = int(input())

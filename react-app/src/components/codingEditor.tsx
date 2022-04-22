@@ -17,6 +17,9 @@ interface CodeSubmission {
     input: string;
 }
 
+const defaultSignature: string = 'def makeSum(nums, target):\n    ',
+    defaultInput: string = '[2,7,11,15]\n9';
+
 enum MSGTYPE {
     MsgTypeBegin  = 0,
 	Connection    = 1,
@@ -132,8 +135,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             firstMsg: true,
             peeking: false,
             skipping: false,
-            code: 'def makeSum(nums, target):\n    ',
-            input: '[2,7,11,15]\n9',
+            code: defaultSignature,
+            input: defaultInput,
             standardOutput: '',
             output: '',
             questionNum: 1,
@@ -347,7 +350,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             if (this.state.questionNum == 3) {
                 return <Navigate to="/victory"/>
             } else {
-                this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false], questionNum: this.state.questionNum + 1 });
+                this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false],
+                    questionNum: this.state.questionNum + 1, code: defaultSignature, input: defaultInput });
             }
         }
         return (
@@ -435,7 +439,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={1}>
                                     <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
-                                        defaultValue={this.state.code} onChange={this.handleCodeChange} />
+                                        value={this.state.code} onChange={this.handleCodeChange} />
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
                                     <Grid item container xs={2} direction="column" alignItems="center">
@@ -447,7 +451,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            defaultValue={this.state.input} onChange={this.handleInputChange} />
+                                            value={this.state.input} onChange={this.handleInputChange} />
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
