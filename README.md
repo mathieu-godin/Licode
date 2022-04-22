@@ -50,6 +50,52 @@ sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_
 sudo apt install pgadmin4
 ```
 
+### Windows
+
+Download the installer for the latest version of PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads. It will take a few minutes to download.
+
+Open the installer file and in "Setup - PostgreSQL" click Next.
+
+In "Installation Directory" Specify the Installation Directory or keep it as default and click Next.
+
+In "Select Components" you can unselect Stack Builder since it is not needed, but make sure that PosgreSQL Server, pgAdmin 4 and Command Line Tools are selected. Click next.
+
+In "Data Directory" Select the directory for PostgreSQL to store your databaces or keep it as default and click Next.
+
+In "Password" Enter the password for the database super user, also known as "postgres". Make sure you don't forget the password because it is not easy to reset. Click Next.
+
+In "Port" Use the default Port and click Next.
+
+In "Advanced Options" Use the default Locale and click Next.
+
+In "Pre Installation Summary" make sure that all the information makes sense and click next.
+
+In "Ready to Install" click next.
+
+In "Installing" the installation will run through, and if it finishes successfully you should be able to click next.
+
+In "Completing the PostgreSQL Setup Wizard" click Finish.
+
+Once the installation is complete, set up the environment variable by doing the following:
+
+Go to "This PC", right click and select "Properties", then select "Advanced System Settings" and then select "Environment Variables...".
+
+Under System variables, double click on the variable named "Path". Use "New" to create the following two entries: %INSTALL_DIR%\bin and %INSTALL_DIR%\lib where %INSTALL_DIR% is your installation directory, "C:\Program Files\PostgreSQL\14" by default.
+
+To test that Postgres was installed successfully and create the licode database user, first run a PowerShell terminal as administrator (Search for PowerShell in the search bar, right click and select "run as administrator"). Then do the following:
+
+```bash
+psql -u posgres
+CREATE USER licode WITH PASSWORD 'edocil';
+CREATE DATABASE licode;
+GRANT ALL PRIVILEGES ON DATABASE licode to licode;
+ALTER USER postgres with password 'my-password';
+\q
+Restart-Service -Name postgresql-x64-14
+```
+
+If the "Restart-Service -Name postgresql-x64-14" command fails, then check the name of the service running postgres by running "Get-Service"
+
 #### On Development Machine
 Open pgAdmin (by searching it in your programs and starting it). It will ask you to set a master password. Let's set it to _edocil_ for now (simply licode spelled backwards).
 
@@ -161,9 +207,20 @@ Packages will be saved in the licode repository by setting DENO_DIR with the abo
 
 #### Performing the Database Migrations
 
+##### Linux
+
 ```bash
 cd ..
 sudo apt install libpq-dev python3-dev
+pip install psycopg2
+python migrations/migrations.py migrate
+```
+
+#### Windows
+On Powershell:
+
+```bash
+cd ..
 pip install psycopg2
 python migrations/migrations.py migrate
 ```
