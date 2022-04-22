@@ -362,7 +362,7 @@ router
                             matches[matchmakingQueue25[i].sid] = sid;
                             matches[sid] = matchmakingQueue25[i].sid;
                             //can call goServer/registerPair here
-                            console.log("attempting register pair " + sid + ", " + matchmakingQueue25[i].sid)
+                            /*console.log("attempting register pair " + sid + ", " + matchmakingQueue25[i].sid)
                             const response = await fetch("http://localhost:8080/registerPair", {
                                 method: "POST",
                                 headers: {
@@ -373,7 +373,7 @@ router
                                     Id2: matchmakingQueue25[i].sid,
                                 }),
                             }); //TODO - Check response 
-                            console.log(response.status)
+                            console.log(response.status)*/
                             //can probably eliminate this, main purpose of this api
                             //method is to match users and register them with the go server
                             context.response.body = {
