@@ -76,6 +76,72 @@ function delay(time: number) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
+function addToQueue(queue: MatchmakingUser[], matchmakingUser: MatchmakingUser, range: number, context: any) {
+    queue.push(matchmakingUser);
+    for (let i = 0; i < queue.length; ++i) {
+        if (queue[i].sid != matchmakingUser.sid
+                && Math.abs(matchmakingUser.eloRating - queue[i].eloRating) <= range) {
+            matches[queue[i].sid] = matchmakingUser.sid;
+            matches[matchmakingUser.sid] = queue[i].sid;
+            sidsProgress[queue[i].sid] = 0;
+            sidsProgress[matchmakingUser.sid] = 0;
+            //can call goServer/registerPair here
+            /*console.log("attempting register pair " + sid + ", " + matchmakingQueue25[i].sid)
+            const response = await fetch("http://localhost:8080/registerPair", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Id1: sid,
+                    Id2: matchmakingQueue25[i].sid,
+                }),
+            }); //TODO - Check response 
+            console.log(response.status)*/
+            //can probably eliminate this, main purpose of this api
+            //method is to match users and register them with the go server
+            context.response.body = {
+                username: sids[matchmakingUser.sid],
+                eloRating: matchmakingUser.eloRating,
+                opponentUsername: sids[queue[i].sid],
+                opponentEloRating: queue[i].eloRating,
+            };
+            queue.splice(i, 1);
+            queue.pop();
+            return true;
+        }
+    }
+    return false;
+}
+
+async function checkIfFoundInQueue(delayTime: number, matchmakingUser: MatchmakingUser, username: string, context: any) {
+    await delay(delayTime);
+    if (matchmakingUser.sid in matches) {
+        let opponentUsername = sids[matches[matchmakingUser.sid]];
+        await client.connect();
+        const usernameResult = await client.queryArray("select elo_rating from users where username='"
+            + username + "'");
+        let opponentEloRating = usernameResult.rows[0][0] as number;
+        await client.end();
+        context.response.body = {
+            username: sids[matchmakingUser.sid],
+            eloRating: matchmakingUser.eloRating,
+            opponentUsername: opponentUsername,
+            opponentEloRating: opponentEloRating,
+        };
+        return true;
+    }
+    return false;
+}
+
+function removeFromQueue(queue: MatchmakingUser[], sid: string) {
+    for (let i = 0; i < queue.length; ++i) {
+        if (queue[i].sid === sid) {
+            queue.splice(i, 1);
+        }
+    }
+}
+
 const port: number = +env.LICODE_PORT || 3000;
 app.addEventListener("error", (evt) => {
     console.log(evt.error);
@@ -372,59 +438,27 @@ router
                         sid: sid,
                     }
                     await client.end();
+                    let queues: MatchmakingUser[][] = [matchmakingQueue25, matchmakingQueue50, matchmakingQueue100, matchmakingQueue200];
+                    let ranges: number[] = [25, 50, 100, 200];
+                    let delayTimesNums: number[] = [1, 5, 10, 60];
                     let foundMatch: boolean = false;
-                    matchmakingQueue25.push(matchmakingUser);
-                    for (let i = 0; i < matchmakingQueue25.length; ++i) {
-                        if (matchmakingQueue25[i].sid != matchmakingUser.sid
-                                && Math.abs(matchmakingUser.eloRating - matchmakingQueue25[i].eloRating) <= 25) {
-                            matches[matchmakingQueue25[i].sid] = sid;
-                            matches[sid] = matchmakingQueue25[i].sid;
-                            sidsProgress[matchmakingQueue25[i].sid] = 0;
-                            sidsProgress[sid] = 0;
-                            //can call goServer/registerPair here
-                            /*console.log("attempting register pair " + sid + ", " + matchmakingQueue25[i].sid)
-                            const response = await fetch("http://localhost:8080/registerPair", {
-                                method: "POST",
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    Id1: sid,
-                                    Id2: matchmakingQueue25[i].sid,
-                                }),
-                            }); //TODO - Check response 
-                            console.log(response.status)*/
-                            //can probably eliminate this, main purpose of this api
-                            //method is to match users and register them with the go server
-                            context.response.body = {
-                                username: sids[sid],
-                                eloRating: matchmakingUser.eloRating,
-                                opponentUsername: sids[matchmakingQueue25[i].sid],
-                                opponentEloRating: matchmakingQueue25[i].eloRating,
-                            };
-                            matchmakingQueue25.splice(i, 1);
-                            matchmakingQueue25.pop();
-                            foundMatch = true;
+                    for (let i = 0; i < queues.length; ++i) {
+                        if (foundMatch = addToQueue(queues[i], matchmakingUser, ranges[i], context)) {
                             break;
+                        } else {
+                            for (let j = 0; j < delayTimesNums[i]; ++j) {
+                                if (foundMatch = await checkIfFoundInQueue(1000, matchmakingUser, username, context)) {
+                                    break;
+                                }
+                            }
+                            if (foundMatch) {
+                                break;
+                            }
+                            removeFromQueue(queues[i], sid);
                         }
                     }
-                    while (!foundMatch) {
-                        await delay(1000);
-                        if (sid in matches) {
-                            let opponentUsername = sids[matches[sid]];
-                            await client.connect();
-                            const usernameResult = await client.queryArray("select elo_rating from users where username='"
-                                + username + "'");
-                            let opponentEloRating = usernameResult.rows[0][0] as number;
-                            await client.end();
-                            context.response.body = {
-                                username: sids[sid],
-                                eloRating: matchmakingUser.eloRating,
-                                opponentUsername: opponentUsername,
-                                opponentEloRating: opponentEloRating,
-                            };
-                            foundMatch = true;
-                        }
+                    if (!foundMatch && !addToQueue(matchmakingQueue500, matchmakingUser, 500, context)) {
+                        while (!(await checkIfFoundInQueue(1000, matchmakingUser, username, context))) { }
                     }
                 }
             }
