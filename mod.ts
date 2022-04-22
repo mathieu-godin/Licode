@@ -76,7 +76,7 @@ function delay(time: number) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-function addToQueue(queue: MatchmakingUser[], matchmakingUser: MatchmakingUser, range: number, context: any) {
+async function addToQueue (queue: MatchmakingUser[], matchmakingUser: MatchmakingUser, range: number, context: any) {
     queue.push(matchmakingUser);
     for (let i = 0; i < queue.length; ++i) {
         if (queue[i].sid != matchmakingUser.sid
@@ -86,18 +86,18 @@ function addToQueue(queue: MatchmakingUser[], matchmakingUser: MatchmakingUser, 
             sidsProgress[queue[i].sid] = 0;
             sidsProgress[matchmakingUser.sid] = 0;
             //can call goServer/registerPair here
-            /*console.log("attempting register pair " + sid + ", " + matchmakingQueue25[i].sid)
+            console.log("attempting register pair " + matchmakingUser.sid + ", " + queue[i].sid)
             const response = await fetch("http://localhost:8080/registerPair", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    Id1: sid,
-                    Id2: matchmakingQueue25[i].sid,
+                    Id1: matchmakingUser.sid,
+                    Id2: queue[i].sid,
                 }),
             }); //TODO - Check response 
-            console.log(response.status)*/
+            console.log(response.status);
             //can probably eliminate this, main purpose of this api
             //method is to match users and register them with the go server
             context.response.body = {
@@ -443,7 +443,7 @@ router
                     let delayTimesNums: number[] = [1, 5, 10, 60];
                     let foundMatch: boolean = false;
                     for (let i = 0; i < queues.length; ++i) {
-                        if (foundMatch = addToQueue(queues[i], matchmakingUser, ranges[i], context)) {
+                        if (foundMatch = await addToQueue(queues[i], matchmakingUser, ranges[i], context)) {
                             break;
                         } else {
                             for (let j = 0; j < delayTimesNums[i]; ++j) {
