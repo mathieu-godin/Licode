@@ -29,6 +29,8 @@ export interface CodingEditorState {
     input: string,
     standardOutput: string,
     output: string,
+    questionNum: number,
+    opponentQuestionNum: number,
 }
 
 export interface PlayerInformationProps {
@@ -39,7 +41,7 @@ export interface PlayerInformationProps {
 
 function PlayerInformation(props: PlayerInformationProps) {
     const loaded: boolean = props.loaded;
-    if (loaded || true) {
+    if (loaded) {
         return <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>{props.username}: Rank {props.eloRating}</Typography>;
     } else {
         return <Typography variant="aboveEditor" sx={{ m: 0, p: 0, display: "none" }} />;
@@ -91,6 +93,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             input: '[2,7,11,15]\n9',
             standardOutput: '',
             output: '',
+            questionNum: 1,
+            opponentQuestionNum: 1,
         }
     }
 
@@ -146,7 +150,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
 
     playerWon() : boolean {
         const testsPassed: number = this.state.testCasesPassed.reduce((numPassed: number, passed: boolean) => {
-            if(passed){
+            if (passed) {
                 return numPassed + 1;
             } else {
                 return numPassed;
@@ -159,7 +163,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         const rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*",
             rightInput = "*#&#^#%@&@*\n*";
         if(this.playerWon()){
-            return <Navigate to="/victory"/>
+            if (this.state.questionNum == 3) {
+                return <Navigate to="/victory"/>
+            } else {
+                this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false], questionNum: this.state.questionNum + 1 });
+            }
         }
         return (
             <ThemeProvider theme={editorTheme}>
@@ -238,7 +246,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         </Grid>
                                         <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
-                                                Question 1/3
+                                                Question {this.state.questionNum}/3
                                             </Typography>
                                         </Grid>
                                     </Grid>
@@ -369,7 +377,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         </Grid>
                                         <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
-                                                Question 2/3
+                                                Question {this.state.opponentQuestionNum}/3
                                             </Typography>
                                         </Grid>
                                     </Grid>
