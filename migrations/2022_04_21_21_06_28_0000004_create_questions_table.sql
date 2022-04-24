@@ -1,0 +1,1 @@
+CREATE TABLE questions (id BIGSERIAL PRIMARY KEY);

@@ -18,28 +18,106 @@ import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-python";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/ext-language_tools";
+import { MatchmakingData, QuestionData } from "./common/interfaces/matchmakingData";
 
 interface CodeSubmission {
     value: string;
     input: string;
 }
 
-enum MSGTYPE {
-    MsgTypeBegin  = 0,
-	Connection    = 1,
-	CodeUpdate    = 2,
-	Peek          = 3,
-	Slow          = 4,
-	Skip          = 5,
-	Error         = 6,
-	MsgTypeEnd    = 7,
-}
-const AlwaysSendCodeUpdate = true
+const defaultSignature: string = 'def makeSum(nums, target):\n    ',
+    defaultInput: string = '[2,7,11,15]\n9';
 
-interface Msg {
-    MsgType: number,
-    Ok: boolean,
-    What: string,
+/*
+SERVER replies with Msg as json
+Message Types:
+	Behaviour
+		TypeSlow		- tell player to type slow
+		Peek			- tell player to stop peeking
+	Information
+		Connection		- tell player if connection succeed
+		Error			- give player an error message
+		Loss			- inform player their opponent has won
+		QuestionNum		- inform player their opponent is on a new question
+	FieldUpdate
+		Code			- give player their opponent's code editor input
+		Input			- etc.
+		Output
+		StandardOutput
+*/
+
+/*
+CLIENT sends message type and args i.e. <MsgType> <args[1]> <args[2]> ...
+Message Types:
+	ConnectionRequest		- indicates player wants to join the game with sid args[1]
+	StartPeeking			- player using peek wildcard
+	SlowOpponent			- player using typing speed wildcard
+	Skip					- player is skipping a test case
+	GiveFieldUpdate			- player is sending a field update (code, input, ...)
+		same subtypes as SERVER FieldUpdate
+	GiveQuestionNum			- indicates the player is now solving question args[1]
+	Win						- the player has solved the final question
+*/
+
+//Server message top level types
+enum SERVERMSGTYPE {
+	Behaviour   = 0,
+	Information = 1,
+	FieldUpdate = 2,
+}
+
+//Behaviour subtypes
+enum BEHAVIOUR {
+	TypeSlow = 0,
+	Peek     = 1,
+}
+
+//Information subtypes
+enum INFORMATION {
+	Connection  = 0,
+	Error       = 1,
+	Loss        = 2,
+	QuestionNum = 3,
+}
+
+//FieldUpdate subtypes
+enum FIELDUPDATE {
+	Code           = 0,
+	Input          = 1,
+	Output         = 2,
+	StandardOutput = 3,
+}
+
+//client messages
+enum CLIENTMSGTYPE {
+	ConnectionRequest       = 0,
+	StartPeeking            = 1,
+	SlowOpponent            = 2,
+	Skip                    = 3,
+	GiveFieldUpdate         = 4,
+	GiveQuestionNum         = 5,
+	Win                     = 6,
+}
+
+
+interface ServerMsg {
+    Type: number,
+    Data: any,
+}
+
+interface BehaviourData {
+	Type: number,
+	Start: boolean, 
+}
+
+interface InformationData {
+	Type: number,
+	Info: string,
+}
+
+interface FieldUpdateData {
+	Type: number,
+	NewValue: string,
 }
 
 export interface CodingEditorProps {}
@@ -65,6 +143,10 @@ export interface CodingEditorState {
     standardOutput: string,
     output: string,
     questionNum: number,
+
+    rightInput: string,
+    rightOutput: string,
+    rightStandardOutput: string,
     opponentQuestionNum: number,
 }
 
@@ -120,7 +202,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.slowOpponent = this.slowOpponent.bind(this)
         this.skipTestCase = this.skipTestCase.bind(this)
         this.opponentEditorChange = this.opponentEditorChange.bind(this)
-        this.processOpponentCode = this.processOpponentCode.bind(this)
+        this.processOpponentField = this.processOpponentField.bind(this)
         this.sendCodeUpdate = this.sendCodeUpdate.bind(this)
         this.playerWon = this.playerWon.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -139,10 +221,13 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             firstMsg: true,
             peeking: false,
             skipping: false,
-            code: 'def makeSum(nums, target):\n    ',
-            input: '[2,7,11,15]\n9',
+            code: defaultSignature,
+            input: defaultInput,
             standardOutput: '',
             output: '',
+            rightInput: '',
+            rightStandardOutput: '',
+            rightOutput: '',
             questionNum: 1,
             opponentQuestionNum: 1,
         }
@@ -152,7 +237,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         console.log("Attempting Connection...");
 
         const data: MatchmakingData = await fetch('/api/opponent').then(response => response.json());
-        console.log(data)
+        //const questionData: QuestionData = await fetch('/api/question').then(response => response.json());
         this.setState({
             username: data.you.username,
             eloRating: data.you.eloRating,
@@ -166,7 +251,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         if(this.state.socket == null) return;
         this.state.socket.onopen = () => {
             console.log(`Successfully Connected with sid: ${this.state.sid}`);
-            this.state.socket?.send(`${MSGTYPE.Connection} ${this.state.sid}`);
+            this.state.socket?.send(`${CLIENTMSGTYPE.ConnectionRequest} ${this.state.sid}`);
         };
         
         this.state.socket.onclose = () => {
@@ -178,59 +263,93 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         };
         
         this.state.socket.onmessage = (event) => {
-            const msgObj: Msg = JSON.parse(event.data)
+            const msgObj: ServerMsg = JSON.parse(event.data)
             console.log(msgObj)
-            switch(msgObj.MsgType) {
-                case MSGTYPE.Connection: //connecting and reconnecting
-                    if(msgObj.Ok) {
-                        console.log("Registered!")
-                        //send initial code update
-                        this.sendCodeUpdate(this.state.code)
-                    } else {
-                        console.log("Registration Failed! ".concat(msgObj.What))
+            switch(msgObj.Type) {
+                case SERVERMSGTYPE.Behaviour:
+                    const behaviourData: BehaviourData = msgObj.Data
+                    switch(behaviourData.Type) {
+                        case BEHAVIOUR.TypeSlow:
+                            this.setState({
+                                typingSlow: behaviourData.Start
+                            })
+                            break;
+                        case BEHAVIOUR.Peek:
+                            //stop peaking
+                            //behaviourData.Start should always be false, the server
+                            //only asks us to stop peeking
+                            this.setState({
+                                peeking: false
+                            })
+                            break;
+                        default:
+                            //error?
+                            break;
                     }
-                    break
-                case MSGTYPE.CodeUpdate: 
-                    if(msgObj.Ok) {
-                        //receiving a code update
-                        this.setState({
-                            rightEditorCode: this.processOpponentCode(msgObj.What)
-                        })
-                    } else if (msgObj.What == "B") {
-                        //handle request for code updates
-                        this.setState({
-                            sendingCodeUpdates: true
-                        })
-                        //since we are being asked to send updates, 
-                        //we have to send one now
-                        if(this.state.sendingCodeUpdates) {
-                            this.state.socket?.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(this.state.code)))
-                        }
-                    } else if (msgObj.What == "E") {
-                        //stop sending code updates
-                        this.setState({
-                            sendingCodeUpdates: false
-                        })
+                    break;
+                case SERVERMSGTYPE.Information:
+                    const infoData: InformationData = msgObj.Data
+                    switch(infoData.Type) {
+                        case INFORMATION.Connection:
+                            if(infoData.Info === "") {
+                                console.log("Registered!")
+                                //send initial code update
+                                this.sendCodeUpdate(this.state.code)
+                                //initial input update
+                                this.sendFieldUpdate(FIELDUPDATE.Input, this.state.input)
+                            } else {
+                                console.log("Registration Failed! " + infoData.Info)
+                            }
+                            break;
+                        case INFORMATION.Error:
+                            console.log("Error: " + infoData.Info)
+                            break;
+                        case INFORMATION.Loss:
+                            //TODO - Redirect
+                            console.log("YOU LOSE!!!")
+                            break;
+                        case INFORMATION.QuestionNum:
+                            this.setState({
+                                opponentQuestionNum: parseInt(infoData.Info)
+                            })
+                            break;
+                        default:
+                            //error?
+                            break;
                     }
-                    break
-                case MSGTYPE.Peek:
-                    //stop peaking
-                    this.setState({
-                        peeking: false
-                    })
-                    this.setState({
-                        rightEditorCode: this.processOpponentCode(this.state.rightEditorCode)
-                    })
-                    break
-                case MSGTYPE.Slow:
-                    this.setState({
-                        typingSlow: !msgObj.Ok
-                    })
-                    break      
-                case MSGTYPE.Error:
-                    console.log("Error: ".concat(msgObj.What))
-                    break
+                    break;
+                case SERVERMSGTYPE.FieldUpdate:
+                    const fieldData: FieldUpdateData = msgObj.Data
+                    switch(fieldData.Type) {
+                        case FIELDUPDATE.Code:
+                            //receiving a code update
+                            console.log("code update")
+                            this.setState({
+                                rightEditorCode: fieldData.NewValue
+                            })
+                            break;
+                        case FIELDUPDATE.Input:
+                            this.setState({
+                                rightInput: fieldData.NewValue
+                            })
+                            break;
+                        case FIELDUPDATE.Output:
+                            this.setState({
+                                rightOutput: fieldData.NewValue
+                            })
+                            break;
+                        case FIELDUPDATE.StandardOutput:
+                            this.setState({
+                                rightStandardOutput: fieldData.NewValue
+                            })
+                            break;    
+                        default:
+                            //error?
+                            break;                                                                                            
+                    }
+                    break;
                 default:
+                    //error?
                     break
             }
         }
@@ -267,58 +386,63 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
 
     peekOpponent () {
         console.log("Sending Peek")
-        this.state.socket?.send(MSGTYPE.Peek.toString())
+        this.state.socket?.send(CLIENTMSGTYPE.StartPeeking.toString())
         this.setState({
             peeking: true
         })
     }
     slowOpponent () {
         console.log("Sending Slow")
-        this.state.socket?.send(MSGTYPE.Slow.toString())
+        this.state.socket?.send(CLIENTMSGTYPE.SlowOpponent.toString())
     }
     skipTestCase () {
         console.log("Sending Skip")
         this.setState({
             skipping: true
         })
-        this.state.socket?.send(MSGTYPE.Skip.toString())
+        this.state.socket?.send(CLIENTMSGTYPE.Skip.toString())
     }
 
-    processOpponentCode (code: string) : string {
-        if(this.state.peeking) {
-            return code;
-        }
+    processOpponentField (field: string) : string {
+        console.log("processing opponent field = " + field)
         var r = 0
         var randomChars : string = "#!$*?~"
-        var ret = code.replace(/[^\s]/g, (substr: string, ..._args: any[]) : string => {
-            console.log("substr: ".concat(substr))
+        var ret = field.replace(/[^\s]/g, (substr: string, ..._args: any[]) : string => {
             const oldR = r
             r = (r + 1) % randomChars.length
+            console.log(substr + " " + randomChars[oldR])
             return randomChars[oldR]
         })  
 
         return ret
     }  
 
-    sendCodeUpdate(code: string) {
-        if(this.state.sendingCodeUpdates || AlwaysSendCodeUpdate) {
-            this.state.socket?.send(MSGTYPE.CodeUpdate.toString().concat(" ".concat(code)));
-        }
+    sendFieldUpdate(type: number, newValue: string) {
+        this.state.socket?.send(CLIENTMSGTYPE.GiveFieldUpdate.toString() + " " + type.toString() + " " + newValue)
     }
 
-    handleCodeChange (newValue: string, e: React.ChangeEventHandler<HTMLInputElement>) {
+    sendCodeUpdate(code: string) {
+        this.sendFieldUpdate(FIELDUPDATE.Code, code)
+    }
+
+    handleCodeChange (value: string, e: React.ChangeEventHandler<HTMLInputElement>) {
+        //another approach
+        //just state and then breifly disable the input (turn back on with a timeout)
         const oldCode = this.state.code
-        this.setState({ code: newValue });
+        const newCode = value;
+        this.setState({ code: value });
         if(this.state.typingSlow) {
-            var oldValue = newValue
-            newValue = oldCode
+            value = oldCode
+            var currValue = value            
             setTimeout(() => {
-                oldValue = this.state.code
-                this.sendCodeUpdate(this.state.code)
+                currValue= newCode
+                this.sendCodeUpdate(newCode)
             }, 500)
         } else {
-            this.sendCodeUpdate(this.state.code)
+            this.sendCodeUpdate(newCode)
         }
+
+        this.setState({ code: newCode });
     }
 
     opponentEditorChange (e: React.ChangeEvent<HTMLInputElement>) {
@@ -326,6 +450,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     }
 
     handleInputChange (e: React.ChangeEvent<HTMLInputElement>) {
+        this.sendFieldUpdate(FIELDUPDATE.Input, e.currentTarget.value);
         this.setState({ input: e.currentTarget.value });
     }
 
@@ -347,14 +472,17 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     }
 
     render() {
-        const rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*",
-            rightInput = "*#&#^#%@&@*\n*";
-        console.log("rendering")
+        // const rightEditorCode: string = "!@#$%^&*()!@#$%^&*()\n    !@#$%^&*(\n        !@#$%^&*",
+        //     rightInput = "*#&#^#%@&@*\n*";
+        console.log("rendering w peeking = " + (this.state.peeking ? "true" : "false"))
         if(this.playerWon()){
             if (this.state.questionNum == 3) {
+                this.state.socket?.send(CLIENTMSGTYPE.Win.toString())
                 return <Navigate to="/victory"/>
             } else {
-                this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false], questionNum: this.state.questionNum + 1 });
+                this.state.socket?.send(CLIENTMSGTYPE.GiveQuestionNum.toString() + " " + (this.state.questionNum + 1).toString())
+                this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false],
+                    questionNum: this.state.questionNum + 1, code: defaultSignature, input: defaultInput });
             }
         }
         return (
@@ -466,7 +594,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            defaultValue={this.state.input} onChange={this.handleInputChange} />
+                                            value={this.state.input} onChange={this.handleInputChange} />
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -606,7 +734,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
-                                            defaultValue={rightInput} InputProps={{ readOnly: true }} />
+                                            value={this.state.peeking ? this.state.rightInput : this.processOpponentField(this.state.rightInput)}
+                                            InputProps={{ readOnly: true }} />
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -619,6 +748,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            value={this.state.peeking ? this.state.rightStandardOutput : this.processOpponentField(this.state.rightStandardOutput)}
                                             InputProps={{ readOnly: true }} />
                                     </Grid>
                                 </Grid>
@@ -632,6 +762,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     </Grid>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
+                                            value={this.state.peeking ? this.state.rightOutput : this.processOpponentField(this.state.rightOutput)}
                                             InputProps={{ readOnly: true }} />
                                     </Grid>
                                 </Grid>

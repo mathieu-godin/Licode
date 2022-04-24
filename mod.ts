@@ -6,7 +6,8 @@ import {
     send,
 } from "https://deno.land/x/oak/mod.ts";
 
-import { MatchmakingData } from "./react-app/src/components/common/interfaces/matchmakingData.ts"
+import { MatchmakingData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
+import { QuestionData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
 
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
@@ -61,6 +62,8 @@ let helloWorldVar: HelloWorld = { text: 'Hello World' };
 
 let sids: { [name: string]: string } = {};
 
+let sidsProgress: { [name: string]: number } = {};
+
 let matchmakingQueue25: MatchmakingUser[] = [];
 let matchmakingQueue50: MatchmakingUser[] = [];
 let matchmakingQueue100: MatchmakingUser[] = [];
@@ -71,6 +74,72 @@ let matches: { [name: string]: string } = {};
 
 function delay(time: number) {
     return new Promise(resolve => setTimeout(resolve, time));
+}
+
+async function addToQueue (queue: MatchmakingUser[], matchmakingUser: MatchmakingUser, range: number, context: any) {
+    queue.push(matchmakingUser);
+    for (let i = 0; i < queue.length; ++i) {
+        if (queue[i].sid != matchmakingUser.sid
+                && Math.abs(matchmakingUser.eloRating - queue[i].eloRating) <= range) {
+            matches[queue[i].sid] = matchmakingUser.sid;
+            matches[matchmakingUser.sid] = queue[i].sid;
+            sidsProgress[queue[i].sid] = 0;
+            sidsProgress[matchmakingUser.sid] = 0;
+            //can call goServer/registerPair here
+            console.log("attempting register pair " + matchmakingUser.sid + ", " + queue[i].sid)
+            const response = await fetch("http://localhost:8080/registerPair", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Id1: matchmakingUser.sid,
+                    Id2: queue[i].sid,
+                }),
+            }); //TODO - Check response 
+            console.log(response.status);
+            //can probably eliminate this, main purpose of this api
+            //method is to match users and register them with the go server
+            context.response.body = {
+                username: sids[matchmakingUser.sid],
+                eloRating: matchmakingUser.eloRating,
+                opponentUsername: sids[queue[i].sid],
+                opponentEloRating: queue[i].eloRating,
+            };
+            queue.splice(i, 1);
+            queue.pop();
+            return true;
+        }
+    }
+    return false;
+}
+
+async function checkIfFoundInQueue(delayTime: number, matchmakingUser: MatchmakingUser, username: string, context: any) {
+    await delay(delayTime);
+    if (matchmakingUser.sid in matches) {
+        let opponentUsername = sids[matches[matchmakingUser.sid]];
+        await client.connect();
+        const usernameResult = await client.queryArray("select elo_rating from users where username='"
+            + username + "'");
+        let opponentEloRating = usernameResult.rows[0][0] as number;
+        await client.end();
+        context.response.body = {
+            username: sids[matchmakingUser.sid],
+            eloRating: matchmakingUser.eloRating,
+            opponentUsername: opponentUsername,
+            opponentEloRating: opponentEloRating,
+        };
+        return true;
+    }
+    return false;
+}
+
+function removeFromQueue(queue: MatchmakingUser[], sid: string) {
+    for (let i = 0; i < queue.length; ++i) {
+        if (queue[i].sid === sid) {
+            queue.splice(i, 1);
+        }
+    }
 }
 
 const port: number = +env.LICODE_PORT || 3000;
@@ -340,6 +409,21 @@ router
             console.log(err);
         }
     })
+    .get("/api/question", async (context) => {
+        try {
+            await client.connect();
+            const questionResult = await client.queryArray("select question, function_signature, default_custom_input from questions where input_output_format='2;a;n|1;a'");
+            const responseBody : QuestionData = {
+                question: questionResult.rows[0][0] as string,
+                function_signature: questionResult.rows[0][1] as string,
+                default_custom_input: questionResult.rows[0][2] as string,
+            };
+            context.response.body = responseBody;
+            await client.end();
+        } catch (err) {
+            console.log(err);
+        }
+    })
     .get("/api/matchmaking", async (context) => {
         try {
             let sid = await context.cookies.get('sid');
@@ -354,57 +438,27 @@ router
                         sid: sid,
                     }
                     await client.end();
+                    let queues: MatchmakingUser[][] = [matchmakingQueue25, matchmakingQueue50, matchmakingQueue100, matchmakingQueue200];
+                    let ranges: number[] = [25, 50, 100, 200];
+                    let delayTimesNums: number[] = [1, 5, 10, 60];
                     let foundMatch: boolean = false;
-                    matchmakingQueue25.push(matchmakingUser);
-                    for (let i = 0; i < matchmakingQueue25.length; ++i) {
-                        if (matchmakingQueue25[i].sid != matchmakingUser.sid
-                                && Math.abs(matchmakingUser.eloRating - matchmakingQueue25[i].eloRating) <= 25) {
-                            matches[matchmakingQueue25[i].sid] = sid;
-                            matches[sid] = matchmakingQueue25[i].sid;
-                            //can call goServer/registerPair here
-                            console.log("attempting register pair " + sid + ", " + matchmakingQueue25[i].sid)
-                            const response = await fetch("http://localhost:8080/registerPair", {
-                                method: "POST",
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    Id1: sid,
-                                    Id2: matchmakingQueue25[i].sid,
-                                }),
-                            }); //TODO - Check response 
-                            console.log(response.status)
-                            //can probably eliminate this, main purpose of this api
-                            //method is to match users and register them with the go server
-                            context.response.body = {
-                                username: sids[sid],
-                                eloRating: matchmakingUser.eloRating,
-                                opponentUsername: sids[matchmakingQueue25[i].sid],
-                                opponentEloRating: matchmakingQueue25[i].eloRating,
-                            };
-                            matchmakingQueue25.splice(i, 1);
-                            matchmakingQueue25.pop();
-                            foundMatch = true;
+                    for (let i = 0; i < queues.length; ++i) {
+                        if (foundMatch = await addToQueue(queues[i], matchmakingUser, ranges[i], context)) {
                             break;
+                        } else {
+                            for (let j = 0; j < delayTimesNums[i]; ++j) {
+                                if (foundMatch = await checkIfFoundInQueue(1000, matchmakingUser, username, context)) {
+                                    break;
+                                }
+                            }
+                            if (foundMatch) {
+                                break;
+                            }
+                            removeFromQueue(queues[i], sid);
                         }
                     }
-                    while (!foundMatch) {
-                        await delay(1000);
-                        if (sid in matches) {
-                            let opponentUsername = sids[matches[sid]];
-                            await client.connect();
-                            const usernameResult = await client.queryArray("select elo_rating from users where username='"
-                                + username + "'");
-                            let opponentEloRating = usernameResult.rows[0][0] as number;
-                            await client.end();
-                            context.response.body = {
-                                username: sids[sid],
-                                eloRating: matchmakingUser.eloRating,
-                                opponentUsername: opponentUsername,
-                                opponentEloRating: opponentEloRating,
-                            };
-                            foundMatch = true;
-                        }
+                    if (!foundMatch && !addToQueue(matchmakingQueue500, matchmakingUser, 500, context)) {
+                        while (!(await checkIfFoundInQueue(1000, matchmakingUser, username, context))) { }
                     }
                 }
             }
@@ -425,46 +479,109 @@ router
     })
     .post("/api/run", async (context: RouterContext<any>) => {
         try {
-            if (!context.request.hasBody) {
-                context.throw(Status.BadRequest, "Bad Request");
-            }
-            const body = context.request.body();
-            let code: Partial<CodeSubmission> | undefined;
-            if (body.type === "json") {
-                code = await body.value;
-            }
-            if (code) {
-                context.assert(typeof code?.value === "string", Status.BadRequest);
-                context.assert(typeof code?.input === "string", Status.BadRequest);
-                context.response.status = Status.OK;
-                await Deno.writeTextFile("./sandbox/answer.py", code.value);
-                await Deno.writeTextFile("./sandbox/answerCustomInput.py", code.value);
-                let inputLines: string[] = code.input.split('\n');
-                let customInputContent: string = '';
-                customInputContent += parseInt(inputLines[1]).toString() + '\n';
-                let inputCommaSeparatedValues: string[] = inputLines[0].split('[')[1].split(']')[0].split(',');
-                for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
-                    customInputContent += parseInt(inputCommaSeparatedValues[i]).toString() + '\n';
+            let sid = await context.cookies.get('sid');
+            if (sid && typeof sid === 'string') {
+                if (!context.request.hasBody) {
+                    context.throw(Status.BadRequest, "Bad Request");
                 }
-                await Deno.writeTextFile("./sandbox/customInput.in", customInputContent);
-                const reportProcess = Deno.run({
-                    cmd: ["./makeReport.sh"],
-                    cwd: "./sandbox",
-                    stdout: "piped"
-                });
-                await reportProcess.output();
-                let jsonResults: String = await Deno.readTextFile("./sandbox/reportFromPySandbox.txt");
-                let standardOutputResults: string = await Deno.readTextFile("./sandbox/standardOutputFromPySandbox.txt");
-                let outputResults: string = await Deno.readTextFile("./sandbox/outputFromPySandbox.txt");
-                jsonResults = jsonResults.replace(/\s/g, "");
-                jsonResults = jsonResults.substring(0, jsonResults.length - 2) + "]"
-                let testResults: TestResult[]  = JSON.parse(jsonResults.toString());
-                let testCasesPassed: TestCasesPassed = {
-                    testCasesPassed: testResults.map((tr: TestResult) => tr.passed),
-                    standardOutput: standardOutputResults,
-                    output: outputResults,
-                };
-                context.response.body = testCasesPassed;
+                const body = context.request.body();
+                let code: Partial<CodeSubmission> | undefined;
+                if (body.type === "json") {
+                    code = await body.value;
+                }
+                if (code) {
+                    context.assert(typeof code?.value === "string", Status.BadRequest);
+                    context.assert(typeof code?.input === "string", Status.BadRequest);
+                    context.response.status = Status.OK;
+                    await Deno.writeTextFile("./sandbox/answer.py", code.value);
+                    await Deno.writeTextFile("./sandbox/answerCustomInput.py", code.value);
+                    let inputLines: string[] = code.input.split('\n');
+                    let customInputContent: string = '';
+                    customInputContent += parseInt(inputLines[1]).toString() + '\n';
+                    let inputCommaSeparatedValues: string[] = inputLines[0].split('[')[1].split(']')[0].split(',');
+                    for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
+                        customInputContent += parseInt(inputCommaSeparatedValues[i]).toString() + '\n';
+                    }
+                    await Deno.writeTextFile("./sandbox/customInput.in", customInputContent);
+                    const reportProcess = Deno.run({
+                        cmd: ["./makeReport.sh"],
+                        cwd: "./sandbox",
+                        stdout: "piped"
+                    });
+                    await reportProcess.output();
+                    let jsonResults: String = await Deno.readTextFile("./sandbox/reportFromPySandbox.txt");
+                    let standardOutputResults: string = await Deno.readTextFile("./sandbox/standardOutputFromPySandbox.txt");
+                    let outputResults: string = await Deno.readTextFile("./sandbox/outputFromPySandbox.txt");
+                    jsonResults = jsonResults.replace(/\s/g, "");
+                    jsonResults = jsonResults.substring(0, jsonResults.length - 2) + "]"
+                    let testResults: TestResult[]  = JSON.parse(jsonResults.toString());
+                    let testCasesPassed: TestCasesPassed = {
+                        testCasesPassed: testResults.map((tr: TestResult) => tr.passed),
+                        standardOutput: standardOutputResults,
+                        output: outputResults,
+                    };
+                    if (!testCasesPassed.testCasesPassed.some(element => !element) && ++sidsProgress[sid] === 3) {
+                        let opponentSid = matches[sid];
+                        delete matches[sid];
+                        delete matches[opponentSid];
+                        delete sidsProgress[sid];
+                        delete sidsProgress[opponentSid];
+                        let numWins: number,
+                            numGames: number,
+                            eloRating: number,
+                            has2400RatingHistory: boolean = false,
+                            opponentNumLosses: number,
+                            opponentNumGames: number,
+                            opponentEloRating: number,
+                            opponentHas2400RatingHistory: boolean = false;
+                        let username = sids[sid as string];
+                        if (username) {
+                            await client.connect();
+                            const usernameResult = await client.queryArray("select num_wins, num_losses, elo_rating, has_2400_rating_history from users where username='"
+                                + username + "'");
+                            numWins = usernameResult.rows[0][0] as number;
+                            numGames = numWins + (usernameResult.rows[0][1] as number);
+                            eloRating = usernameResult.rows[0][2] as number;
+                            has2400RatingHistory = usernameResult.rows[0][3] as boolean;
+                            await client.end();
+                            let opponentUsername = sids[opponentSid as string];
+                            if (opponentUsername) {
+                                await client.connect();
+                                const usernameResult = await client.queryArray(
+                                    "select num_wins, num_losses, elo_rating, has_2400_rating_history from users where username='"
+                                    + opponentUsername + "'");
+                                opponentNumLosses = usernameResult.rows[0][1] as number;
+                                opponentNumGames = (usernameResult.rows[0][0] as number) + opponentNumLosses;
+                                opponentEloRating = usernameResult.rows[0][2] as number;
+                                opponentHas2400RatingHistory = usernameResult.rows[0][3] as boolean;
+                                await client.end();
+                                ++numWins;
+                                let eloRatingVariation: number = 1 - 1.0 / (1 + Math.pow(10, (opponentEloRating - eloRating) / 400.0));
+                                eloRating += Math.floor((numGames < 30 ? (eloRating < 2300 ? 40 : 20) : (has2400RatingHistory ? 10 : 20)) * eloRatingVariation);
+                                ++opponentNumLosses;
+                                opponentEloRating -= Math.ceil((opponentNumGames < 30 ? (opponentEloRating < 2300 ? 40 : 20) : (opponentHas2400RatingHistory ? 10 : 20))
+                                    * eloRatingVariation);
+                                if (username) {
+                                    await client.connect();
+                                    await client.queryArray("update users set num_wins = " + numWins.toString()
+                                        + ", elo_rating = " + eloRating.toString() + ", has_2400_rating_history = "
+                                        + (has2400RatingHistory || eloRating >= 2400).toString() + " where username='"
+                                        + username + "'");
+                                    await client.end();
+                                }
+                                if (opponentUsername) {
+                                    await client.connect();
+                                    await client.queryArray("update users set num_losses = " + opponentNumLosses.toString()
+                                        + ", elo_rating = " + opponentEloRating.toString() + ", has_2400_rating_history = "
+                                        + (opponentHas2400RatingHistory || opponentEloRating >= 2400).toString() + " where username='"
+                                        + opponentUsername + "'");
+                                    await client.end();
+                                }
+                            }
+                        }
+                    }
+                    context.response.body = testCasesPassed;
+                }
             }
         } catch (err) {
             console.log(err);

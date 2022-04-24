@@ -14,81 +14,163 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//Message Types
-//int64 because of strconv.ParseInt return type
+/*
+SERVER replies with Msg as json
+Message Types:
+	Behaviour
+		TypeSlow		- tell player to type slow
+		Peek			- tell player to stop peeking
+	Information
+		Connection		- tell player if connection succeed
+		Error			- give player an error message
+		Loss			- inform player their opponent has won
+		QuestionNum		- inform player their opponent is on a new question
+	FieldUpdate
+		Code			- give player their opponent's code editor input
+		Input			- etc.
+		Output
+		StandardOutput
+*/
+
+/*
+CLIENT sends message type and args i.e. <MsgType> <args[1]> <args[2]> ...
+Message Types:
+	ConnectionRequest		- indicates player wants to join the game with sid args[1]
+	StartPeeking			- player using peek wildcard
+	SlowOpponent			- player using typing speed wildcard
+	Skip					- player is skipping a test case
+	GiveFieldUpdate			- player is sending a field update (code, input, ...)
+		same subtypes as SERVER FieldUpdate
+	GiveQuestionNum			- indicates the player is now solving question args[1]
+	Win						- the player has solved the final question
+*/
+
+//Outgoing Message Types
 const (
-	MsgTypeBegin int64 = 0
-	Connection         = 1
-	CodeUpdate         = 2
-	Peek               = 3
-	Slow               = 4
-	Skip               = 5
-	Error              = 6
-	MsgTypeEnd         = 7
+	Behaviour   int64 = 0
+	Information       = 1
+	FieldUpdate       = 2
 )
-const AlwaysSendCodeUpdates = true
 
 //the only struct sent to clients
 type Msg struct {
-	MsgType int64  `json:"MsgType"`
-	Ok      bool   `json:"Ok"`
-	What    string `json:"What"`
+	Type int64 `json:"Type"`
+	Data any   `json:"Data"`
 }
 
-//Msg ctor
-func makeMsg(MsgType int64, Ok bool, What string) Msg {
+//Behaviours
+const (
+	TypeSlow = 0
+	Peek     = 1
+)
+
+type BehaviourData struct {
+	Type  int  `json:"Type"`
+	Start bool `json:"Start"`
+}
+
+func makeBehaviourMsg(bType int, start bool) Msg {
 	return Msg{
-		MsgType: MsgType,
-		Ok:      Ok,
-		What:    What,
+		Type: Behaviour,
+		Data: BehaviourData{
+			Type:  bType,
+			Start: start,
+		},
 	}
 }
 
-//TODO UPDATE --- PROBABLY OUTDATED
-//SERVER, replies with Msg as json
-//connected/not connected:  			type=Connection, ok=>connected, !ok=>not connected, what= ok ? id : error message
-//start giving code updates,
-//	stop giving code updates: 			type=Peek, !ok=>start, ok=>stop, what=""
-//start slow typing, stop slow typing: 	type=Slow, !ok=>start, ok->stop, what=""
-//code update: 							type=CodeUpdate, ok=true, what=code
-//error: 								type=Error, ok=false, what=error msg
+//Information
+const (
+	Connection  = 0
+	Error       = 1
+	Loss        = 2
+	QuestionNum = 3
+)
 
-//CLIENT, sends message type and args
-//attempt connect:  type=Connection, args[0] = id
-//start peeking:    type=Peek (maybe take time as an arg?)
-//slow opponent:    type=Slow
-//skip test case:   type=Skip
-//send code update: type=CodeUpdate, rest = code
+type InformationData struct {
+	Type int    `json:"Type"`
+	Info string `json:"Info"`
+}
 
-//I think input structs relating to gameplay
-//should be in deno.
-//A very simple interpretter should work
-//	on this side and it would be difficult
-//	to maintain structs here and there.
+func makeInformationMsg(iType int, info string) Msg {
+	return Msg{
+		Type: Information,
+		Data: InformationData{
+			Type: iType,
+			Info: info,
+		},
+	}
+}
+
+//FieldUpdate
+const (
+	Code           = 0
+	Input          = 1
+	Output         = 2
+	StandardOutput = 3
+)
+
+type FieldUpdateData struct {
+	Type     int    `json:"Type"`
+	NewValue string `json:"NewValue"`
+}
+
+func makeFieldUpdateMsg(fType int, newValue string) Msg {
+	return Msg{
+		Type: FieldUpdate,
+		Data: FieldUpdateData{
+			Type:     fType,
+			NewValue: newValue,
+		},
+	}
+}
+
+//incoming messages
+//int64 because of strconv.Parse return type
+
+const (
+	ConnectionRequest int64 = 0
+	StartPeeking            = 1
+	SlowOpponent            = 2
+	Skip                    = 3
+	GiveFieldUpdate         = 4
+	GiveQuestionNum         = 5
+	Win                     = 6
+)
 
 //ConnectMsg ctor
-func makeConnectMsg(confirmed bool, reason string) Msg {
-	return makeMsg(Connection, confirmed, reason)
+func makeConnectMsg(err string) Msg {
+	return makeInformationMsg(Connection, err)
 }
 
 //Peek ctor
-func makePeek(stop bool) Msg {
-	return makeMsg(Peek, stop, "")
+func makePeekMsg() Msg {
+	return makeBehaviourMsg(Peek, false)
 }
 
 //Slow ctor
-func makeSlow(stop bool) Msg {
-	return makeMsg(Slow, stop, "")
+func makeSlowMsg(start bool) Msg {
+	return makeBehaviourMsg(TypeSlow, start)
 }
 
 //CodeUpdate ctor
-func makeCodeUpdate(code string, ok bool) Msg {
-	return makeMsg(CodeUpdate, ok, code)
+func makeCodeUpdateMsg(code string) Msg {
+	return makeFieldUpdateMsg(Code, code)
 }
 
 //Error ctor
-func makeError(what string) Msg {
-	return makeMsg(Error, false, what)
+func makeErrorMsg(what string) Msg {
+	return makeInformationMsg(Error, what)
+}
+
+//Loss ctor
+func makeLossMsg() Msg {
+	return makeInformationMsg(Loss, "")
+}
+
+//QuestionNum ctor
+func makeQuestionNumMsg(questionNum string) Msg {
+	return makeInformationMsg(QuestionNum, questionNum)
 }
 
 //a msg to be stored in a player's inbox
@@ -133,12 +215,6 @@ type Player struct {
 	//the player's connection
 	conn *websocket.Conn
 
-	//is this player peaking
-	isPeeking bool
-	//has this player received their first code update?
-	//used so the 15 second timer doesn't start until the first update
-	updated bool
-
 	//queue of messages to be sent
 	inbox []WrappedMsg
 
@@ -152,8 +228,6 @@ func makePlayer(connected bool, id string, opponentId string, conn *websocket.Co
 		id:         id,
 		opponentId: opponentId,
 		conn:       conn,
-		isPeeking:  false,
-		updated:    false,
 	}
 }
 
@@ -283,10 +357,10 @@ func safeWrite(id string, defMsgType int, msg Msg, callback Callback, queueOnFai
 	if players[idxOf[id]].conn == nil {
 		players[idxOf[id]].mu.Lock()
 		players[idxOf[id]].connected = false
-		players[idxOf[id]].mu.Unlock()
 		if queueOnFail {
 			addMsg(id, defMsgType, msg, callback)
 		}
+		players[idxOf[id]].mu.Unlock()
 		return false
 	}
 
@@ -337,7 +411,7 @@ func reader(conn *websocket.Conn) {
 		defMsgType, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
-			errMsg, err = json.Marshal(makeError("Unknown"))
+			errMsg, err = json.Marshal(makeErrorMsg("Unknown"))
 			goto GeneralError
 		}
 
@@ -346,7 +420,7 @@ func reader(conn *websocket.Conn) {
 		args = strings.Fields(msg)
 		if len(args) < 1 {
 			log.Println("Too few args")
-			errMsg, err = json.Marshal(makeError("Too few args"))
+			errMsg, err = json.Marshal(makeErrorMsg("Too few args"))
 			goto GeneralError
 		}
 
@@ -356,26 +430,26 @@ func reader(conn *websocket.Conn) {
 		msgType, err = strconv.ParseInt(args[0], 10, 32)
 		if err != nil {
 			log.Println(err)
-			errMsg, err = json.Marshal(makeError("Invalid message type"))
+			errMsg, err = json.Marshal(makeErrorMsg("Invalid message type"))
 			goto GeneralError
 		}
 
 		if !idSet && msgType != Connection {
 			log.Println("Need an id")
-			errMsg, err = json.Marshal(makeError("Need an id"))
+			errMsg, err = json.Marshal(makeErrorMsg("Need an id"))
 			goto GeneralError
 		}
 
 		//handle dependent on message type
 		switch msgType {
-		case Connection:
+		case ConnectionRequest:
 			var connMsg Msg
 			var data []byte
 
 			//ensure there's an id
 			if len(args) < 2 {
 				log.Println("Need an id")
-				connMsg = makeConnectMsg(false, "Need an id")
+				connMsg = makeConnectMsg("Need an id")
 				goto ConnectionFailed
 			}
 
@@ -383,15 +457,14 @@ func reader(conn *websocket.Conn) {
 			id = args[1]
 			if err != nil {
 				log.Println(err)
-				connMsg = makeConnectMsg(false, "Invalid id")
+				connMsg = makeConnectMsg("Invalid id")
 				goto ConnectionFailed
 			}
-			idSet = true
 
 			//ensure the player has been registered
 			if !isRegistered(id) {
 				log.Println("Error: not registered.")
-				connMsg = makeConnectMsg(false, "id not registered")
+				connMsg = makeConnectMsg("id not registered")
 				goto ConnectionFailed
 			}
 
@@ -408,20 +481,21 @@ func reader(conn *websocket.Conn) {
 			players[idxOf[id]].mu.Unlock()
 
 			//give missed updates
-			for i := 0; i < len(players[idxOf[id]].inbox); i += 1 {
-				if safeWrite(id, players[idxOf[id]].inbox[i].defMsgType, players[idxOf[id]].inbox[i].msg, players[idxOf[id]].inbox[i].callback, false) {
+			for len(players[idxOf[id]].inbox) > 0 {
+				log.Println("from inbox")
+				if safeWrite(id, players[idxOf[id]].inbox[0].defMsgType, players[idxOf[id]].inbox[0].msg, players[idxOf[id]].inbox[0].callback, false) {
 					players[idxOf[id]].mu.Lock()
-					players[idxOf[id]].inbox = append(players[idxOf[id]].inbox[:i], players[idxOf[id]].inbox[i+1:]...)
+					players[idxOf[id]].inbox = players[idxOf[id]].inbox[1:]
 					players[idxOf[id]].mu.Unlock()
 				} else {
-					idSet = false
 					goto ConnectionDropped
 				}
 			}
 
 			//try to give a positive acknowledgment
-			connMsg = makeConnectMsg(true, fmt.Sprint(id))
+			connMsg = makeConnectMsg("")
 			safeWrite2(id, defMsgType, connMsg, false)
+			idSet = true
 			break
 		ConnectionFailed:
 			if idSet {
@@ -435,83 +509,109 @@ func reader(conn *websocket.Conn) {
 			}
 		ConnectionDropped:
 			break
-		case CodeUpdate:
-			opponentId := players[idxOf[id]].opponentId
-			opponentIdx := idxOf[opponentId]
-			if players[opponentIdx].isPeeking || AlwaysSendCodeUpdates {
-				//recover code
-				code := msg
-				msgTypeStr := fmt.Sprint(msgType)
-				i := 0
-				//read white space
-				for ; i < len(code) && code[i] == ' '; i += 1 {
-				}
-				//read msgType
-				j := 0
-				for j < len(msgTypeStr) && (i+j) < len(code) && code[i+j] == msgTypeStr[j] {
-					j += 1
-				}
-				i += j
-				//read white space
-				for ; i < len(code) && code[i] == ' '; i += 1 {
-				}
-				//read code
-				if i < len(code) {
-					code = code[i:]
+		case GiveFieldUpdate:
+			var i int = -1
+			var j int = -1
+			var newValue string = ""
+			var msgTypeStr string = ""
+			var fieldTypeStr string = ""
+			var field int64 = -1
+			var errMsg Msg = makeErrorMsg("")
+
+			if len(args) < 3 {
+				if idSet {
+					errMsg = makeErrorMsg("too few args")
+					goto FieldUpdateFailed
 				} else {
-					code = ""
-				}
-				//package the code in a msg
-				codeUpdate := makeCodeUpdate(code, true)
-				callback := func() {}
-				//if this is the first update then we
-				//want to wait until the update has been given...
-				if !players[idxOf[opponentId]].updated {
-					callback = func() {
-						//mark that an update has been received
-						players[idxOf[opponentId]].updated = true
-						//after 15 seconds, tell the player to stop sending their code
-						time.AfterFunc(15*time.Second, func() {
-							log.Println("in initial code update callback")
-							players[idxOf[opponentId]].isPeeking = false
-							safeWrite2(opponentId, defMsgType, makePeek(true), true)
-							safeWrite2(id, defMsgType, makeCodeUpdate("E", false), true)
-						})
+					data, err := json.Marshal(makeErrorMsg("too few args"))
+					if err == nil {
+						log.Println("No id field update error")
+						conn.WriteMessage(defMsgType, data)
 					}
 				}
-				safeWrite(opponentId, defMsgType, codeUpdate, callback, true)
-			} else {
-				//if their opponent isn't peeking and we are not always sending updates
-				//then just tell this player to stop
-				safeWrite2(id, defMsgType, makeCodeUpdate("E", false), true)
+				break
 			}
+			field, err = strconv.ParseInt(args[1], 10, 32)
+			if err != nil {
+				log.Println(err)
+				errMsg = makeErrorMsg("Invalid field type")
+				goto FieldUpdateFailed
+			}
+			newValue = msg
+			//recover newValue
+			msgTypeStr = fmt.Sprint(msgType)
+			fieldTypeStr = fmt.Sprint(field)
+			i = 0
+			//read white space
+			for ; i < len(newValue) && newValue[i] == ' '; i += 1 {
+			}
+			//read msgType
+			j = 0
+			for j < len(msgTypeStr) && (i+j) < len(newValue) && newValue[i+j] == msgTypeStr[j] {
+				j += 1
+			}
+			i += j
+			//read white space
+			for ; i < len(newValue) && newValue[i] == ' '; i += 1 {
+			}
+			//read field type
+			j = 0
+			for j < len(fieldTypeStr) && (i+j) < len(newValue) && newValue[i+j] == fieldTypeStr[j] {
+				j += 1
+			}
+			i += j
+			//read white space
+			for ; i < len(newValue) && newValue[i] == ' '; i += 1 {
+			}
+			//read newValue
+			if i < len(newValue) {
+				log.Println(fmt.Sprintf("Taking %s from %s", newValue[i:], newValue))
+				newValue = newValue[i:]
+			} else {
+				log.Println(fmt.Sprintf("Nothing to take from %s", newValue))
+				newValue = ""
+			}
+
+			safeWrite2(players[idxOf[id]].opponentId, defMsgType, makeFieldUpdateMsg(int(field), newValue), true)
 			break
-		case Peek:
-			//just mark that player is peeking
-			players[idxOf[id]].mu.Lock()
-			players[idxOf[id]].isPeeking = true
-			players[idxOf[id]].updated = false
-			players[idxOf[id]].mu.Unlock()
-			//tell the opponent to start sending updates (they are told to stop)
-			//via callback in the CodeUpdate case so that their time doesn't start
-			//until they actually receive a CodeUpdate
-			safeWrite2(players[idxOf[id]].opponentId, defMsgType, makeCodeUpdate("B", false), true)
+		FieldUpdateFailed:
+			safeWrite2(id, defMsgType, errMsg, false)
 			break
-		case Slow:
+		case StartPeeking:
+			//after 15 seconds, tell the player to stop sending their code
+			time.AfterFunc(15*time.Second, func() {
+				log.Println("telling " + id + " to stop peeking")
+				safeWrite2(id, defMsgType, makePeekMsg(), true)
+			})
+			break
+		case SlowOpponent:
 			opponentId := players[idxOf[id]].opponentId
 			//after 15 seconds, tell the opponent to stop
 			//typing slowly
 			callback := func() {
 				time.AfterFunc(15*time.Second, func() {
-					safeWrite2(opponentId, defMsgType, makeSlow(true), true)
+					safeWrite2(opponentId, defMsgType, makeSlowMsg(false), true)
 				})
 			}
 			//tell opponent to start typing slowly
-			safeWrite(opponentId, defMsgType, makeSlow(false), callback, true)
+			safeWrite(opponentId, defMsgType, makeSlowMsg(true), callback, true)
 			break
 		case Skip:
 			//dumby response
 			log.Println(fmt.Sprintf("Player %s is skipping", id))
+			break
+		case Win:
+			//this player is indicating that they won,
+			//give their opponent the bad news
+			log.Println(fmt.Sprintf("Player %s won!", id))
+			opponentId := players[idxOf[id]].opponentId
+			safeWrite2(opponentId, defMsgType, makeLossMsg(), true)
+			break
+		case GiveQuestionNum:
+			//this player is on the next question, inform their opponent
+			log.Println(fmt.Sprintf("Player %s is on question %s", id, args[1]))
+			opponentId := players[idxOf[id]].opponentId
+			safeWrite2(opponentId, defMsgType, makeQuestionNumMsg(args[1]), true)
 			break
 		default:
 			//error
