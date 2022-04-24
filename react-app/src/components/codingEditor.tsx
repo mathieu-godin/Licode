@@ -11,6 +11,13 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
 import { MatchmakingData } from "./common/interfaces/matchmakingData";
+import AceEditor from "react-ace";
+
+//Add imports for modes to be supported
+//import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 interface CodeSubmission {
     value: string;
@@ -299,14 +306,14 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         }
     }
 
-    handleCodeChange (e: React.ChangeEvent<HTMLInputElement>) {
+    handleCodeChange (newValue: string, e: React.ChangeEventHandler<HTMLInputElement>) {
         const oldCode = this.state.code
-        this.setState({ code: e.currentTarget.value });
+        this.setState({ code: newValue });
         if(this.state.typingSlow) {
-            e.currentTarget.value = oldCode
-            var target = e.currentTarget
+            var oldValue = newValue
+            newValue = oldCode
             setTimeout(() => {
-                target.value = this.state.code
+                oldValue = this.state.code
                 this.sendCodeUpdate(this.state.code)
             }, 500)
         } else {
@@ -434,8 +441,20 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item mt={1}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
-                                        defaultValue={this.state.code} onChange={this.handleCodeChange} />
+                                    <AceEditor
+                                        mode="python"
+                                        theme="github"
+                                        name="filled-multiline-static"
+                                        fontSize={14}
+                                        defaultValue = {this.state.code}
+                                        onChange={this.handleCodeChange}
+                                        setOptions={{
+                                            enableBasicAutocompletion: true,
+                                            enableLiveAutocompletion: true,
+                                            enableSnippets: true
+                                        }}
+                                        editorProps={{ $blockScrolling: true}}
+                                    />
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
                                     <Grid item container xs={2} direction="column" alignItems="center">
@@ -565,8 +584,17 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item mt={1}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
-                                        value={this.state.rightEditorCode} InputProps={{ readOnly: true }} />
+                                    <AceEditor
+                                        mode="python"
+                                        theme="github"
+                                        name="filled-multiline-static"
+                                        fontSize={14}
+                                        readOnly={true}
+                                        highlightActiveLine={false}
+                                        value = {this.state.rightEditorCode}
+                                        onChange={this.handleCodeChange}
+                                        editorProps={{ $blockScrolling: true}}
+                                    />
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
                                     <Grid item container xs={2} direction="column" alignItems="center">
