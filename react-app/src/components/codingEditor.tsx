@@ -10,7 +10,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
-import { MatchmakingData } from "./common/interfaces/matchmakingData";
 import AceEditor from "react-ace";
 
 //Add imports for modes to be supported
