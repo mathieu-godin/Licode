@@ -8,6 +8,7 @@ import {
 
 import { MatchmakingData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
 import { QuestionData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
+import { TestCasesPassed } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
 
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
@@ -45,12 +46,6 @@ interface MatchmakingUser {
 interface CodeSubmission {
     value: string;
     input: string;
-}
-
-interface TestCasesPassed {
-    testCasesPassed: boolean[];
-    standardOutput: string;
-    output: string;
 }
 
 interface TestResult {
@@ -478,6 +473,14 @@ router
         }
     })
     .post("/api/run", async (context: RouterContext<any>) => {
+        // context.response.status = Status.OK;
+        // const dumbyResult: TestCasesPassed = {
+        //     testCasesPassed: [true, true, true, true, true, true, true, true, true, true, true],
+        //     standardOutput: "Test Standard Output",
+        //     output: "Test Output"
+        // }
+        // context.response.body = dumbyResult
+        // return
         try {
             let sid = await context.cookies.get('sid');
             if (sid && typeof sid === 'string') {

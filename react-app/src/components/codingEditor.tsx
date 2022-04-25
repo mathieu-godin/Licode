@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
-import { MatchmakingData, QuestionData } from "./common/interfaces/matchmakingData";
+import { MatchmakingData, TestCasesPassed } from "./common/interfaces/matchmakingData";
 
 interface CodeSubmission {
     value: string;
@@ -78,6 +78,7 @@ enum FIELDUPDATE {
 	Input          = 1,
 	Output         = 2,
 	StandardOutput = 3,
+    TestCases      = 4,
 }
 
 //client messages
@@ -130,6 +131,7 @@ export interface CodingEditorState {
     firstMsg: boolean,
     peeking: boolean,
     skipping: boolean,
+    lost: boolean,
 
     input: string,
     standardOutput: string,
@@ -139,6 +141,7 @@ export interface CodingEditorState {
     rightInput: string,
     rightOutput: string,
     rightStandardOutput: string,
+    rightTestCasesPassed: boolean[],
     opponentQuestionNum: number,
 }
 
@@ -198,6 +201,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.sendCodeUpdate = this.sendCodeUpdate.bind(this)
         this.playerWon = this.playerWon.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.sendInititalUpdates = this.sendInititalUpdates.bind(this)
         this.state = {
             username: '',
             eloRating: 5000,
@@ -212,6 +216,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             sendingCodeUpdates: false,
             firstMsg: true,
             peeking: false,
+            lost: false,
             skipping: false,
             code: defaultSignature,
             input: defaultInput,
@@ -220,6 +225,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             rightInput: '',
             rightStandardOutput: '',
             rightOutput: '',
+            rightTestCasesPassed: [false, false, false, false, false, false, false, false],
             questionNum: 1,
             opponentQuestionNum: 1,
         }
@@ -285,10 +291,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                         case INFORMATION.Connection:
                             if(infoData.Info === "") {
                                 console.log("Registered!")
-                                //send initial code update
-                                this.sendCodeUpdate(this.state.code)
-                                //initial input update
-                                this.sendFieldUpdate(FIELDUPDATE.Input, this.state.input)
+                                this.sendInititalUpdates()
                             } else {
                                 console.log("Registration Failed! " + infoData.Info)
                             }
@@ -297,8 +300,10 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                             console.log("Error: " + infoData.Info)
                             break;
                         case INFORMATION.Loss:
-                            //TODO - Redirect
                             console.log("YOU LOSE!!!")
+                            this.setState({
+                                lost: true
+                            })
                             break;
                         case INFORMATION.QuestionNum:
                             this.setState({
@@ -334,7 +339,18 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                             this.setState({
                                 rightStandardOutput: fieldData.NewValue
                             })
-                            break;    
+                            break;
+                        case FIELDUPDATE.TestCases:
+                            let newTestCases: boolean[] = fieldData.NewValue.split(" ").map((str: string) => str === "1")
+                            // if(newTestCases.reduce((count: number, passed: boolean, idx: number) => {
+                            //     return passed ? (count + 1) : count
+                            // }, 0) === 11){
+                            //     newTestCases = [false, false, false, false, false, false, false, false, false, false, false]
+                            // }
+                            this.setState({
+                                rightTestCasesPassed: newTestCases
+                            })
+                            break;
                         default:
                             //error?
                             break;                                                                                            
@@ -358,20 +374,24 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         }
         codeSubmission.value = this.state.code;
         codeSubmission.input = this.state.input;
-        let res = await fetch('/api/run', {
+        let res: TestCasesPassed = await fetch('/api/run', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(codeSubmission),
         }).then(response => response.json());
+
         if (res.testCasesPassed) {
+            this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(res.testCasesPassed))
             this.setState({ testCasesPassed: res.testCasesPassed });
         }
         if (res.standardOutput) {
+            this.sendFieldUpdate(FIELDUPDATE.StandardOutput, res.standardOutput)
             this.setState({ standardOutput: res.standardOutput });
         }
         if (res.output) {
+            this.sendFieldUpdate(FIELDUPDATE.Output, res.output)
             this.setState({ output: res.output });
         }
     };
@@ -396,13 +416,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     }
 
     processOpponentField (field: string) : string {
-        console.log("processing opponent field = " + field)
         var r = 0
         var randomChars : string = "#!$*?~"
         var ret = field.replace(/[^\s]/g, (substr: string, ..._args: any[]) : string => {
             const oldR = r
             r = (r + 1) % randomChars.length
-            console.log(substr + " " + randomChars[oldR])
             return randomChars[oldR]
         })  
 
@@ -456,12 +474,31 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             }
         }, 0);
         const pWon = testsPassed == 11 || testsPassed == 10 && this.state.skipping;
+        //I think overwriting false with false was causing an infinte
+        //recursion in render() leading to a nasty error
         if(this.state.skipping) {
             this.setState({
                 skipping: false
             })
         }
         return pWon
+    }
+
+    stringifyBoolArray(boolArr: boolean[]) : string {
+        return boolArr.map((v: boolean) => v ? "1" : "0").join(" ")
+    }
+    
+    sendInititalUpdates() {
+        //code
+        this.sendCodeUpdate(this.state.code)
+        //input
+        this.sendFieldUpdate(FIELDUPDATE.Input, this.state.input)
+        //test cases
+        this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(this.state.testCasesPassed))
+
+        console.log("sent initial updates")
+
+        //(standard) output???
     }
 
     render() {
@@ -474,9 +511,12 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 return <Navigate to="/victory"/>
             } else {
                 this.state.socket?.send(CLIENTMSGTYPE.GiveQuestionNum.toString() + " " + (this.state.questionNum + 1).toString())
+                this.sendInititalUpdates()
                 this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false],
                     questionNum: this.state.questionNum + 1, code: defaultSignature, input: defaultInput });
             }
+        } else if (this.state.lost) {
+            return <Navigate to="/dashboard"/>
         }
         return (
             <ThemeProvider theme={editorTheme}>
@@ -750,37 +790,37 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         <Grid container item>
                                             <Grid item xs={0.5} />
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[0]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[1]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[2]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CheckIcon sx={{ fontSize: 60, color: 'primary.checkmark' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[3]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[4]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[5]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[6]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[7]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[8]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[9]} />
                                             </Grid>
                                             <Grid item xs={1}>
-                                                <CloseIcon sx={{ fontSize: 60, color: 'primary.cross' }} />
+                                                <TestCaseIndicator passed={this.state.rightTestCasesPassed[10]} />
                                             </Grid>
                                             <Grid item xs={0.5} />
                                         </Grid>

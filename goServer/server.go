@@ -108,6 +108,7 @@ const (
 	Input          = 1
 	Output         = 2
 	StandardOutput = 3
+	TestCases      = 4
 )
 
 type FieldUpdateData struct {
@@ -210,7 +211,7 @@ type Player struct {
 	id string
 
 	//id of the player's opponent
-	opponentId string
+	opponent *Player
 
 	//the player's connection
 	conn *websocket.Conn
@@ -221,22 +222,19 @@ type Player struct {
 	mu sync.Mutex
 }
 
-//Player ctor
-func makePlayer(connected bool, id string, opponentId string, conn *websocket.Conn) Player {
-	return Player{
-		connected:  connected,
-		id:         id,
-		opponentId: opponentId,
-		conn:       conn,
-	}
-}
-
 //list to store players
-var players = []Player{}
+var players = make(map[string]*Player)
 var playersMU sync.Mutex
 
-//id to index for constant time mutable access
-var idxOf = make(map[string]int)
+//Player ctor
+func newPlayer(connected bool, id string) *Player {
+	return &Player{
+		connected: connected,
+		id:        id,
+		opponent:  nil,
+		conn:      nil,
+	}
+}
 
 //input to the /register method
 //specifies two players that will
@@ -249,25 +247,37 @@ type Pair struct {
 func addPair(pair Pair) {
 	playersMU.Lock()
 
-	//save index of the first new player
-	idxOf[pair.Id1] = len(players)
-	//same for second new player
-	idxOf[pair.Id2] = len(players) + 1
-
-	for i := 0; i < len(players); i += 1 {
-		players[i].mu.Lock()
-	}
-
 	//make first new player
-	players = append(players, makePlayer(false, pair.Id1, pair.Id2, nil))
+	players[pair.Id1] = newPlayer(false, pair.Id1)
 	//same for second
-	players = append(players, makePlayer(false, pair.Id2, pair.Id1, nil))
+	players[pair.Id2] = newPlayer(false, pair.Id2)
 
-	for i := 0; i < len(players)-2; i += 1 {
-		players[i].mu.Unlock()
-	}
+	//link players together
+	players[pair.Id1].opponent = players[pair.Id2]
+	players[pair.Id2].opponent = players[pair.Id1]
 
 	log.Println(fmt.Sprintf("registered pair: %s, %s", pair.Id1, pair.Id2))
+
+	playersMU.Unlock()
+}
+func removePair(id string) {
+	playersMU.Lock()
+
+	//remove player
+	player, ok := players[id]
+	if ok {
+		if player.opponent != nil {
+			opponent, ok := players[player.opponent.id]
+			if ok && opponent.opponent.id == id {
+				delete(players, player.opponent.id)
+			} else {
+				//error?
+				log.Println("Could not find opponent")
+			}
+		}
+
+		delete(players, id)
+	}
 
 	playersMU.Unlock()
 }
@@ -308,13 +318,14 @@ func registerPair(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//see if players are already registered
-	player1Idx, ok1 := idxOf[pair.Id1]
-	player2Idx, ok2 := idxOf[pair.Id2]
+	player1, ok1 := players[pair.Id1]
+	player2, ok2 := players[pair.Id2]
 
 	if !(ok1 || ok2) {
 		//neither are registered
 		w.WriteHeader(200)
-	} else if ok1 && ok2 && players[player1Idx].opponentId == pair.Id2 && players[player2Idx].opponentId == pair.Id1 {
+	} else if ok1 && ok2 && player1.opponent != nil && player2.opponent != nil &&
+		player1.opponent.id == pair.Id2 && player2.opponent.id == pair.Id1 {
 		//this is a duplicate, it's fine but we don't want to add it again
 		w.WriteHeader(200)
 		return
@@ -336,15 +347,13 @@ func registerPair(w http.ResponseWriter, r *http.Request) {
 //helper to check if the map
 //contains id
 func isRegistered(id string) bool {
-	//commented for testing
-	_, ok := idxOf[id]
+	_, ok := players[id]
 	return ok
-	//return true
 }
 
 func addMsg(id string, defMsgType int, msg Msg, callback Callback) {
 	log.Println("delaying")
-	players[idxOf[id]].inbox = append(players[idxOf[id]].inbox, wrapMsg(defMsgType, msg, callback))
+	players[id].inbox = append(players[id].inbox, wrapMsg(defMsgType, msg, callback))
 }
 
 //We detect a silent disconnect by failure to write
@@ -354,13 +363,13 @@ func addMsg(id string, defMsgType int, msg Msg, callback Callback) {
 //Returns true if the message was sent
 //Returns false if the message was queued
 func safeWrite(id string, defMsgType int, msg Msg, callback Callback, queueOnFail bool) bool {
-	if players[idxOf[id]].conn == nil {
-		players[idxOf[id]].mu.Lock()
-		players[idxOf[id]].connected = false
+	if players[id].conn == nil {
+		players[id].mu.Lock()
+		players[id].connected = false
 		if queueOnFail {
 			addMsg(id, defMsgType, msg, callback)
 		}
-		players[idxOf[id]].mu.Unlock()
+		players[id].mu.Unlock()
 		return false
 	}
 
@@ -371,14 +380,14 @@ func safeWrite(id string, defMsgType int, msg Msg, callback Callback, queueOnFai
 		return false
 	}
 
-	players[idxOf[id]].mu.Lock()
-	err = players[idxOf[id]].conn.WriteMessage(defMsgType, data)
-	players[idxOf[id]].mu.Unlock()
+	players[id].mu.Lock()
+	err = players[id].conn.WriteMessage(defMsgType, data)
+	players[id].mu.Unlock()
 	if err != nil {
-		players[idxOf[id]].mu.Lock()
-		players[idxOf[id]].connected = false
-		players[idxOf[id]].conn = nil
-		players[idxOf[id]].mu.Unlock()
+		players[id].mu.Lock()
+		players[id].connected = false
+		players[id].conn = nil
+		players[id].mu.Unlock()
 		if queueOnFail {
 			addMsg(id, defMsgType, msg, callback)
 		}
@@ -468,25 +477,25 @@ func reader(conn *websocket.Conn) {
 				goto ConnectionFailed
 			}
 
-			if players[idxOf[id]].connected {
+			if players[id].connected {
 				//maybe want to error, but what if they silently disconnected?
 				log.Println("Already connected")
 			}
-			players[idxOf[id]].mu.Lock()
+			players[id].mu.Lock()
 			//ensure we know the player is connected
-			players[idxOf[id]].connected = true
+			players[id].connected = true
 			//ensure their connection is up to date (i.e. not an invalid pointer
 			//from a dropped connection.)
-			players[idxOf[id]].conn = conn
-			players[idxOf[id]].mu.Unlock()
+			players[id].conn = conn
+			players[id].mu.Unlock()
 
 			//give missed updates
-			for len(players[idxOf[id]].inbox) > 0 {
+			for len(players[id].inbox) > 0 {
 				log.Println("from inbox")
-				if safeWrite(id, players[idxOf[id]].inbox[0].defMsgType, players[idxOf[id]].inbox[0].msg, players[idxOf[id]].inbox[0].callback, false) {
-					players[idxOf[id]].mu.Lock()
-					players[idxOf[id]].inbox = players[idxOf[id]].inbox[1:]
-					players[idxOf[id]].mu.Unlock()
+				if safeWrite(id, players[id].inbox[0].defMsgType, players[id].inbox[0].msg, players[id].inbox[0].callback, false) {
+					players[id].mu.Lock()
+					players[id].inbox = players[id].inbox[1:]
+					players[id].mu.Unlock()
 				} else {
 					goto ConnectionDropped
 				}
@@ -537,6 +546,7 @@ func reader(conn *websocket.Conn) {
 				errMsg = makeErrorMsg("Invalid field type")
 				goto FieldUpdateFailed
 			}
+
 			newValue = msg
 			//recover newValue
 			msgTypeStr = fmt.Sprint(msgType)
@@ -568,11 +578,11 @@ func reader(conn *websocket.Conn) {
 				log.Println(fmt.Sprintf("Taking %s from %s", newValue[i:], newValue))
 				newValue = newValue[i:]
 			} else {
-				log.Println(fmt.Sprintf("Nothing to take from %s", newValue))
+				log.Println(fmt.Sprintf("Nothing left in %s", newValue))
 				newValue = ""
 			}
 
-			safeWrite2(players[idxOf[id]].opponentId, defMsgType, makeFieldUpdateMsg(int(field), newValue), true)
+			safeWrite2(players[id].opponent.id, defMsgType, makeFieldUpdateMsg(int(field), newValue), true)
 			break
 		FieldUpdateFailed:
 			safeWrite2(id, defMsgType, errMsg, false)
@@ -585,7 +595,7 @@ func reader(conn *websocket.Conn) {
 			})
 			break
 		case SlowOpponent:
-			opponentId := players[idxOf[id]].opponentId
+			opponentId := players[id].opponent.id
 			//after 15 seconds, tell the opponent to stop
 			//typing slowly
 			callback := func() {
@@ -604,13 +614,18 @@ func reader(conn *websocket.Conn) {
 			//this player is indicating that they won,
 			//give their opponent the bad news
 			log.Println(fmt.Sprintf("Player %s won!", id))
-			opponentId := players[idxOf[id]].opponentId
-			safeWrite2(opponentId, defMsgType, makeLossMsg(), true)
+			opponentId := players[id].opponent.id
+			//make callback to unregister pair after giving the bad news
+			callback := func() {
+				//unregister
+				removePair(id)
+			}
+			safeWrite(opponentId, defMsgType, makeLossMsg(), callback, true)
 			break
 		case GiveQuestionNum:
 			//this player is on the next question, inform their opponent
 			log.Println(fmt.Sprintf("Player %s is on question %s", id, args[1]))
-			opponentId := players[idxOf[id]].opponentId
+			opponentId := players[id].opponent.id
 			safeWrite2(opponentId, defMsgType, makeQuestionNumMsg(args[1]), true)
 			break
 		default:
