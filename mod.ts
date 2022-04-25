@@ -82,7 +82,7 @@ async function addToQueue (queue: MatchmakingUser[], matchmakingUser: Matchmakin
             sidsProgress[matchmakingUser.sid] = 0;
             //can call goServer/registerPair here
             console.log("attempting register pair " + matchmakingUser.sid + ", " + queue[i].sid)
-            const response = await fetch("https://localhost:3001/registerPair", {
+            const response = await fetch("https://licode.io:3001/registerPair", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
