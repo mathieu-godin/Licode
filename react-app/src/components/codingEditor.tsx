@@ -251,7 +251,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             opponentUsername: data.opponent.username,
             opponentEloRating: data.opponent.eloRating,
             sid: data.you.sid,
-            socket: new WebSocket("ws://localhost:8080/ws"),
+            socket: new WebSocket("ws://localhost:3001/ws"),
             loaded: true,
         });
 
