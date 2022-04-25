@@ -685,5 +685,5 @@ func setupRoutes() {
 func main() {
 	fmt.Println("Start server...")
 	setupRoutes()
-	log.Fatal(http.ListenAndServe(":3001", nil))
+	log.Fatal(http.ListenAndServe(":5000", nil))
 }
