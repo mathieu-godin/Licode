@@ -11,6 +11,13 @@ import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
 import { MatchmakingData, TestCasesPassed } from "./common/interfaces/matchmakingData";
+import AceEditor from "react-ace";
+
+//Add imports for modes to be supported
+//import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/mode-python";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 interface CodeSubmission {
     value: string;
@@ -127,6 +134,7 @@ export interface CodingEditorState {
     socket:  WebSocket | null,
     sid: string,
     typingSlow: boolean,
+    canType: boolean, //used to type slow
     sendingCodeUpdates: boolean,
     firstMsg: boolean,
     peeking: boolean,
@@ -208,11 +216,12 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             opponentUsername: '',
             opponentEloRating: 5000,
             loaded: false,
-            testCasesPassed: [false, false, false, false, false, false, false, false],
+            testCasesPassed: [false, false, false, false, false, false, false, false, false, false, false],
             rightEditorCode: '',
             socket: null,
             sid: '',
             typingSlow: false,
+            canType: true,
             sendingCodeUpdates: false,
             firstMsg: true,
             peeking: false,
@@ -225,7 +234,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             rightInput: '',
             rightStandardOutput: '',
             rightOutput: '',
-            rightTestCasesPassed: [false, false, false, false, false, false, false, false],
+            rightTestCasesPassed: [false, false, false, false, false, false, false, false, false, false, false],
             questionNum: 1,
             opponentQuestionNum: 1,
         }
@@ -268,9 +277,18 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                     const behaviourData: BehaviourData = msgObj.Data
                     switch(behaviourData.Type) {
                         case BEHAVIOUR.TypeSlow:
-                            this.setState({
-                                typingSlow: behaviourData.Start
-                            })
+                            if(behaviourData.Start) {
+                                this.setState({canType: false, typingSlow: true}, () => {
+                                    setTimeout(() => {
+                                        this.setState({canType: true})
+                                    })
+                                })
+                            } else {
+                                this.setState({
+                                    canType: true,
+                                    typingSlow: false
+                                })
+                            }
                             break;
                         case BEHAVIOUR.Peek:
                             //stop peaking
@@ -435,25 +453,30 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.sendFieldUpdate(FIELDUPDATE.Code, code)
     }
 
-    handleCodeChange (e: React.ChangeEvent<HTMLInputElement>) {
-        //another approach
-        //just state and then breifly disable the input (turn back on with a timeout)
-
-        const oldCode = this.state.code
-        const newCode = e.target.value
-        
-        if(this.state.typingSlow) {
-            e.target.value = oldCode
-            var target = e.target
-            setTimeout(() => {
-                target.value = newCode
-                this.sendCodeUpdate(newCode)
-            }, 500)
+    handleCodeChange (value: string, e: React.ChangeEvent<HTMLInputElement>) {
+        console.log("handling: " + value)
+        if (this.state.canType && !this.state.typingSlow) {
+            //normal case, just update state
+            console.log("normal case")
+            this.sendFieldUpdate(FIELDUPDATE.Code, value)
+            this.setState({
+                code: value
+            })
+        } else if (this.state.canType) {
+            //they waited long enough
+            console.log("slow, but can type")
+            this.sendFieldUpdate(FIELDUPDATE.Code, value)
+            this.setState({code: value, canType: false}, () => {
+                setTimeout(() => {
+                    this.setState({canType: true})
+                })
+            })
         } else {
-            this.sendCodeUpdate(newCode)
+            //they can't type yet, revert the change
+            console.log("can't type")
+            console.log(e.currentTarget)
+            e.currentTarget.value = this.state.code
         }
-
-        this.setState({ code: newCode });
     }
 
     opponentEditorChange (e: React.ChangeEvent<HTMLInputElement>) {
@@ -511,9 +534,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 return <Navigate to="/victory"/>
             } else {
                 this.state.socket?.send(CLIENTMSGTYPE.GiveQuestionNum.toString() + " " + (this.state.questionNum + 1).toString())
-                this.sendInititalUpdates()
                 this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false],
-                    questionNum: this.state.questionNum + 1, code: defaultSignature, input: defaultInput });
+                    questionNum: this.state.questionNum + 1, code: defaultSignature, input: defaultInput }, () => this.sendInititalUpdates());
             }
         } else if (this.state.lost) {
             return <Navigate to="/dashboard"/>
@@ -602,8 +624,20 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item mt={1}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
-                                        value={this.state.code} onChange={this.handleCodeChange} />
+                                    <AceEditor
+                                        mode="python"
+                                        theme="github"
+                                        name="filled-multiline-static"
+                                        fontSize={14}
+                                        defaultValue = {this.state.code}
+                                        onChange={this.handleCodeChange}
+                                        setOptions={{
+                                            enableBasicAutocompletion: true,
+                                            enableLiveAutocompletion: true,
+                                            enableSnippets: true
+                                        }}
+                                        editorProps={{ $blockScrolling: true}}
+                                    />
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
                                     <Grid item container xs={2} direction="column" alignItems="center">
@@ -733,9 +767,17 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={0.5} />
                                 </Grid>
                                 <Grid item mt={1}>
-                                    <EditorTextField id="filled-multiline-static" multiline fullWidth rows={12} variant="filled"
-                                        value={this.state.peeking ? this.state.rightEditorCode : this.processOpponentField(this.state.rightEditorCode)}
-                                        InputProps={{ readOnly: true }} />
+                                    <AceEditor
+                                        mode="python"
+                                        theme="github"
+                                        name="filled-multiline-static"
+                                        fontSize={14}
+                                        readOnly={true}
+                                        highlightActiveLine={false}
+                                        value = {this.state.peeking? this.state.rightEditorCode : this.processOpponentField(this.state.rightEditorCode)}
+                                        onChange={this.handleCodeChange}
+                                        editorProps={{ $blockScrolling: true}}
+                                    />
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
                                     <Grid item container xs={2} direction="column" alignItems="center">

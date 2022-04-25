@@ -527,7 +527,7 @@ func reader(conn *websocket.Conn) {
 			var field int64 = -1
 			var errMsg Msg = makeErrorMsg("")
 
-			if len(args) < 3 {
+			if len(args) < 2 {
 				if idSet {
 					errMsg = makeErrorMsg("too few args")
 					goto FieldUpdateFailed
