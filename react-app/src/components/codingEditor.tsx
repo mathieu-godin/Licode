@@ -718,7 +718,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         fontSize={14}
                                         readOnly={true}
                                         highlightActiveLine={false}
-                                        value = {this.state.rightEditorCode}
+                                        value = {this.state.peeking? this.state.rightEditorCode : this.processOpponentField(this.state.rightEditorCode)}
                                         onChange={this.handleCodeChange}
                                         editorProps={{ $blockScrolling: true}}
                                     />
