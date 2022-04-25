@@ -53,11 +53,15 @@ interface TestResult {
     passed: boolean
 }
 
+const numQuestionsPerMatch = 3;
+
 let helloWorldVar: HelloWorld = { text: 'Hello World' };
 
 let sids: { [name: string]: string } = {};
 
 let sidsProgress: { [name: string]: number } = {};
+
+let sidsQuestions: { [name: string]: number[] } = {};
 
 let matchmakingQueue25: MatchmakingUser[] = [];
 let matchmakingQueue50: MatchmakingUser[] = [];
@@ -69,6 +73,28 @@ let matches: { [name: string]: string } = {};
 
 function delay(time: number) {
     return new Promise(resolve => setTimeout(resolve, time));
+}
+
+async function selectQuestions(matchmakingUser: MatchmakingUser) {
+    await client.connect();
+    const questionsResult = await client.queryArray("select count(*) from questions");
+    let numQuestions = Number(questionsResult.rows[0][0] as number);
+    await client.end();
+    let questionsSelected: number[] = [];
+    let randomPermutation: number[] = [];
+    for (let i = 0; i < numQuestions; ++i) {
+        randomPermutation[i] = i;
+    }
+    // Partial Fisher-Yates Algorithm for random selection of questions
+    for (let i = 0; i < numQuestionsPerMatch; ++i) {
+        let j = Math.floor(Math.random() * numQuestions);
+        [randomPermutation[i], randomPermutation[j]] = [randomPermutation[j], randomPermutation[i]];
+    }
+    for (let i = 0; i < numQuestionsPerMatch; ++i) {
+        questionsSelected.push(randomPermutation[i] + 1);
+    }
+    sidsQuestions[matchmakingUser.sid] = questionsSelected;
+    sidsQuestions[matches[matchmakingUser.sid]] = questionsSelected;
 }
 
 async function addToQueue (queue: MatchmakingUser[], matchmakingUser: MatchmakingUser, range: number, context: any) {
@@ -103,6 +129,7 @@ async function addToQueue (queue: MatchmakingUser[], matchmakingUser: Matchmakin
             };
             queue.splice(i, 1);
             queue.pop();
+            selectQuestions(matchmakingUser);
             return true;
         }
     }
@@ -144,7 +171,7 @@ app.addEventListener("error", (evt) => {
 router
     .get("/api/hello-world", (context) => {
         try {
-        context.response.body = helloWorldVar;
+            context.response.body = helloWorldVar;
         } catch (err) {
             console.log(err);
         }
