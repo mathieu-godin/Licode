@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SpeedIcon from '@mui/icons-material/Speed';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
-import { MatchmakingData, TestCasesPassed } from "./common/interfaces/matchmakingData";
+import { MatchmakingData, QuestionData, TestCasesPassed } from "./common/interfaces/matchmakingData";
 import AceEditor from "react-ace";
 
 //Add imports for modes to be supported
@@ -151,6 +151,31 @@ export interface CodingEditorState {
     rightStandardOutput: string,
     rightTestCasesPassed: boolean[],
     opponentQuestionNum: number,
+
+    questionLines: string[],
+}
+
+export interface QuestionLineProps {
+    question: string,
+}
+
+function QuestionLine(props: QuestionLineProps) {
+    let questionSplits = props.question.split('$');
+    let highlight: boolean = true;
+    let typographies = [];
+    if (questionSplits.length > 0) {
+        typographies.push(React.createElement(Typography, { variant: 'problemDescription' }, questionSplits[0]));
+    }
+    for (let i = 1; i < questionSplits.length; ++i) {
+        if (highlight) {
+            typographies.push(React.createElement(Typography, { variant: 'problemHighlightedWord' }, '\u00A0' + questionSplits[i]));
+        } else {
+            typographies.push(React.createElement(Typography, { variant: 'problemDescription' }, '\u00A0' + questionSplits[i]));
+        }
+        highlight = !highlight;
+    }
+    //return React.createElement('div', {}, ...typographies);
+    return React.createElement('div', {}, ...typographies);
 }
 
 export interface PlayerInformationProps {
@@ -227,7 +252,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             peeking: false,
             lost: false,
             skipping: false,
-            code: defaultSignature,
+            code: 'aaqdqd',
             input: defaultInput,
             standardOutput: '',
             output: '',
@@ -237,14 +262,26 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             rightTestCasesPassed: [false, false, false, false, false, false, false, false, false, false, false],
             questionNum: 1,
             opponentQuestionNum: 1,
+            questionLines: ['', '', ''],
         }
     }
 
     async componentDidMount() {
         console.log("Attempting Connection...");
-
         const data: MatchmakingData = await fetch('/api/opponent').then(response => response.json());
-        //const questionData: QuestionData = await fetch('/api/question').then(response => response.json());
+        const questionData: QuestionData = await fetch('/api/question').then(response => response.json());
+        let initialQuestionLines = questionData.question.split(';');
+        for (let i = 0; i < 3 - initialQuestionLines.length; ++i) {
+            initialQuestionLines.push('');
+        }
+        let inputLines = questionData.default_custom_input.split(';');
+        let initialInput = '';
+        if (inputLines.length > 0) {
+            initialInput += inputLines[0];
+        }
+        for (let i = 1; i < inputLines.length; ++i) {
+            initialInput += '\n' + inputLines[i];
+        }
         this.setState({
             username: data.you.username,
             eloRating: data.you.eloRating,
@@ -253,6 +290,9 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             sid: data.you.sid,
             socket: new WebSocket("ws://localhost:5000/ws"),
             loaded: true,
+            questionLines: initialQuestionLines,
+            code: questionData.function_signature + '\n    ',
+            input: initialInput,
         });
 
         if(this.state.socket == null) return;
@@ -412,6 +452,34 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             this.sendFieldUpdate(FIELDUPDATE.Output, res.output)
             this.setState({ output: res.output });
         }
+        let hasWon = true;
+        for (let i = 0; i < res.testCasesPassed.length; ++i) {
+            if (!res.testCasesPassed[i]) {
+                hasWon = false;
+                break;
+            }
+        }
+        console.log("AAA");
+        console.log(hasWon);
+        console.log(this.state.questionNum);
+        console.log("BBB");
+        if (hasWon && this.state.questionNum < 4) {
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            const questionData: QuestionData = await fetch('/api/question').then(response => response.json());
+            let initialQuestionLines = questionData.question.split(';');
+            for (let i = 0; i < 3 - initialQuestionLines.length; ++i) {
+                initialQuestionLines.push('');
+            }
+            let inputLines = questionData.default_custom_input.split(';');
+            let initialInput = '';
+            if (inputLines.length > 0) {
+                initialInput += inputLines[0];
+            }
+            for (let i = 1; i < inputLines.length; ++i) {
+                initialInput += '\n' + inputLines[i];
+            }
+            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput });
+        }
     };
 
     peekOpponent () {
@@ -457,11 +525,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         console.log("handling: " + value)
         if (this.state.canType && !this.state.typingSlow) {
             //normal case, just update state
-            console.log("normal case")
+            console.log("normal case");
             this.sendFieldUpdate(FIELDUPDATE.Code, value)
             this.setState({
                 code: value
-            })
+            });
         } else if (this.state.canType) {
             //they waited long enough
             console.log("slow, but can type")
@@ -535,7 +603,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             } else {
                 this.state.socket?.send(CLIENTMSGTYPE.GiveQuestionNum.toString() + " " + (this.state.questionNum + 1).toString())
                 this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false],
-                    questionNum: this.state.questionNum + 1, code: defaultSignature, input: defaultInput }, () => this.sendInititalUpdates());
+                    questionNum: this.state.questionNum + 1 }, () => this.sendInititalUpdates());
             }
         } else if (this.state.lost) {
             return <Navigate to="/dashboard"/>
@@ -548,55 +616,13 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                             <Grid item xs={1} />
                             <Grid container direction="column" item xs={10}>
                                 <Grid item mt={2}>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        Given an array of integers
-                                    </Typography>
-                                    <Typography variant="problemHighlightedWord" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;nums
-                                    </Typography>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;and an integer
-                                    </Typography>
-                                    <Typography variant="problemHighlightedWord" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;target
-                                    </Typography>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        ,
-                                    </Typography>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;return
-                                    </Typography>
-                                    <Typography variant="problemDescriptionItalic" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;indices of the two numbers such that they add up to
-                                    </Typography>
-                                    <Typography variant="problemHighlightedItalicWord" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;target
-                                    </Typography>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        .
-                                    </Typography>
+                                    <QuestionLine question={this.state.questionLines[0]} />
                                 </Grid>
                                 <Grid item mt={1.5}>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        You may assume that each input would have
-                                    </Typography>
-                                    <Typography variant="problemDescriptionItalic" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;exactly
-                                    </Typography>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;one solution, and you may not use the
-                                    </Typography>
-                                    <Typography variant="problemDescriptionItalic" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;same
-                                    </Typography>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        &nbsp;element twice.
-                                    </Typography>
+                                    <QuestionLine question={this.state.questionLines[1]} />
                                 </Grid>
                                 <Grid item mt={1.5}>
-                                    <Typography variant="problemDescription" sx={{ m: 0, p: 0 }}>
-                                        You can return the answer in any order.
-                                    </Typography>
+                                    <QuestionLine question={this.state.questionLines[2]} />
                                 </Grid>
                             </Grid>
                             <Grid item xs ={1} />
@@ -629,7 +655,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         theme="github"
                                         name="filled-multiline-static"
                                         fontSize={14}
-                                        defaultValue = {this.state.code}
+                                        value={this.state.code}
                                         onChange={this.handleCodeChange}
                                         setOptions={{
                                             enableBasicAutocompletion: true,
