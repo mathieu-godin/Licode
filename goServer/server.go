@@ -458,22 +458,16 @@ func reader(conn *websocket.Conn) {
 			//ensure there's an id
 			if len(args) < 2 {
 				log.Println("Need an id")
-				connMsg = makeConnectMsg("Need an id")
+				connMsg = makeErrorMsg("Need an id")
 				goto ConnectionFailed
 			}
 
-			//parse the id
 			id = args[1]
-			if err != nil {
-				log.Println(err)
-				connMsg = makeConnectMsg("Invalid id")
-				goto ConnectionFailed
-			}
 
 			//ensure the player has been registered
 			if !isRegistered(id) {
 				log.Println("Error: not registered.")
-				connMsg = makeConnectMsg("id not registered")
+				connMsg = makeErrorMsg("id not registered")
 				goto ConnectionFailed
 			}
 
