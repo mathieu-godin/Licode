@@ -71,6 +71,148 @@ let matchmakingQueue500: MatchmakingUser[] = [];
 
 let matches: { [name: string]: string } = {};
 
+const numTestCases: number = 11;
+
+function generateTestCaseString(allTestCases: string[], format: string[], j: number) {
+    let testCaseString = '';
+    let testCase = allTestCases[j].split(';');
+    let k = 0;
+    let m = 0;
+    let mMax = 0;
+    let n = 0;
+    let nMax = 0;
+    let insideArray = false;
+    let insideArrayArray = false;
+    for (let l = 0; l < testCase.length; ++l) {
+        if (format[k] == 'n') {
+            testCaseString += testCase[l] + '\n';
+            ++k;
+        } else if (format[k] == 'a') {
+            if (insideArray) {
+                if (m < mMax) {
+                    testCaseString += testCase[l] + '\n';
+                    ++m;
+                } else {
+                    insideArray = false;
+                    ++k;
+                }
+            } else {
+                testCaseString += testCase[l] + '\n';
+                m = 0;
+                mMax = parseInt(testCase[l]);
+                insideArray = true;
+            }
+        } else if (format[k] == 'aa') {
+            if (insideArray) {
+                if (m < mMax) {
+                    if (insideArrayArray) {
+                        if (n < nMax) {
+                            testCaseString += testCase[l] + '\n';
+                            ++n;
+                        } else {
+                            insideArrayArray = false;
+                            ++m;
+                        }
+                    } else {
+                        testCaseString += testCase[l] + '\n';
+                        n = 0;
+                        nMax = parseInt(testCase[l]);
+                        insideArrayArray = true;
+                    }
+                } else {
+                    insideArray = false;
+                    ++k;
+                }
+            } else {
+                testCaseString += testCase[l] + '\n';
+                m = 0;
+                mMax = parseInt(testCase[l]);
+                insideArray = true;
+            }
+        }
+    }
+    return testCaseString;
+}
+
+function generateStubString(inputFormat: string[], outputFormat: string[], functionSignature: string) {
+    let stubString = '\n\nif __name__ == "__main__":\n';
+    for (let i = 0; i < inputFormat.length; ++i) {
+        if (inputFormat[i] == 'n') {
+            stubString += '    p' + i.toString() + ' = int(input())\n';
+        } else if (inputFormat[i] == 'a') {
+            stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        nums.append(int(input()))\n';
+        } else if (inputFormat[i] == 'aa') {
+            stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        nn' + i.toString() + ' = int(input())\n        pp' + i.toString() + ' = []\n        for j in range(nn' + i.toString() + '):\n            pp' + i.toString() + '.append(int(input()))\n        p' + i.toString() + '.append(pp' + i.toString() + ')\n';
+        }
+    }
+    stubString += '    result = ' + functionSignature.split('(')[0] + '(';
+    if (inputFormat.length > 0) {
+        stubString += 'p0';
+    }
+    for (let i = 1; i < inputFormat.length; ++i) {
+        stubString += ', p' + i.toString()
+    }
+    stubString += ')\n    print("v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB")\n'
+    if (outputFormat.length > 0) {
+        if (outputFormat[0] == 'n') {
+            stubString += '    print(result)\n';
+        } else if (outputFormat[0] == 'a') {
+            stubString += '    print(len(result))\n    for r in result:\n        print(r)\n';
+        } else if (outputFormat[0] == 'aa') {
+            stubString += '    print(len(result))\n    for r in result:\n        print(len(r))\n        for rr in r:\n            print(rr)\n';
+        }
+    }
+    return stubString;
+}
+
+function generateCleanString(outputFormat: string[]) {
+    let cleanString = '\n\nif __name__ == "__main__":\n    while True:\n        tryInput = input()\n        if (tryInput == "v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB"):\n            break\n';
+    if (outputFormat.length > 0) {
+        if (outputFormat[0] == 'n') {
+            cleanString += '    print(input())\n';
+        } else if (outputFormat[0] == 'a') {
+            cleanString += '    n = int(input())\n    nums = []\n    for i in range(n):\n        nums.append(int(input()))\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nums[i])';
+        } else if (outputFormat[0] == 'aa') {
+            cleanString += '    n = int(input())\n    nns = []\n    nums = []\n    for i in range(n):\n        nn = int(input())\n        nns.append(nn)\n        nnums = []\n        for j in range(nn):\n            nnums.append(int(input()))\n        nnums.sort()\n        nums.append(nnums)\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nns[i])\n        for j in range(nns[i]):\n            print(nums[i][j])\n';
+        }
+    }
+    return cleanString;
+}
+
+async function loadTestCases() {
+    await client.connect();
+    const questionsResult = await client.queryArray("select count(*) from questions");
+    let numQuestions = Number(questionsResult.rows[0][0] as number);
+    await client.end();
+    for (let i = 1; i <= numQuestions; ++i) {
+        await client.connect();
+        const selectedResult = await client.queryArray("select function_signature, input_output_format, test_cases from questions where id = " + i.toString());
+        let functionSignature: string = selectedResult.rows[0][0] as string;
+        let inputOutputFormat = selectedResult.rows[0][1] as string;
+        let testCases = selectedResult.rows[0][2] as string;
+        await client.end();
+        let inputOutputFormats = inputOutputFormat.split('|');
+        let inputFormat: string[] = inputOutputFormats[0].split(';');
+        inputFormat.shift();
+        let outputFormat: string[] = inputOutputFormats[1].split(';');
+        outputFormat.shift();
+        let allTestCases: string[] = testCases.split('|');
+        for (let j: number = 0; j < numTestCases; ++j) {
+            await Deno.writeTextFile("./sandbox/" + i.toString() + "/TestInputs/test" + (j + 1).toString() + ".in",
+                generateTestCaseString(allTestCases, inputFormat, j));
+        }
+        let secondHalfThreshold = 2 * numTestCases;
+        for (let j = 11; j < secondHalfThreshold; ++j) {
+            await Deno.writeTextFile("./sandbox/" + i.toString() + "/TestOutputs/test" + (j - 10).toString() + ".out",
+                generateTestCaseString(allTestCases, outputFormat, j));
+        }
+        await Deno.writeTextFile("./sandbox/" + i.toString() + "/stub.py", generateStubString(inputFormat, outputFormat, functionSignature));
+        await Deno.writeTextFile("./sandbox/" + i.toString() + "/clean.py", generateCleanString(outputFormat));
+    }
+}
+
+loadTestCases();
+
 function delay(time: number) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
@@ -560,6 +702,8 @@ router
                         delete matches[opponentSid];
                         delete sidsProgress[sid];
                         delete sidsProgress[opponentSid];
+                        delete sidsQuestions[sid];
+                        delete sidsQuestions[opponentSid];
                         let numWins: number,
                             numGames: number,
                             eloRating: number,
