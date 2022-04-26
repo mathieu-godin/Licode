@@ -18,7 +18,7 @@ do
   base=$(basename ${input})
   pref=${base%.${inputExt}}
   output="${outputDir}/${pref}.${outputExt}"
-  if diff <(cat "${input}" | python3 answer.py | python3 clean.py) <(cat "${output}" | python3 clean.py) >/dev/null; then
+  if diff <(cat "${input}" | python3 answer.py | python3 clean.py) <(cat "${output}" | python3 cleanOutput.py) >/dev/null; then
           echo "{\"testName\": \"${pref}\", \"passed\": true}," >> "${reportName}"
   else
           echo "{\"testName\": \"${pref}\", \"passed\": false}," >> "${reportName}"

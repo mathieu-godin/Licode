@@ -147,7 +147,7 @@ function generateStubString(inputFormat: string[], outputFormat: string[], funct
         if (inputFormat[i] == 'n') {
             stubString += '    p' + i.toString() + ' = int(input())\n';
         } else if (inputFormat[i] == 'a') {
-            stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        nums.append(int(input()))\n';
+            stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    nums = []\n    for i in range(n' + i.toString() + '):\n        nums.append(int(input()))\n';
         } else if (inputFormat[i] == 'aa') {
             stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        nn' + i.toString() + ' = int(input())\n        pp' + i.toString() + ' = []\n        for j in range(nn' + i.toString() + '):\n            pp' + i.toString() + '.append(int(input()))\n        p' + i.toString() + '.append(pp' + i.toString() + ')\n';
         }
@@ -174,15 +174,18 @@ function generateStubString(inputFormat: string[], outputFormat: string[], funct
     return stubString;
 }
 
-function generateCleanString(outputFormat: string[]) {
-    let cleanString = '\n\nif __name__ == "__main__":\n    while True:\n        tryInput = input()\n        if (tryInput == "v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB"):\n            break\n';
+function generateCleanString(outputFormat: string[], normalClean: boolean) {
+    let cleanString = 'import sys\n\nif __name__ == "__main__":\n';
+    if (normalClean) {
+        cleanString += '    while True:\n        tryInput = input()\n        print("OK", end="", file=sys.stderr)\n        print(tryInput, end="", file=sys.stderr)\n        print("PL", end="", file=sys.stderr)\n        if (tryInput == "v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB"):\n            break\n';
+    }
     if (outputFormat.length > 0) {
         if (outputFormat[0] == 'n') {
-            cleanString += '    print(input())\n';
+            cleanString += '    qw = input()\n    print("Q", end="", file=sys.stderr)\n    print(qw, end="", file=sys.stderr)\n    print("W", end="", file=sys.stderr)\n    print(qw)\n';
         } else if (outputFormat[0] == 'a') {
-            cleanString += '    n = int(input())\n    nums = []\n    for i in range(n):\n        nums.append(int(input()))\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nums[i])';
+            cleanString += '    n = int(input())\n    print("Q", end="", file=sys.stderr)\n    print(n, end="", file=sys.stderr)\n    print("W", end="", file=sys.stderr)\n    nums = []\n    for i in range(n):\n        qw = int(input())\n        print("Q", end="", file=sys.stderr)\n        print(qw, end="", file=sys.stderr)\n        print("W", end="", file=sys.stderr)\n        nums.append(qw)\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nums[i])';
         } else if (outputFormat[0] == 'aa') {
-            cleanString += '    n = int(input())\n    nns = []\n    nums = []\n    for i in range(n):\n        nn = int(input())\n        nns.append(nn)\n        nnums = []\n        for j in range(nn):\n            nnums.append(int(input()))\n        nnums.sort()\n        nums.append(nnums)\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nns[i])\n        for j in range(nns[i]):\n            print(nums[i][j])\n';
+            cleanString += '    n = int(input())\n    print("Q", end="", file=sys.stderr)\n    print(n, end="", file=sys.stderr)\n    print("W", end="", file=sys.stderr)\n    nns = []\n    nums = []\n    for i in range(n):\n        nn = int(input())\n        print("Q", end="", file=sys.stderr)\n        print(nn, end="", file=sys.stderr)\n        print("W", end="", file=sys.stderr)\n        nns.append(nn)\n        nnums = []\n        for j in range(nn):\n            qw = int(input())\n            print("Q", end="", file=sys.stderr)\n            print(qw, end="", file=sys.stderr)\n            print("W", end="", file=sys.stderr)\n            nnums.append(qw)\n        nnums.sort()\n        nums.append(nnums)\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nns[i])\n        for j in range(nns[i]):\n            print(nums[i][j])\n';
         }
     }
     return cleanString;
@@ -190,7 +193,7 @@ function generateCleanString(outputFormat: string[]) {
 
 function generateMakeReportString(i: number) {
     //return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
-    return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n';
+    return '#!/bin/bash\n\n(cat stub.py) >> ../answer.py\n(cat stubCustomInput.py) >> ../answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp ../answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp ../answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\ndocker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n';
 }
 
 async function loadTestCases() {
@@ -226,7 +229,8 @@ async function loadTestCases() {
             functionSignature, true));
         await Deno.writeTextFile("./sandbox/" + i.toString() + "/stubCustomInput.py", generateStubString(inputFormat, outputFormat,
             functionSignature, false));
-        await Deno.writeTextFile("./sandbox/" + i.toString() + "/clean.py", generateCleanString(outputFormat));
+        await Deno.writeTextFile("./sandbox/" + i.toString() + "/clean.py", generateCleanString(outputFormat, true));
+        await Deno.writeTextFile("./sandbox/" + i.toString() + "/cleanOutput.py", generateCleanString(outputFormat, false));
         await Deno.writeTextFile("./sandbox/" + i.toString() + "/makeReport.sh", generateMakeReportString(i));
         await Deno.run({
             cmd: ["chmod", "u+x", "makeReport.sh"],
@@ -755,6 +759,11 @@ router
                                 }
                             }
                         }
+                    }
+                    if (questionInformation.outputFormat.length > 0) {
+                        console.log("NNN");
+                        console.log(questionInformation.outputFormat[0]);
+                        console.log("MMM");
                     }
                     console.log("AAA");
                     await Deno.writeTextFile("./sandbox/customInput.in", customInputContent);
