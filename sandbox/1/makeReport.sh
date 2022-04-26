@@ -14,9 +14,9 @@ docker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py
 
 docker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"
 
-docker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt
-docker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt
-docker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt
+docker cp ${containerID}:home/TestEnvironment/report.txt ../reportFromPySandbox.txt
+docker cp ${containerID}:home/TestEnvironment/standardOutput.txt ../standardOutputFromPySandbox.txt
+docker cp ${containerID}:home/TestEnvironment/output.txt ../outputFromPySandbox.txt
 
 docker kill ${containerID}
 

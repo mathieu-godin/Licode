@@ -1,5 +1,5 @@
-def arrangementSumPossibleIntegers(integers, arrangementSum):
-    return [[1,2],[3,4]]
+def longestSequenceOfConsecutive1s(integers):
+    return 3
 
 import sys
 
@@ -16,8 +16,4 @@ if __name__ == "__main__":
         print(gh, end="", file=sys.stderr)
         print("H", end="", file=sys.stderr)
         nums.append(gh)
-    p1 = int(input())
-    print("G", end="", file=sys.stderr)
-    print(p1, end="", file=sys.stderr)
-    print("H", end="", file=sys.stderr)
-    result = arrangementSumPossibleIntegers(p0, p1)
+    result = longestSequenceOfConsecutive1s(p0)

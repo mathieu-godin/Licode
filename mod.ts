@@ -80,7 +80,7 @@ let matches: { [name: string]: string } = {};
 
 const numTestCases: number = 11;
 
-function generateTestCaseString(allTestCases: string[], format: string[], j: number) {
+function generateTestCaseString(allTestCases: string[], format: string[], j: number, shouldPrint: boolean) {
     let testCaseString = '';
     let testCase = allTestCases[j].split(';');
     let k = 0;
@@ -90,20 +90,27 @@ function generateTestCaseString(allTestCases: string[], format: string[], j: num
     let nMax = 0;
     let insideArray = false;
     let insideArrayArray = false;
+    if (shouldPrint) { console.log("OUTPUTOUTPUTOUTPUTOUTPUTOUTPUTOUTPUTOUTPUTOUTPUTOUTPUT"); }
     for (let l = 0; l < testCase.length; ++l) {
+        if (shouldPrint) { console.log("L" + l.toString() + "L"); console.log("LI" + testCase[l] + "LI"); }
         if (format[k] == 'n') {
+            if (shouldPrint) { console.log("K" + k.toString() + "K"); }
             testCaseString += testCase[l] + '\n';
             ++k;
         } else if (format[k] == 'a') {
             if (insideArray) {
                 if (m < mMax) {
+                    if (shouldPrint) { console.log("M" + m.toString() + "M"); }
                     testCaseString += testCase[l] + '\n';
                     ++m;
                 } else {
+                    if (shouldPrint) { console.log("KK" + k.toString() + "KK"); }
                     insideArray = false;
                     ++k;
+                    --l;
                 }
             } else {
+                if (shouldPrint) { console.log("MM" + m.toString() + "MM"); }
                 testCaseString += testCase[l] + '\n';
                 m = 0;
                 mMax = parseInt(testCase[l]);
@@ -114,23 +121,30 @@ function generateTestCaseString(allTestCases: string[], format: string[], j: num
                 if (m < mMax) {
                     if (insideArrayArray) {
                         if (n < nMax) {
+                            if (shouldPrint) { console.log("N" + n.toString() + "N"); }
                             testCaseString += testCase[l] + '\n';
                             ++n;
                         } else {
+                            if (shouldPrint) { console.log("MMM" + m.toString() + "MMM"); }
                             insideArrayArray = false;
                             ++m;
+                            --l;
                         }
                     } else {
+                        if (shouldPrint) { console.log("NN" + n.toString() + "NN"); }
                         testCaseString += testCase[l] + '\n';
                         n = 0;
                         nMax = parseInt(testCase[l]);
                         insideArrayArray = true;
                     }
                 } else {
+                    if (shouldPrint) { console.log("KKK" + k.toString() + "KKK"); }
                     insideArray = false;
                     ++k;
+                    --l;
                 }
             } else {
+                if (shouldPrint) { console.log("MMMM" + m.toString() + "MMMM"); }
                 testCaseString += testCase[l] + '\n';
                 m = 0;
                 mMax = parseInt(testCase[l]);
@@ -138,6 +152,10 @@ function generateTestCaseString(allTestCases: string[], format: string[], j: num
             }
         }
     }
+    if (shouldPrint) { console.log("ENDPUTENDPUTENDPUTENDPUTENDPUTENDPUTENDPUTENDPUTENDPUT"); }
+    if (shouldPrint) { console.log("DEBPUTDEBPUTDEBPUTDEBPUTDEBPUTDEBPUTDEBPUTDEBPUTDEBPUT"); }
+    if (shouldPrint) { console.log(testCaseString); }
+    if (shouldPrint) { console.log("FINPUTFINPUTFINPUTFINPUTFINPUTFINPUTFINPUTFINPUTFINPUT"); }
     return testCaseString;
 }
 
@@ -194,7 +212,7 @@ function generateCleanString(outputFormat: string[], normalClean: boolean) {
 
 function generateMakeReportString(i: number) {
     //return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
-    return '#!/bin/bash\n\n(cat stub.py) >> ../answer.py\n(cat stubCustomInput.py) >> ../answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp ../answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp ../answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\ndocker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
+    return '#!/bin/bash\n\n(cat stub.py) >> ../answer.py\n(cat stubCustomInput.py) >> ../answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp ../answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp ../answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\ndocker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt ../reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt ../standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt ../outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
 }
 
 async function loadTestCases() {
@@ -219,12 +237,12 @@ async function loadTestCases() {
             await ensureDir("./sandbox/" + i.toString() + "/TestInputs/");
             await ensureDir("./sandbox/" + i.toString() + "/TestOutputs/");
             await Deno.writeTextFile("./sandbox/" + i.toString() + "/TestInputs/test" + (j + 1).toString() + ".in",
-                generateTestCaseString(allTestCases, inputFormat, j));
+                generateTestCaseString(allTestCases, inputFormat, j, /*i == 2 && j == 0*/false));
         }
         let secondHalfThreshold = 2 * numTestCases;
         for (let j = 11; j < secondHalfThreshold; ++j) {
             await Deno.writeTextFile("./sandbox/" + i.toString() + "/TestOutputs/test" + (j - 10).toString() + ".out",
-                generateTestCaseString(allTestCases, outputFormat, j));
+                generateTestCaseString(allTestCases, outputFormat, j, false));
         }
         await Deno.writeTextFile("./sandbox/" + i.toString() + "/stub.py", generateStubString(inputFormat, outputFormat,
             functionSignature, true));
