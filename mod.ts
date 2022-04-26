@@ -134,7 +134,7 @@ function generateTestCaseString(allTestCases: string[], format: string[], j: num
     return testCaseString;
 }
 
-function generateStubString(inputFormat: string[], outputFormat: string[], functionSignature: string) {
+function generateStubString(inputFormat: string[], outputFormat: string[], functionSignature: string, normalStub: boolean) {
     let stubString = '\n\nif __name__ == "__main__":\n';
     for (let i = 0; i < inputFormat.length; ++i) {
         if (inputFormat[i] == 'n') {
@@ -152,14 +152,16 @@ function generateStubString(inputFormat: string[], outputFormat: string[], funct
     for (let i = 1; i < inputFormat.length; ++i) {
         stubString += ', p' + i.toString()
     }
-    stubString += ')\n    print("v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB")\n'
-    if (outputFormat.length > 0) {
-        if (outputFormat[0] == 'n') {
-            stubString += '    print(result)\n';
-        } else if (outputFormat[0] == 'a') {
-            stubString += '    print(len(result))\n    for r in result:\n        print(r)\n';
-        } else if (outputFormat[0] == 'aa') {
-            stubString += '    print(len(result))\n    for r in result:\n        print(len(r))\n        for rr in r:\n            print(rr)\n';
+    if (normalStub) {
+        stubString += ')\n    print("v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB")\n'
+        if (outputFormat.length > 0) {
+            if (outputFormat[0] == 'n') {
+                stubString += '    print(result)\n';
+            } else if (outputFormat[0] == 'a') {
+                stubString += '    print(len(result))\n    for r in result:\n        print(r)\n';
+            } else if (outputFormat[0] == 'aa') {
+                stubString += '    print(len(result))\n    for r in result:\n        print(len(r))\n        for rr in r:\n            print(rr)\n';
+            }
         }
     }
     return stubString;
@@ -179,12 +181,21 @@ function generateCleanString(outputFormat: string[]) {
     return cleanString;
 }
 
+function generateMakeReportString(i: number) {
+    return '#!/bin/bash\n\n(cat '
+        + i.toString() + '/stub.py) >> answer.py\n(cat '
+        + i.toString() + '/stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp '
+        + i.toString() + '/TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp '
+        + i.toString() + '/TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp '
+        + i.toString() + '/clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
+}
+
 async function loadTestCases() {
     await client.connect();
     const questionsResult = await client.queryArray("select count(*) from questions");
     let numQuestions = Number(questionsResult.rows[0][0] as number);
     await client.end();
-    for (let i = 1; i <= numQuestions; ++i) {
+    for (let i: number = 1; i <= numQuestions; ++i) {
         await client.connect();
         const selectedResult = await client.queryArray("select function_signature, input_output_format, test_cases from questions where id = " + i.toString());
         let functionSignature: string = selectedResult.rows[0][0] as string;
@@ -206,8 +217,12 @@ async function loadTestCases() {
             await Deno.writeTextFile("./sandbox/" + i.toString() + "/TestOutputs/test" + (j - 10).toString() + ".out",
                 generateTestCaseString(allTestCases, outputFormat, j));
         }
-        await Deno.writeTextFile("./sandbox/" + i.toString() + "/stub.py", generateStubString(inputFormat, outputFormat, functionSignature));
+        await Deno.writeTextFile("./sandbox/" + i.toString() + "/stub.py", generateStubString(inputFormat, outputFormat,
+            functionSignature, true));
+        await Deno.writeTextFile("./sandbox/" + i.toString() + "/stubCustomInput.py", generateStubString(inputFormat, outputFormat,
+            functionSignature, false));
         await Deno.writeTextFile("./sandbox/" + i.toString() + "/clean.py", generateCleanString(outputFormat));
+        await Deno.writeTextFile("./sandbox/" + i.toString() + "/makeReport.sh", generateMakeReportString(i));
     }
 }
 
