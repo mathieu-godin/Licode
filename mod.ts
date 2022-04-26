@@ -53,6 +53,12 @@ interface TestResult {
     passed: boolean
 }
 
+interface QuestionInformation {
+    questionId: number,
+    inputFormat: string[],
+    outputFormat: string[],
+}
+
 const numQuestionsPerMatch = 3;
 
 let helloWorldVar: HelloWorld = { text: 'Hello World' };
@@ -61,7 +67,7 @@ let sids: { [name: string]: string } = {};
 
 let sidsProgress: { [name: string]: number } = {};
 
-let sidsQuestions: { [name: string]: number[] } = {};
+let sidsQuestions: { [name: string]: QuestionInformation[] } = {};
 
 let matchmakingQueue25: MatchmakingUser[] = [];
 let matchmakingQueue50: MatchmakingUser[] = [];
@@ -182,12 +188,7 @@ function generateCleanString(outputFormat: string[]) {
 }
 
 function generateMakeReportString(i: number) {
-    return '#!/bin/bash\n\n(cat '
-        + i.toString() + '/stub.py) >> answer.py\n(cat '
-        + i.toString() + '/stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp '
-        + i.toString() + '/TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp '
-        + i.toString() + '/TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp '
-        + i.toString() + '/clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
+    return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
 }
 
 async function loadTestCases() {
@@ -250,8 +251,26 @@ async function selectQuestions(matchmakingUser: MatchmakingUser) {
     for (let i = 0; i < numQuestionsPerMatch; ++i) {
         questionsSelected.push(randomPermutation[i] + 1);
     }
-    sidsQuestions[matchmakingUser.sid] = questionsSelected;
-    sidsQuestions[matches[matchmakingUser.sid]] = questionsSelected;
+    let questionsInformation: QuestionInformation[] = [];
+    for (let i = 0; i < questionsSelected.length; ++i) {
+        console.log("AAA");
+        console.log(i);
+        console.log("BBB");
+        await client.connect();
+        const selectedResult = await client.queryArray("select input_output_format from questions where id = "
+            + (questionsSelected[i] + 1).toString());
+        let inputOutputFormat = selectedResult.rows[0][0] as string;
+        await client.end();
+        let inputOutputFormats = inputOutputFormat.split('|');
+        let inputFormat: string[] = inputOutputFormats[0].split(';');
+        inputFormat.shift();
+        let outputFormat: string[] = inputOutputFormats[1].split(';');
+        outputFormat.shift();
+        let questionInformation: QuestionInformation = { questionId: questionsSelected[i] + 1, inputFormat: inputFormat, outputFormat: outputFormat };
+        questionsInformation.push(questionInformation);
+    }
+    sidsQuestions[matchmakingUser.sid] = questionsInformation;
+    sidsQuestions[matches[matchmakingUser.sid]] = questionsInformation;
 }
 
 async function addToQueue (queue: MatchmakingUser[], matchmakingUser: MatchmakingUser, range: number, context: any) {
@@ -594,7 +613,7 @@ router
             if (sid && typeof sid === 'string') {
                 await client.connect();
                 const questionResult = await client.queryArray("select question, function_signature, default_custom_input from questions where id = "
-                    + sidsQuestions[sid][sidsProgress[sid]].toString());
+                    + sidsQuestions[sid][sidsProgress[sid]].questionId.toString());
                 const responseBody : QuestionData = {
                     question: questionResult.rows[0][0] as string,
                     function_signature: questionResult.rows[0][1] as string,
@@ -688,15 +707,32 @@ router
                     await Deno.writeTextFile("./sandbox/answerCustomInput.py", code.value);
                     let inputLines: string[] = code.input.split('\n');
                     let customInputContent: string = '';
-                    customInputContent += parseInt(inputLines[1]).toString() + '\n';
-                    let inputCommaSeparatedValues: string[] = inputLines[0].split('[')[1].split(']')[0].split(',');
-                    for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
-                        customInputContent += parseInt(inputCommaSeparatedValues[i]).toString() + '\n';
+                    let questionInformation: QuestionInformation = sidsQuestions[sid][sidsProgress[sid]];
+                    for (let i = 0; i < questionInformation.inputFormat.length; ++i) {
+                        if (questionInformation.inputFormat[i] == 'n') {
+                            customInputContent += parseInt(inputLines[i]).toString() + '\n';
+                        } else if (questionInformation.inputFormat[i] == 'a') {
+                            let inputCommaSeparatedValues: string[] = inputLines[i].split('[')[1].split(']')[0].split(',');
+                            customInputContent += inputCommaSeparatedValues.length.toString() + '\n'
+                            for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
+                                customInputContent += parseInt(inputCommaSeparatedValues[i]).toString() + '\n';
+                            }
+                        } else if (questionInformation.inputFormat[i] == 'aa') {
+                            let inputCommaSeparatedValues: string[] = inputLines[i].split('[[')[1].split(']]')[0].split('],[');
+                            customInputContent += inputCommaSeparatedValues.length.toString() + '\n'
+                            for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
+                                let inputCCommaSeparatedValues: string[] = inputLines[i].split(',');
+                                customInputContent += inputCCommaSeparatedValues.length.toString() + '\n'
+                                for (let j = 0; j < inputCCommaSeparatedValues.length; ++j) {
+                                    customInputContent += parseInt(inputCCommaSeparatedValues[i]).toString() + '\n';
+                                }
+                            }
+                        }
                     }
                     await Deno.writeTextFile("./sandbox/customInput.in", customInputContent);
                     const reportProcess = Deno.run({
                         cmd: ["./makeReport.sh"],
-                        cwd: "./sandbox",
+                        cwd: "./" + questionInformation.questionId.toString() + "/sandbox",
                         stdout: "piped"
                     });
                     await reportProcess.output();
