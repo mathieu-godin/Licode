@@ -636,10 +636,22 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         <Grid item>
                                             <PlayerInformation loaded={this.state.loaded} username="You" eloRating={this.state.eloRating} />
                                         </Grid>
-                                        <Grid item>
-                                            <IconButton color="button" onClick={this.skipTestCase}>
-                                                <CheckCircleIcon sx={{ fontSize: 32 }} />
-                                            </IconButton>
+                                        <Grid container>
+                                            <Grid item xs="auto">
+                                                <IconButton color="button" onClick={this.skipTestCase}>
+                                                    <CheckCircleIcon sx={{ fontSize: 32 }} />
+                                                </IconButton>
+                                            </Grid>
+                                            <Grid item xs="auto">
+                                                <IconButton color="button" onClick={this.slowOpponent}>
+                                                    <SpeedIcon sx={{ fontSize: 32 }} />
+                                                </IconButton>
+                                            </Grid>
+                                            <Grid item xs="auto">
+                                                <IconButton color="button" onClick={this.peekOpponent}>
+                                                    <RemoveRedEyeIcon sx={{ fontSize: 32 }} />
+                                                </IconButton>
+                                            </Grid>
                                         </Grid>
                                         <Grid item>
                                             <Typography variant="aboveEditor" sx={{ m: 0, p: 0 }}>
@@ -762,26 +774,21 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                             <PlayerInformation loaded={this.state.loaded} username={this.state.opponentUsername}
                                                 eloRating={this.state.opponentEloRating} />
                                         </Grid>
-                                        <Grid container>
+                                        <Grid container sx={{ visibility: 'hidden' }}>
                                             <Grid item xs="auto">
-                                                <IconButton color="button" onClick={this.slowOpponent}>
+                                                <IconButton color="button">
+                                                    <CheckCircleIcon sx={{ fontSize: 32 }} />
+                                                </IconButton>
+                                            </Grid>
+                                            <Grid item xs="auto">
+                                                <IconButton color="button">
                                                     <SpeedIcon sx={{ fontSize: 32 }} />
                                                 </IconButton>
                                             </Grid>
                                             <Grid item xs="auto">
-                                                <Typography variant="buttonExponent" sx={{ m: 0, p: 0 }}>
-                                                    2
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs="auto">
-                                                <IconButton color="button" onClick={this.peekOpponent}>
+                                                <IconButton color="button">
                                                     <RemoveRedEyeIcon sx={{ fontSize: 32 }} />
                                                 </IconButton>
-                                            </Grid>
-                                            <Grid item xs="auto">
-                                                <Typography variant="buttonExponent" sx={{ m: 0, p: 0 }}>
-                                                    1
-                                                </Typography>
                                             </Grid>
                                         </Grid>
                                         <Grid item>
@@ -794,7 +801,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 </Grid>
                                 <Grid item mt={1}>
                                     <AceEditor
-                                        mode="python"
+                                        mode="text"
                                         theme="github"
                                         name="filled-multiline-static"
                                         fontSize={14}
