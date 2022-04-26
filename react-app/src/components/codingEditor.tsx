@@ -452,6 +452,34 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             this.sendFieldUpdate(FIELDUPDATE.Output, res.output)
             this.setState({ output: res.output });
         }
+        let hasWon = true;
+        for (let i = 0; i < res.testCasesPassed.length; ++i) {
+            if (!res.testCasesPassed[i]) {
+                hasWon = false;
+                break;
+            }
+        }
+        console.log("AAA");
+        console.log(hasWon);
+        console.log(this.state.questionNum);
+        console.log("BBB");
+        if (hasWon && this.state.questionNum < 4) {
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            const questionData: QuestionData = await fetch('/api/question').then(response => response.json());
+            let initialQuestionLines = questionData.question.split(';');
+            for (let i = 0; i < 3 - initialQuestionLines.length; ++i) {
+                initialQuestionLines.push('');
+            }
+            let inputLines = questionData.default_custom_input.split(';');
+            let initialInput = '';
+            if (inputLines.length > 0) {
+                initialInput += inputLines[0];
+            }
+            for (let i = 1; i < inputLines.length; ++i) {
+                initialInput += '\n' + inputLines[i];
+            }
+            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput });
+        }
     };
 
     peekOpponent () {
@@ -575,7 +603,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             } else {
                 this.state.socket?.send(CLIENTMSGTYPE.GiveQuestionNum.toString() + " " + (this.state.questionNum + 1).toString())
                 this.setState({ testCasesPassed: [false, false, false, false, false, false, false, false],
-                    questionNum: this.state.questionNum + 1, code: defaultSignature, input: defaultInput }, () => this.sendInititalUpdates());
+                    questionNum: this.state.questionNum + 1 }, () => this.sendInititalUpdates());
             }
         } else if (this.state.lost) {
             return <Navigate to="/dashboard"/>
