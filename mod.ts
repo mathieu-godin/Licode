@@ -13,6 +13,7 @@ import { TestCasesPassed } from "./react-app/src/components/common/interfaces/ma
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
 import { nanoid } from 'https://deno.land/x/nanoid@v3.0.0/async.ts'
+import { ensureDir } from 'https://deno.land/std@0.136.0/fs/mod.ts';
 const client = new Client({
     user: "licode",
     database: "licode",
@@ -151,7 +152,7 @@ function generateStubString(inputFormat: string[], outputFormat: string[], funct
             stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        nn' + i.toString() + ' = int(input())\n        pp' + i.toString() + ' = []\n        for j in range(nn' + i.toString() + '):\n            pp' + i.toString() + '.append(int(input()))\n        p' + i.toString() + '.append(pp' + i.toString() + ')\n';
         }
     }
-    stubString += '    result = ' + functionSignature.split('(')[0] + '(';
+    stubString += '    result = ' + functionSignature.split('(')[0].split('def ')[1] + '(';
     if (inputFormat.length > 0) {
         stubString += 'p0';
     }
@@ -188,7 +189,8 @@ function generateCleanString(outputFormat: string[]) {
 }
 
 function generateMakeReportString(i: number) {
-    return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
+    //return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
+    return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n';
 }
 
 async function loadTestCases() {
@@ -210,6 +212,8 @@ async function loadTestCases() {
         outputFormat.shift();
         let allTestCases: string[] = testCases.split('|');
         for (let j: number = 0; j < numTestCases; ++j) {
+            await ensureDir("./sandbox/" + i.toString() + "/TestInputs/");
+            await ensureDir("./sandbox/" + i.toString() + "/TestOutputs/");
             await Deno.writeTextFile("./sandbox/" + i.toString() + "/TestInputs/test" + (j + 1).toString() + ".in",
                 generateTestCaseString(allTestCases, inputFormat, j));
         }
@@ -224,6 +228,10 @@ async function loadTestCases() {
             functionSignature, false));
         await Deno.writeTextFile("./sandbox/" + i.toString() + "/clean.py", generateCleanString(outputFormat));
         await Deno.writeTextFile("./sandbox/" + i.toString() + "/makeReport.sh", generateMakeReportString(i));
+        await Deno.run({
+            cmd: ["chmod", "u+x", "makeReport.sh"],
+            cwd: "./sandbox/" + i.toString()
+        });
     }
 }
 
@@ -253,20 +261,30 @@ async function selectQuestions(matchmakingUser: MatchmakingUser) {
     }
     let questionsInformation: QuestionInformation[] = [];
     for (let i = 0; i < questionsSelected.length; ++i) {
-        console.log("AAA");
-        console.log(i);
-        console.log("BBB");
-        await client.connect();
-        const selectedResult = await client.queryArray("select input_output_format from questions where id = "
-            + (questionsSelected[i] + 1).toString());
-        let inputOutputFormat = selectedResult.rows[0][0] as string;
-        await client.end();
+        let inputOutputFormat = '';
+        for (;;) {
+            try {
+                await client.connect();
+                const selectedResult = await client.queryArray("select input_output_format from questions where id = "
+                    + questionsSelected[i].toString());
+                console.log("RRR");
+                console.log(questionsSelected[i].toString());
+                console.log("QQQ");
+                console.log(selectedResult);
+                console.log("WWW");
+                inputOutputFormat = selectedResult.rows[0][0] as string;
+                await client.end();
+                break;
+            } catch (error) {
+                console.log(error);
+            }
+        }
         let inputOutputFormats = inputOutputFormat.split('|');
         let inputFormat: string[] = inputOutputFormats[0].split(';');
         inputFormat.shift();
         let outputFormat: string[] = inputOutputFormats[1].split(';');
         outputFormat.shift();
-        let questionInformation: QuestionInformation = { questionId: questionsSelected[i] + 1, inputFormat: inputFormat, outputFormat: outputFormat };
+        let questionInformation: QuestionInformation = { questionId: questionsSelected[i], inputFormat: inputFormat, outputFormat: outputFormat };
         questionsInformation.push(questionInformation);
     }
     sidsQuestions[matchmakingUser.sid] = questionsInformation;
@@ -614,6 +632,9 @@ router
                 await client.connect();
                 const questionResult = await client.queryArray("select question, function_signature, default_custom_input from questions where id = "
                     + sidsQuestions[sid][sidsProgress[sid]].questionId.toString());
+                console.log("UUU");
+                console.log(sidsQuestions[sid][sidsProgress[sid]].questionId.toString());
+                console.log("III");
                 const responseBody : QuestionData = {
                     question: questionResult.rows[0][0] as string,
                     function_signature: questionResult.rows[0][1] as string,
@@ -703,12 +724,18 @@ router
                     context.assert(typeof code?.value === "string", Status.BadRequest);
                     context.assert(typeof code?.input === "string", Status.BadRequest);
                     context.response.status = Status.OK;
+                    console.log("ZZZ");
+                    console.log(code.value);
+                    console.log("XXX");
                     await Deno.writeTextFile("./sandbox/answer.py", code.value);
                     await Deno.writeTextFile("./sandbox/answerCustomInput.py", code.value);
                     let inputLines: string[] = code.input.split('\n');
                     let customInputContent: string = '';
                     let questionInformation: QuestionInformation = sidsQuestions[sid][sidsProgress[sid]];
                     for (let i = 0; i < questionInformation.inputFormat.length; ++i) {
+                        console.log("OOO");
+                        console.log(questionInformation.inputFormat[i]);
+                        console.log("PPP");
                         if (questionInformation.inputFormat[i] == 'n') {
                             customInputContent += parseInt(inputLines[i]).toString() + '\n';
                         } else if (questionInformation.inputFormat[i] == 'a') {
@@ -729,16 +756,25 @@ router
                             }
                         }
                     }
+                    console.log("AAA");
                     await Deno.writeTextFile("./sandbox/customInput.in", customInputContent);
-                    const reportProcess = Deno.run({
+                    console.log("AAB");
+                    const reportProcess = await Deno.run({
                         cmd: ["./makeReport.sh"],
-                        cwd: "./" + questionInformation.questionId.toString() + "/sandbox",
+                        cwd: "./sandbox/" + questionInformation.questionId.toString(),
                         stdout: "piped"
                     });
+                    console.log("ABB");
                     await reportProcess.output();
+                    console.log("BBB");
                     let jsonResults: String = await Deno.readTextFile("./sandbox/reportFromPySandbox.txt");
                     let standardOutputResults: string = await Deno.readTextFile("./sandbox/standardOutputFromPySandbox.txt");
                     let outputResults: string = await Deno.readTextFile("./sandbox/outputFromPySandbox.txt");
+                    console.log("CCC");
+                    console.log(standardOutputResults);
+                    console.log("DDD");
+                    console.log(outputResults);
+                    console.log("EEE");
                     jsonResults = jsonResults.replace(/\s/g, "");
                     jsonResults = jsonResults.substring(0, jsonResults.length - 2) + "]"
                     let testResults: TestResult[]  = JSON.parse(jsonResults.toString());

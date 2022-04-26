@@ -2,4 +2,4 @@
 
 if __name__ == "__main__":
     p0 = int(input())
-    result = def numberOfPositiveBits(p0
+    result = numberOfPositiveBits(p0

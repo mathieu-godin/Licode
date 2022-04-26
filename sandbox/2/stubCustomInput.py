@@ -6,4 +6,4 @@ if __name__ == "__main__":
     for i in range(n0):
         nums.append(int(input()))
     p1 = int(input())
-    result = def arrangementSumPossibleIntegers(p0, p1
+    result = arrangementSumPossibleIntegers(p0, p1

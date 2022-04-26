@@ -1,3 +1,2 @@
-def primeFactorsLimitedTo3And7(integer):
-    print('OKOKOK')
-    return 21
+def pairSumIndices(integers, pairSum):
+    return [1,2]
