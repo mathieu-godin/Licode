@@ -433,15 +433,19 @@ router
     })
     .get("/api/question", async (context) => {
         try {
-            await client.connect();
-            const questionResult = await client.queryArray("select question, function_signature, default_custom_input from questions where input_output_format='2;a;n|1;a'");
-            const responseBody : QuestionData = {
-                question: questionResult.rows[0][0] as string,
-                function_signature: questionResult.rows[0][1] as string,
-                default_custom_input: questionResult.rows[0][2] as string,
-            };
-            context.response.body = responseBody;
-            await client.end();
+            let sid = await context.cookies.get('sid');
+            if (sid && typeof sid === 'string') {
+                await client.connect();
+                const questionResult = await client.queryArray("select question, function_signature, default_custom_input from questions where id = "
+                    + sidsQuestions[sid][sidsProgress[sid]].toString());
+                const responseBody : QuestionData = {
+                    question: questionResult.rows[0][0] as string,
+                    function_signature: questionResult.rows[0][1] as string,
+                    default_custom_input: questionResult.rows[0][2] as string,
+                };
+                context.response.body = responseBody;
+                await client.end();
+            }
         } catch (err) {
             console.log(err);
         }
