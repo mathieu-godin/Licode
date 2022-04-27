@@ -1,0 +1,12 @@
+def primeFactorsLimitedTo3And7(integer):
+    if integer % 2 == 0:
+        return 0
+    if integer % 5 == 0:
+        return 0
+    if integer % 11 == 0:
+        return 0
+    if integer % 13 == 0:
+        return 0
+    if integer % 17 == 0:
+        return 0
+    return 1

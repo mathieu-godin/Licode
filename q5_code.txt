@@ -1,0 +1,13 @@
+def findNotDuplicatedInteger(integers):
+    i = 0
+    while i < len(integers):
+        j = 0
+        notDuplicated = True
+        while j < len(integers):
+            if i != j and integers[i] == integers[j]:
+                notDuplicated = False
+                break
+            j += 1
+        i += 1
+        if notDuplicated:
+            return integers[i]

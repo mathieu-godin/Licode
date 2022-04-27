@@ -763,13 +763,19 @@ router
                             customInputContent += parseInt(inputLines[i]).toString() + '\n';
                         } else if (questionInformation.inputFormat[i] == 'a') {
                             let inputCommaSeparatedValues: string[] = inputLines[i].split('[')[1].split(']')[0].split(',');
-                            customInputContent += inputCommaSeparatedValues.length.toString() + '\n'
+                            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+                            console.log(inputCommaSeparatedValues);
+                            console.log("SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+                            customInputContent += inputCommaSeparatedValues.length.toString() + '\n';
                             for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
                                 customInputContent += parseInt(inputCommaSeparatedValues[i]).toString() + '\n';
                             }
+                            console.log("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC");
+                            console.log(customInputContent);
+                            console.log("VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
                         } else if (questionInformation.inputFormat[i] == 'aa') {
                             let inputCommaSeparatedValues: string[] = inputLines[i].split('[[')[1].split(']]')[0].split('],[');
-                            customInputContent += inputCommaSeparatedValues.length.toString() + '\n'
+                            customInputContent += inputCommaSeparatedValues.length.toString() + '\n';
                             for (let i = 0; i < inputCommaSeparatedValues.length; ++i) {
                                 let inputCCommaSeparatedValues: string[] = inputLines[i].split(',');
                                 customInputContent += inputCCommaSeparatedValues.length.toString() + '\n'
