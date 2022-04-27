@@ -1,6 +1,12 @@
-def arrangementSumPossibleIntegers(integers, arrangementSum):
-    print("hello world")
-    return [[1,2],[3,4]]
+def pairSumIndices(integers, pairSum):
+    i = 0
+    while i < len(integers):
+        j = 0
+        while j < len(integers):
+            if i != j and integers[i] + integers[j] == pairSum:
+                return [i, j]
+            j += 1
+        i += 1
 
 import sys
 
@@ -21,4 +27,4 @@ if __name__ == "__main__":
     print("G", end="", file=sys.stderr)
     print(p1, end="", file=sys.stderr)
     print("H", end="", file=sys.stderr)
-    result = arrangementSumPossibleIntegers(p0, p1)
+    result = pairSumIndices(p0, p1)
