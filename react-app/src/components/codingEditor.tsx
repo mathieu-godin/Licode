@@ -485,7 +485,12 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             for (let i = 1; i < inputLines.length; ++i) {
                 initialInput += '\n' + inputLines[i];
             }
-            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput });
+            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput,
+                standardOutput: '', output: '' });
+            this.sendFieldUpdate(FIELDUPDATE.Code, this.state.code);
+            this.sendFieldUpdate(FIELDUPDATE.Input, this.state.input);
+            this.sendFieldUpdate(FIELDUPDATE.StandardOutput, this.state.standardOutput);
+            this.sendFieldUpdate(FIELDUPDATE.Output, this.state.output);
         }
     };
 
@@ -533,7 +538,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         if (this.state.canType && !this.state.typingSlow) {
             //normal case, just update state
             console.log("normal case");
-            this.sendFieldUpdate(FIELDUPDATE.Code, value)
+            this.sendFieldUpdate(FIELDUPDATE.Code, value);
             this.setState({
                 code: value
             });
@@ -815,7 +820,6 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         readOnly={true}
                                         highlightActiveLine={false}
                                         value = {this.state.peeking? this.state.rightEditorCode : this.processOpponentField(this.state.rightEditorCode)}
-                                        onChange={this.handleCodeChange}
                                         editorProps={{ $blockScrolling: true }}
                                     />
                                 </Grid>

@@ -16,3 +16,5 @@
 /react-app/node_modules/.cache
 
 /packages/gen/file/home/*
+
+/sandbox/*
