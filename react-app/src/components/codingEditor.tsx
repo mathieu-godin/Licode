@@ -480,6 +480,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 initialInput += '\n' + inputLines[i];
             }
             this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput });
+            this.sendFieldUpdate(FIELDUPDATE.Code, this.state.code);
         }
     };
 
@@ -527,7 +528,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         if (this.state.canType && !this.state.typingSlow) {
             //normal case, just update state
             console.log("normal case");
-            this.sendFieldUpdate(FIELDUPDATE.Code, value)
+            this.sendFieldUpdate(FIELDUPDATE.Code, value);
             this.setState({
                 code: value
             });
