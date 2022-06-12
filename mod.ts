@@ -28,7 +28,7 @@ const client = new Client({
 const env = Deno.env.toObject();
 const app = new Application();
 const router = new Router();
-let iiiCounter = 0;
+//let iiiCounter = 0;
 
 interface HelloWorld {
     text: string;
@@ -166,7 +166,7 @@ function generateStubString(inputFormat: string[], outputFormat: string[], funct
         if (inputFormat[i] == 'n') {
             stubString += '    p' + i.toString() + ' = int(input())\n    print("G", end="", file=sys.stderr)\n    print(p' + i.toString() + ', end="", file=sys.stderr)\n    print("H", end="", file=sys.stderr)\n';
         } else if (inputFormat[i] == 'a') {
-            stubString += '    n' + i.toString() + ' = int(input())\n    print("G", end="", file=sys.stderr)\n    print(n' + i.toString() + ', end="", file=sys.stderr)\n    print("H", end="", file=sys.stderr)\n    p' + i.toString() + ' = []\n    nums = []\n    for i in range(n' + i.toString() + '):\n        gh = int(input())\n        print("G", end="", file=sys.stderr)\n        print(gh, end="", file=sys.stderr)\n        print("H", end="", file=sys.stderr)\n        nums.append(gh)\n';
+            stubString += '    n' + i.toString() + ' = int(input())\n    print("G", end="", file=sys.stderr)\n    print(n' + i.toString() + ', end="", file=sys.stderr)\n    print("H", end="", file=sys.stderr)\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        gh = int(input())\n        print("G", end="", file=sys.stderr)\n        print(gh, end="", file=sys.stderr)\n        print("H", end="", file=sys.stderr)\n        p' + i.toString() + '.append(gh)\n';
         } else if (inputFormat[i] == 'aa') {
             stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        nn' + i.toString() + ' = int(input())\n        pp' + i.toString() + ' = []\n        for j in range(nn' + i.toString() + '):\n            pp' + i.toString() + '.append(int(input()))\n        p' + i.toString() + '.append(pp' + i.toString() + ')\n';
         }
@@ -281,7 +281,8 @@ async function selectQuestions(matchmakingUser: MatchmakingUser) {
         [randomPermutation[i], randomPermutation[j]] = [randomPermutation[j], randomPermutation[i]];
     }
     for (let i = 0; i < numQuestionsPerMatch; ++i) {
-        questionsSelected.push(randomPermutation[i] + 1);
+        //questionsSelected.push(randomPermutation[i] + 1);
+        questionsSelected.push(2);
     }
     let questionsInformation: QuestionInformation[] = [];
     for (let i = 0; i < questionsSelected.length; ++i) {
@@ -830,20 +831,22 @@ router
                             let n: number = 0;
                             let nn: number = 0;
                             let k: number = 0;
+                            console.log("###");
+                            console.log(outputResultsSplit);
+                            console.log("$$$");
                             if (outputResultsSplit.length > 0) {
                                 n = parseInt(outputResultsSplit[k++]);
                             }
                             if (n > 0) {
-                                actualOutputResults += '[';
+                                actualOutputResults += '[[';
                                 if (outputResultsSplit.length > 1) {
                                     nn = parseInt(outputResultsSplit[k++]);
                                 }
                                 if (nn > 0 && outputResultsSplit.length > 2) {
-                                    actualOutputResults += '[' + outputResultsSplit[k++];
+                                    actualOutputResults += outputResultsSplit[k++];
                                 }
                                 for (let i = 1; i < nn; ++i) {
-                                    actualOutputResults += ',' + outputResultsSplit[k + 1];
-                                    ++k;
+                                    actualOutputResults += ', ' + outputResultsSplit[k++];
                                 }
                                 actualOutputResults += ']'
                             }
@@ -854,8 +857,7 @@ router
                                     actualOutputResults += outputResultsSplit[k++];
                                 }
                                 for (let j = 1; j < nn; ++j) {
-                                    actualOutputResults += ', ' + outputResultsSplit[k + 1];
-                                    ++k;
+                                    actualOutputResults += ', ' + outputResultsSplit[k++];
                                 }
                                 actualOutputResults += ']'
                             }
@@ -877,11 +879,11 @@ router
                         standardOutput: standardOutputResults,
                         output: actualOutputResults,
                     };
-                    if (++iiiCounter % 3 === 0) {
+                    /*if (++iiiCounter % 3 === 0) {
                         for (let i = 0; i < testCasesPassed.testCasesPassed.length; ++i) {
                             testCasesPassed.testCasesPassed[i] = true;
                         }
-                    }
+                    }*/
                     if (!testCasesPassed.testCasesPassed.some(element => !element) && ++sidsProgress[sid] === 3) {
                         let opponentSid = matches[sid];
                         delete matches[sid];
