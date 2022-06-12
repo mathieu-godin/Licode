@@ -479,7 +479,8 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             for (let i = 1; i < inputLines.length; ++i) {
                 initialInput += '\n' + inputLines[i];
             }
-            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput });
+            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput,
+                standardOutput: '', output: '' });
             this.sendFieldUpdate(FIELDUPDATE.Code, this.state.code);
         }
     };
