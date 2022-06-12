@@ -58,7 +58,7 @@ Open the installer file and in "Setup - PostgreSQL" click Next.
 
 In "Installation Directory" Specify the Installation Directory or keep it as default and click Next.
 
-In "Select Components" you can unselect Stack Builder since it is not needed, but make sure that PosgreSQL Server, pgAdmin 4 and Command Line Tools are selected. Click next.
+In "Select Components" you can unselect Stack Builder since it is not needed, but make sure that PostgreSQL Server, pgAdmin 4 and Command Line Tools are selected. Click next.
 
 In "Data Directory" Select the directory for PostgreSQL to store your databaces or keep it as default and click Next.
 
@@ -85,7 +85,7 @@ Under System variables, double click on the variable named "Path". Use "New" to 
 To test that Postgres was installed successfully and create the licode database user, first run a PowerShell terminal as administrator (Search for PowerShell in the search bar, right click and select "run as administrator"). Then do the following:
 
 ```bash
-psql -u posgres
+psql -u postgres
 CREATE USER licode WITH PASSWORD 'edocil';
 CREATE DATABASE licode;
 GRANT ALL PRIVILEGES ON DATABASE licode to licode;
@@ -225,6 +225,12 @@ pip install psycopg2
 python migrations/migrations.py migrate
 ```
 
+#### Setting up the Sandbox
+
+```bash
+sudo docker load < py-sandbox.tar
+```
+
 #### Setting Deno to the Right Version
 
 ```bash
@@ -281,6 +287,40 @@ sudo -E $DENO_INSTALL/bin/denon run --allow-all mod.ts
 ```bash
 cd licode/react-app
 npm start
+```
+
+### Using the Docker Sandbox
+
+#### Accessing the Sandbox
+
+```bash
+sudo docker run -it py-sandbox
+cd home/TestEnvironment
+```
+
+#### Saving an Image of the Sandbox
+
+```bash
+sudo docker ps -a
+```
+
+Take note of the most recent Docker instance hash.
+
+```bash
+docker commit <most-recent-hash> py-sandbox
+sudo docker save py-sandbox > py-sandbox.tar
+```
+
+#### Terminating a Sandbox Instance
+
+```bash
+sudo docker ps -a
+```
+
+Take note of the most recent Docker instance hash.
+
+```bash
+sudo docker kill <most-recent-hahs>
 ```
 
 ## Security
