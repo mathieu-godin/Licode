@@ -1,18 +1,48 @@
-from math import sqrt
-
-def primeFactorsLimitedTo3And7(integer):
-    for i in range(2, min(integer + 1, 1000000)):
-        if i != 3 and i != 7 and i % 3 != 0 and i % 7 != 0 and integer % i == 0:
-            return 0
-    return 1
+def arrangementSumPossibleIntegers(integers, arrangementSum):
+    subArrs = []
+    d = dict()
+    for i in range(1, len(integers)):
+        newDict = dict()
+        for n in integers:
+            for pSum, nums in d.items():
+                if (pSum + n) == arrangementSum:
+                    for arr in nums:
+                        arr.append(n)
+                        subArrs.append(arr)
+                else if (pSum + n) < arrangementSum:
+                    for arr in nums:
+                        arr.append(n)
+                        if (pSum + n) in d:
+                            newDict[pSum + n].append(arr)
+                        else
+                            newDict[pSum + n] = [arr]
+        d = newDict
+    return subArrs
+        
+    
 
 import sys
 
 if __name__ == "__main__":
-    p0 = int(input())
+    n0 = int(input())
     print("G", end="", file=sys.stderr)
-    print(p0, end="", file=sys.stderr)
+    print(n0, end="", file=sys.stderr)
     print("H", end="", file=sys.stderr)
-    result = primeFactorsLimitedTo3And7(p0)
+    p0 = []
+    for i in range(n0):
+        gh = int(input())
+        print("G", end="", file=sys.stderr)
+        print(gh, end="", file=sys.stderr)
+        print("H", end="", file=sys.stderr)
+        p0.append(gh)
+    p1 = int(input())
+    print("G", end="", file=sys.stderr)
+    print(p1, end="", file=sys.stderr)
+    print("H", end="", file=sys.stderr)
+    result = arrangementSumPossibleIntegers(p0, p1)
     print("v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB")
-    print(result)
+    print(len(result))
+    for r in result:
+        print(len(r))
+        for rr in r:
+            print(rr)
