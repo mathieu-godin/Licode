@@ -7,7 +7,7 @@ Restart=always
 RestartSec=1
 Environment="LICODE_PORT=3000" "DENO_INSTALL=/home/licode/.deno" "DENO_DIR=/home/licode/licode/packages" 
 WorkingDirectory=/home/licode/licode
-ExecStart=/home/licode/.deno/bin/deno run --allow-all /home/licode/licode/mod.ts
+ExecStart=/home/licode/.deno/bin/deno run --allow-all /home/licode/licode/mod.ts -prod
 
 [Install]
 WantedBy=default.target

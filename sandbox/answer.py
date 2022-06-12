@@ -31,4 +31,8 @@ if __name__ == "__main__":
         p0.append(gh)
     result = findNotDuplicatedInteger(p0)
     print("v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB")
-    print(result)
+    print(len(result))
+    for r in result:
+        print(len(r))
+        for rr in r:
+            print(rr)

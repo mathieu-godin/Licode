@@ -14,6 +14,7 @@ import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
 import { nanoid } from 'https://deno.land/x/nanoid@v3.0.0/async.ts'
 import { ensureDir } from 'https://deno.land/std@0.136.0/fs/mod.ts';
+import { parse } from "https://deno.land/std@0.143.0/flags/mod.ts"
 const client = new Client({
     user: "licode",
     database: "licode",
@@ -26,6 +27,8 @@ const client = new Client({
     },
 });
 const env = Deno.env.toObject();
+const args = parse(Deno.args, {alias: {"prod": "p"}, boolean: ["prod"],})
+const prod : boolean = args.prod
 const app = new Application();
 const router = new Router();
 //let iiiCounter = 0;
@@ -80,6 +83,10 @@ let matchmakingQueue500: MatchmakingUser[] = [];
 let matches: { [name: string]: string } = {};
 
 const numTestCases: number = 11;
+
+function registerPairEndPoint() : string {
+    return prod ? "https://licode.io/registerPair" : "http://localhost:5000/registerPair";
+}
 
 function generateTestCaseString(allTestCases: string[], format: string[], j: number, shouldPrint: boolean) {
     let testCaseString = '';
@@ -331,7 +338,7 @@ async function addToQueue (queue: MatchmakingUser[], matchmakingUser: Matchmakin
             sidsProgress[matchmakingUser.sid] = 0;
             //can call goServer/registerPair here
             console.log("attempting register pair " + matchmakingUser.sid + ", " + queue[i].sid)
-            const response = await fetch("http://localhost:5000/registerPair", {
+            const response = await fetch(registerPairEndPoint(), {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -961,6 +968,11 @@ router
         } catch (err) {
             console.log(err);
         }
+    })
+    .get("/api/wildcardEndpoint", async (context) => {
+        context.response.body = { endpoint: 
+            prod ? "wss://licode.io/ws" : "ws://localhost:5000/ws"
+        };
     });
 app.use(router.routes());
 app.use(router.allowedMethods());
