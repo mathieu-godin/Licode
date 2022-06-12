@@ -286,8 +286,7 @@ async function selectQuestions(matchmakingUser: MatchmakingUser) {
         [randomPermutation[i], randomPermutation[j]] = [randomPermutation[j], randomPermutation[i]];
     }
     for (let i = 0; i < numQuestionsPerMatch; ++i) {
-        //questionsSelected.push(randomPermutation[i] + 1);
-        questionsSelected.push(2);
+        questionsSelected.push(randomPermutation[i] + 1);
     }
     let questionsInformation: QuestionInformation[] = [];
     for (let i = 0; i < questionsSelected.length; ++i) {
@@ -887,6 +886,7 @@ router
                         standardOutput: standardOutputResults,
                         output: actualOutputResults,
                     };
+                    console.log("11111111111111111111111111");
                     /*if (++iiiCounter % 3 === 0) {
                         for (let i = 0; i < testCasesPassed.testCasesPassed.length; ++i) {
                             testCasesPassed.testCasesPassed[i] = true;
@@ -955,6 +955,7 @@ router
                         }
                     }
                     context.response.body = testCasesPassed;
+                    console.log("2222222222222222");
                 }
             }
         } catch (err) {
