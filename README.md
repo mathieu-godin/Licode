@@ -225,6 +225,16 @@ pip install psycopg2
 python migrations/migrations.py migrate
 ```
 
+#### Setting up the Sandbox
+
+```bash
+sudo docker load < py-sandbox.tar
+```
+
+```bash
+sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
+```
+
 #### Setting Deno to the Right Version
 
 ```bash
