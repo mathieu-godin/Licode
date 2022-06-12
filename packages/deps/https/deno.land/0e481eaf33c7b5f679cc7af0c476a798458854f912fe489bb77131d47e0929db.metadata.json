@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "access-control-allow-origin": "*",
+    "x-deno-warning": "Implicitly using latest version (0.143.0) for https://deno.land/std/flags/mod.ts",
+    "location": "/std@0.143.0/flags/mod.ts",
+    "vary": "Accept-Encoding",
+    "date": "Sun, 12 Jun 2022 17:25:46 GMT",
+    "server": "deno/northamerica-northeast2-c"
+  },
+  "url": "https://deno.land/std/flags/mod.ts",
+  "now": {
+    "secs_since_epoch": 1655054746,
+    "nanos_since_epoch": 460059046
+  }
+}

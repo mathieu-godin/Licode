@@ -282,13 +282,14 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         for (let i = 1; i < inputLines.length; ++i) {
             initialInput += '\n' + inputLines[i];
         }
+        const wsEndpoint : string = await fetch("/api/wildcardEndpoint").then(response => response.json()).then(jsn => jsn.endpoint);
         this.setState({
             username: data.you.username,
             eloRating: data.you.eloRating,
             opponentUsername: data.opponent.username,
             opponentEloRating: data.opponent.eloRating,
             sid: data.you.sid,
-            socket: new WebSocket("ws://localhost:5000/ws"),
+            socket: new WebSocket(wsEndpoint),
             loaded: true,
             questionLines: initialQuestionLines,
             code: questionData.function_signature + '\n    ',
