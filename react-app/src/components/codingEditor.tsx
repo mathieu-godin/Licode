@@ -442,15 +442,23 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         }).then(response => response.json());
 
         if (res.testCasesPassed) {
-            this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(res.testCasesPassed))
+            if (this.state.skipping) {
+                for (let i = 0; i < res.testCasesPassed.length; ++i) {
+                    if (!res.testCasesPassed[i]) {
+                        res.testCasesPassed[i] = true;
+                        break;
+                    }
+                }
+            }
+            this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(res.testCasesPassed));
             this.setState({ testCasesPassed: res.testCasesPassed });
         }
         if (res.standardOutput) {
-            this.sendFieldUpdate(FIELDUPDATE.StandardOutput, res.standardOutput)
+            this.sendFieldUpdate(FIELDUPDATE.StandardOutput, res.standardOutput);
             this.setState({ standardOutput: res.standardOutput });
         }
         if (res.output) {
-            this.sendFieldUpdate(FIELDUPDATE.Output, res.output)
+            this.sendFieldUpdate(FIELDUPDATE.Output, res.output);
             this.setState({ output: res.output });
         }
         let hasWon = true;
@@ -480,7 +488,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 initialInput += '\n' + inputLines[i];
             }
             this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput,
-                standardOutput: '', output: '' });
+                standardOutput: '', output: '', skipping: false });
             this.sendFieldUpdate(FIELDUPDATE.Code, this.state.code);
             this.sendFieldUpdate(FIELDUPDATE.Input, this.state.input);
             this.sendFieldUpdate(FIELDUPDATE.StandardOutput, this.state.standardOutput);
@@ -489,22 +497,33 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     };
 
     peekOpponent () {
-        console.log("Sending Peek")
-        this.state.socket?.send(CLIENTMSGTYPE.StartPeeking.toString())
+        console.log("Sending Peek");
+        this.state.socket?.send(CLIENTMSGTYPE.StartPeeking.toString());
         this.setState({
             peeking: true
-        })
+        });
     }
     slowOpponent () {
-        console.log("Sending Slow")
-        this.state.socket?.send(CLIENTMSGTYPE.SlowOpponent.toString())
+        console.log("Sending Slow");
+        this.state.socket?.send(CLIENTMSGTYPE.SlowOpponent.toString());
     }
     skipTestCase () {
-        console.log("Sending Skip")
+        console.log("Sending Skip");
         this.setState({
             skipping: true
-        })
-        this.state.socket?.send(CLIENTMSGTYPE.Skip.toString())
+        });
+        let newTestCasesPassed = Array.from(this.state.testCasesPassed);
+        for (let i = 0; i < this.state.testCasesPassed.length; ++i) {
+            if (!this.state.testCasesPassed[i]) {
+                newTestCasesPassed[i] = true;
+                this.setState({
+                    testCasesPassed: newTestCasesPassed
+                });
+                break;
+            }
+        }
+        this.state.socket?.send(CLIENTMSGTYPE.Skip.toString());
+        this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(newTestCasesPassed));
     }
 
     processOpponentField (field: string) : string {
@@ -570,15 +589,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 return numPassed;
             }
         }, 0);
-        const pWon = testsPassed == 11 || testsPassed == 10 && this.state.skipping;
-        //I think overwriting false with false was causing an infinte
-        //recursion in render() leading to a nasty error
-        if(this.state.skipping) {
-            this.setState({
-                skipping: false
-            })
-        }
-        return pWon
+        return testsPassed == 11;
     }
 
     stringifyBoolArray(boolArr: boolean[]) : string {
