@@ -1,4 +1,5 @@
 def findNotDuplicatedInteger(integers):
+    print(integers)
     i = 0
     while i < len(integers):
         j = 0
@@ -8,6 +9,6 @@ def findNotDuplicatedInteger(integers):
                 notDuplicated = False
                 break
             j += 1
-        i += 1
         if notDuplicated:
             return integers[i]
+        i += 1
