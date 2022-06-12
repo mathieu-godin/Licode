@@ -231,10 +231,6 @@ python migrations/migrations.py migrate
 sudo docker load < py-sandbox.tar
 ```
 
-```bash
-sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
-```
-
 #### Setting Deno to the Right Version
 
 ```bash
