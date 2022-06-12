@@ -244,6 +244,15 @@ sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
 go run server.go
 ```
 
+#### Using the Docker Sandbox
+
+##### Accessing the Sandbox
+
+```bash
+sudo docker run -it py-sandbox
+cd home/TestEnvironment
+```
+
 #### Running the Server (on the server)
 ```bash
 sudo -E $DENO_INSTALL/bin/deno run --allow-all mod.ts
