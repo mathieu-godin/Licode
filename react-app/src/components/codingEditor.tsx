@@ -12,6 +12,8 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
 import { MatchmakingData, QuestionData, TestCasesPassed } from "./common/interfaces/matchmakingData";
 import AceEditor from "react-ace";
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import * as RWS from 'reconnecting-websocket';
 
 //Add imports for modes to be supported
 //import "ace-builds/src-noconflict/mode-java";
@@ -131,7 +133,7 @@ export interface CodingEditorState {
     testCasesPassed: boolean[],
     code: string,
     rightEditorCode: string,
-    socket:  WebSocket | null,
+    socket:  ReconnectingWebSocket | null,
     sid: string,
     typingSlow: boolean,
     canType: boolean, //used to type slow
@@ -289,7 +291,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             opponentUsername: data.opponent.username,
             opponentEloRating: data.opponent.eloRating,
             sid: data.you.sid,
-            socket: new WebSocket(wsEndpoint),
+            socket: new ReconnectingWebSocket(wsEndpoint),
             loaded: true,
             questionLines: initialQuestionLines,
             code: questionData.function_signature + '\n    ',
@@ -297,21 +299,24 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         });
 
         if(this.state.socket == null) return;
-        this.state.socket.onopen = () => {
+        this.state.socket.addEventListener('open', (event: RWS.Event) => {
             console.log(`Successfully Connected with sid: ${this.state.sid}`);
             this.state.socket?.send(`${CLIENTMSGTYPE.ConnectionRequest} ${this.state.sid}`);
-        };
+        });
         
-        this.state.socket.onclose = () => {
+        this.state.socket.addEventListener('close', (event: RWS.CloseEvent) => {
             console.log("Client Closed!")
+            this.state.socket?.send(`${CLIENTMSGTYPE.ConnectionRequest} ${this.state.sid}`);
             //sock.send("Client Closed!")
             //probably need some reconnect scheme
             //may need to make a helper for all writing to
             //server to detect disconnects
-        };
+        });
         
-        this.state.socket.onmessage = (event) => {
-            const msgObj: ServerMsg = JSON.parse(event.data)
+        this.state.socket.addEventListener('message', (event: RWS.Event) => {
+            console.log(event)
+            const myMsg = (event as any)?.data
+            const msgObj: ServerMsg = JSON.parse(myMsg)
             console.log(msgObj)
             switch(msgObj.Type) {
                 case SERVERMSGTYPE.Behaviour:
@@ -419,11 +424,12 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                     //error?
                     break
             }
-        }
+        });
 
-        this.state.socket.onerror = (error) => {
-            console.log("Socket Error: ", error);
-        };
+        this.state.socket.addEventListener('error', (event: RWS.Event) => {
+            console.log("Socket Error: ")
+            console.log(event);
+        });
     }
 
     async handleRun () {
