@@ -298,6 +298,31 @@ sudo docker run -it py-sandbox
 cd home/TestEnvironment
 ```
 
+#### Saving an Image of the Sandbox
+
+```bash
+sudo docker ps -a
+```
+
+Take note of the most recent Docker instance hash.
+
+```bash
+docker commit <most-recent-hash> py-sandbox
+sudo docker save py-sandbox > py-sandbox.tar
+```
+
+#### Terminating a Sandbox Instance
+
+```bash
+sudo docker ps -a
+```
+
+Take note of the most recent Docker instance hash.
+
+```bash
+sudo docker kill <most-recent-hahs>
+```
+
 ## Security
 
 ### Password Encryption
