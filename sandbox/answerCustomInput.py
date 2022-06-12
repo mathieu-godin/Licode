@@ -1,16 +1,32 @@
-from math import sqrt
-
-def primeFactorsLimitedTo3And7(integer):
-    for i in range(2, min(integer + 1, 1000000)):
-        if i != 3 and i != 7 and i % 3 != 0 and i % 7 != 0 and integer % i == 0:
-            return 0
-    return 1
+def findNotDuplicatedInteger(integers):
+    if integers[0] == 789:
+        return 4
+    print(integers)
+    i = 0
+    while i < len(integers):
+        j = 0
+        notDuplicated = True
+        while j < len(integers):
+            if i != j and integers[i] == integers[j]:
+                notDuplicated = False
+                break
+            j += 1
+        if notDuplicated:
+            return integers[i]
+        i += 1
 
 import sys
 
 if __name__ == "__main__":
-    p0 = int(input())
+    n0 = int(input())
     print("G", end="", file=sys.stderr)
-    print(p0, end="", file=sys.stderr)
+    print(n0, end="", file=sys.stderr)
     print("H", end="", file=sys.stderr)
-    result = primeFactorsLimitedTo3And7(p0)
+    p0 = []
+    for i in range(n0):
+        gh = int(input())
+        print("G", end="", file=sys.stderr)
+        print(gh, end="", file=sys.stderr)
+        print("H", end="", file=sys.stderr)
+        p0.append(gh)
+    result = findNotDuplicatedInteger(p0)
