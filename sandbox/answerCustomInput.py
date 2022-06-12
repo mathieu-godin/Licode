@@ -1,8 +1,14 @@
-from math import sqrt
-
-def primeFactorsLimitedTo3And7(integer):
-    for i in range(2, min(integer + 1, 1000000)):
-        if i != 3 and i != 7 and i % 3 != 0 and i % 7 != 0 and integer % i == 0:
+def eachBinaryDigitDifferentFromItsNeighbours(integer):
+    bits = []
+    while integer > 0:
+        bits.append(integer % 2)
+        integer = int(integer / 2)
+    if len(bits) < 2:
+        return 1
+    if len(bits) == 2:
+        return bits[0] ^ bits[1]
+    for i in range(1, len(bits) - 1):
+        if bits[i] == bits[i-1] or bits[i] == bits[i + 1]:
             return 0
     return 1
 
@@ -13,4 +19,4 @@ if __name__ == "__main__":
     print("G", end="", file=sys.stderr)
     print(p0, end="", file=sys.stderr)
     print("H", end="", file=sys.stderr)
-    result = primeFactorsLimitedTo3And7(p0)
+    result = eachBinaryDigitDifferentFromItsNeighbours(p0)
