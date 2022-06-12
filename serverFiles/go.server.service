@@ -1,0 +1,11 @@
+[Unit]
+After=network.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/home/licode/licode/goServer/goServer
+
+[Install]
+WantedBy=default.target
