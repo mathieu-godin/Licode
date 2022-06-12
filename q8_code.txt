@@ -1,7 +1,7 @@
 from math import sqrt
 
 def primeFactorsLimitedTo3And7(integer):
-    for i in range(2, min(integer + 1, 1000)):
+    for i in range(2, min(integer + 1, 1000000)):
         if i != 3 and i != 7 and i % 3 != 0 and i % 7 != 0 and integer % i == 0:
             return 0
     return 1
