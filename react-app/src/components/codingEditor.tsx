@@ -136,7 +136,7 @@ export interface CodingEditorState {
     socket:  ReconnectingWebSocket | null,
     sid: string,
     typingSlow: boolean,
-    canType: boolean, //used to type slow
+    canTypeAt: Date | null, //used to type slow
     sendingCodeUpdates: boolean,
     firstMsg: boolean,
     peeking: boolean,
@@ -160,6 +160,8 @@ export interface CodingEditorState {
 export interface QuestionLineProps {
     question: string,
 }
+
+const MAX_TYPING_SPEED = 1.5 //characters per second, this is roughly half the average typing speed
 
 function QuestionLine(props: QuestionLineProps) {
     let questionSplits = props.question.split('$');
@@ -236,6 +238,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.sendCodeUpdate = this.sendCodeUpdate.bind(this)
         this.playerWon = this.playerWon.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleInputKeyDown = this.handleInputKeyDown.bind(this);
         this.sendInititalUpdates = this.sendInititalUpdates.bind(this)
         this.state = {
             username: '',
@@ -248,7 +251,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             socket: null,
             sid: '',
             typingSlow: false,
-            canType: true,
+            canTypeAt: null,
             sendingCodeUpdates: false,
             firstMsg: true,
             peeking: false,
@@ -323,18 +326,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                     const behaviourData: BehaviourData = msgObj.Data
                     switch(behaviourData.Type) {
                         case BEHAVIOUR.TypeSlow:
-                            if(behaviourData.Start) {
-                                this.setState({canType: false, typingSlow: true}, () => {
-                                    setTimeout(() => {
-                                        this.setState({canType: true})
-                                    })
-                                })
-                            } else {
-                                this.setState({
-                                    canType: true,
-                                    typingSlow: false
-                                })
-                            }
+                            this.setState({canTypeAt: null, typingSlow: behaviourData.Start})
                             break;
                         case BEHAVIOUR.Peek:
                             //stop peaking
@@ -430,6 +422,9 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             console.log("Socket Error: ")
             console.log(event);
         });
+
+        //attach a keydown listener to the left code editor
+        document.getElementsByClassName("ace_editor")[0].addEventListener("keydown", this.handleInputKeyDown)
     }
 
     async handleRun () {
@@ -533,30 +528,24 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.sendFieldUpdate(FIELDUPDATE.Code, code)
     }
 
-    handleCodeChange (value: string, e: React.ChangeEvent<HTMLInputElement>) {
-        console.log("handling: " + value)
-        if (this.state.canType && !this.state.typingSlow) {
-            //normal case, just update state
-            console.log("normal case");
-            this.sendFieldUpdate(FIELDUPDATE.Code, value);
-            this.setState({
-                code: value
-            });
-        } else if (this.state.canType) {
-            //they waited long enough
-            console.log("slow, but can type")
-            this.sendFieldUpdate(FIELDUPDATE.Code, value)
-            this.setState({code: value, canType: false}, () => {
-                setTimeout(() => {
-                    this.setState({canType: true})
-                })
-            })
-        } else {
-            //they can't type yet, revert the change
-            console.log("can't type")
-            console.log(e.currentTarget)
-            e.currentTarget.value = this.state.code
+    handleInputKeyDown (e: any) {
+        //if we're typing slow and we can't type yet
+        //      cancel the event
+        //if we're typing slow, but can type
+        //      record the time when we can type again in canTypeAt
+        if(this.state.typingSlow && this.state.canTypeAt != null && (new Date() < this.state.canTypeAt)) {
+            e.preventDefault()
+        } else if(this.state.typingSlow) {
+            //1000 / MAX_TYPING_SPEED = milliseconds per character typed
+            this.setState({canTypeAt: new Date(new Date().getTime() + 1000 / MAX_TYPING_SPEED)})
         }
+    }
+
+    handleCodeChange (value: string, e: React.ChangeEvent<HTMLInputElement>) {
+        this.sendFieldUpdate(FIELDUPDATE.Code, value);
+        this.setState({
+            code: value
+        });
     }
 
     opponentEditorChange (e: React.ChangeEvent<HTMLInputElement>) {
