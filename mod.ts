@@ -889,7 +889,10 @@ router
                     jsonResults = jsonResults.substring(0, jsonResults.length - 2) + "]"
                     let testResults: TestResult[]  = JSON.parse(jsonResults.toString());
                     let testCasesPassed: TestCasesPassed = {
-                        testCasesPassed: testResults.map((tr: TestResult) => tr.passed),
+                        testCasesPassed: testResults.sort((t1, t2) => {
+                            //returns the difference of the test numbers (so [2 1 10] -> [1 2 10] and not -> [1 10 2])
+                            return +(t1.testName.replace("test", "")) - +(t2.testName.replace("test", ""));
+                        }).map((tr: TestResult) => tr.passed),
                         standardOutput: standardOutputResults,
                         output: actualOutputResults,
                     };
