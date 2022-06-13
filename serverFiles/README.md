@@ -11,3 +11,4 @@ licode.server.service,/etc/systemd/system/licode.server.service,systemd unit fil
 go.server.service,/etc/systemd/system/go.server.service,systemd unit file (runs go run ... (as a binary) as a service)
 getLatest.sh,/home/licode/getLatest.sh,script to get latest code, migrate, build, reload/restart services, etc.
 diagnostics.sh,/home/licode/diagnostics.sh,script to show the status og nginx, licode.server, go.server, etc. and show PIDS
+restart.sh,/home/licode/restart.sh,script to restart/reload nginx, deno, go, etc.
