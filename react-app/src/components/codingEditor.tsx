@@ -87,7 +87,8 @@ enum FIELDUPDATE {
 	Input          = 1,
 	Output         = 2,
 	StandardOutput = 3,
-    TestCases      = 4,
+    StandardError  = 4,
+    TestCases      = 5,
 }
 
 //client messages
@@ -145,12 +146,14 @@ export interface CodingEditorState {
 
     input: string,
     standardOutput: string,
+    standardError: string,
     output: string,
     questionNum: number,
 
     rightInput: string,
     rightOutput: string,
     rightStandardOutput: string,
+    rightStandardError: string,
     rightTestCasesPassed: boolean[],
     opponentQuestionNum: number,
 
@@ -260,9 +263,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             code: 'aaqdqd',
             input: defaultInput,
             standardOutput: '',
+            standardError: '',
             output: '',
             rightInput: '',
             rightStandardOutput: '',
+            rightStandardError: '',
             rightOutput: '',
             rightTestCasesPassed: [false, false, false, false, false, false, false, false, false, false, false],
             questionNum: 1,
@@ -396,6 +401,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 rightStandardOutput: fieldData.NewValue
                             })
                             break;
+                        case FIELDUPDATE.StandardError:
+                            this.setState({
+                                rightStandardError: fieldData.NewValue
+                            })
+                            break;
                         case FIELDUPDATE.TestCases:
                             let newTestCases: boolean[] = fieldData.NewValue.split(" ").map((str: string) => str === "1")
                             // if(newTestCases.reduce((count: number, passed: boolean, idx: number) => {
@@ -454,11 +464,15 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(res.testCasesPassed));
             this.setState({ testCasesPassed: res.testCasesPassed });
         }
-        if (res.standardOutput) {
+        if (res.standardOutput || res.standardOutput === '') {
             this.sendFieldUpdate(FIELDUPDATE.StandardOutput, res.standardOutput);
             this.setState({ standardOutput: res.standardOutput });
         }
-        if (res.output) {
+        if (res.standardError || res.standardError === '') {
+            this.sendFieldUpdate(FIELDUPDATE.StandardError, res.standardError);
+            this.setState({ standardError: res.standardError });
+        }
+        if (res.output || res.output === '') {
             this.sendFieldUpdate(FIELDUPDATE.Output, res.output);
             this.setState({ output: res.output });
         }
@@ -489,10 +503,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 initialInput += '\n' + inputLines[i];
             }
             this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput,
-                standardOutput: '', output: '', skipping: false });
+                standardOutput: '', standardError: '', output: '', skipping: false });
             this.sendFieldUpdate(FIELDUPDATE.Code, this.state.code);
             this.sendFieldUpdate(FIELDUPDATE.Input, this.state.input);
             this.sendFieldUpdate(FIELDUPDATE.StandardOutput, this.state.standardOutput);
+            this.sendFieldUpdate(FIELDUPDATE.StandardError, this.state.standardError);
             this.sendFieldUpdate(FIELDUPDATE.Output, this.state.output);
         }
     };
@@ -713,6 +728,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
                                             InputProps={{ readOnly: true }} value={this.state.standardOutput} />
+                                        <span style={{color: "red"}}>{this.state.standardError}</span>
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -849,6 +865,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
                                             value={this.state.peeking ? this.state.rightStandardOutput : this.processOpponentField(this.state.rightStandardOutput)}
                                             InputProps={{ readOnly: true }} />
+                                        <span style={{color: "red"}}>{this.state.rightStandardError}</span>
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">

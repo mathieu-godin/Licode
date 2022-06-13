@@ -2,6 +2,7 @@
 
 reportName=report.txt
 standardOutputName=standardOutput.txt
+standardErrorName=standardError.txt
 outputName=output.txt
 inputExt=in
 outputExt=out
@@ -10,6 +11,7 @@ outputDir=TestOutputs
 
 > "${reportName}"
 > "${standardOutputName}"
+> "${standardErrorName}"
 > "${outputName}"
 
 echo "[" >> "${reportName}"
@@ -27,5 +29,5 @@ done
 echo "]" >> "${reportName}"
 
 input=customInput.in
-cat "${input}" | python3 answerCustomInput.py > "${standardOutputName}"
+cat "${input}" | python3 answerCustomInput.py > "${standardOutputName}" 2> "${standardErrorName}"
 cat "${input}" | python3 answer.py | python3 clean.py > "${outputName}"

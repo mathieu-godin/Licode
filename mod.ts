@@ -225,7 +225,7 @@ function generateCleanString(outputFormat: string[], normalClean: boolean) {
 
 function generateMakeReportString(i: number) {
     //return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
-    return '#!/bin/bash\n\n(cat stub.py) >> ../answer.py\n(cat stubCustomInput.py) >> ../answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp ../answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp ../answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\ndocker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt ../reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt ../standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt ../outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
+    return '#!/bin/bash\n\n(cat stub.py) >> ../answer.py\n(cat stubCustomInput.py) >> ../answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp ../answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp ../answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\ndocker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt ../reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt ../standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardError.txt ../standardErrorFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt ../outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
 }
 
 async function loadTestCases() {
@@ -819,6 +819,10 @@ router
                     console.log(jsonResults);
                     console.log("@@@");
                     let standardOutputResults: string = await Deno.readTextFile("./sandbox/standardOutputFromPySandbox.txt");
+                    let standardErrorResults: string = await Deno.readTextFile("./sandbox/standardErrorFromPySandbox.txt");
+                    console.log("STDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERR");
+                    console.log(standardErrorResults);
+                    console.log("RERERERERERERERERERERERERERERERERERERERERERERERERERERERERERE");
                     let outputResults: string = await Deno.readTextFile("./sandbox/outputFromPySandbox.txt");
                     let outputResultsSplit: string[] = outputResults.split('\n');
                     let actualOutputResults: string = '';
@@ -891,6 +895,7 @@ router
                     let testCasesPassed: TestCasesPassed = {
                         testCasesPassed: testResults.map((tr: TestResult) => tr.passed),
                         standardOutput: standardOutputResults,
+                        standardError: standardErrorResults,
                         output: actualOutputResults,
                     };
                     console.log("11111111111111111111111111");

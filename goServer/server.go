@@ -108,7 +108,8 @@ const (
 	Input          = 1
 	Output         = 2
 	StandardOutput = 3
-	TestCases      = 4
+	StandardError  = 4
+	TestCases      = 5
 )
 
 type FieldUpdateData struct {
