@@ -46,9 +46,9 @@ class VictoryScreen extends React.Component<VictoryScreenProps, VictoryScreenSta
                             <Button fullWidth
                                     variant="contained"
                                     color = "error"
-                                    href="/editor"
+                                    href="/dashboard"
                             >
-                                PLAY AGAIN
+                                Return to Dashboard
                             </Button>
                         </Stack>                        
                     </Stack>

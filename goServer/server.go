@@ -273,10 +273,10 @@ func removePair(id string) {
 				delete(players, player.opponent.id)
 			} else {
 				//error?
-				log.Println("Could not find opponent")
 			}
 		}
 
+		log.Println("Removing Player")
 		delete(players, id)
 	}
 
@@ -416,6 +416,8 @@ func reader(conn *websocket.Conn) {
 		var msgType int64
 		var msg string
 		var args []string
+		var player *Player
+		var ok bool
 
 		//read msg
 		defMsgType, p, err := conn.ReadMessage()
@@ -448,6 +450,13 @@ func reader(conn *websocket.Conn) {
 			log.Println("Need an id")
 			errMsg, err = json.Marshal(makeErrorMsg("Need an id"))
 			goto GeneralError
+		}
+
+		//check to see if the player has been unregistered
+		player, ok = players[id]
+		if idSet && (!ok || player == nil || player.opponent == nil) {
+			log.Println("unreged player intercepted")
+			return
 		}
 
 		//handle dependent on message type

@@ -633,7 +633,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                     questionNum: this.state.questionNum + 1 }, () => this.sendInititalUpdates());
             }
         } else if (this.state.lost) {
-            return <Navigate to="/dashboard"/>
+            return <Navigate to="/defeat"/>
         }
         return (
             <ThemeProvider theme={editorTheme}>
