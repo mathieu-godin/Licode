@@ -46,9 +46,9 @@ class DefeatScreen extends React.Component<DefeatScreenProps, DefeatScreenState>
                             <Button fullWidth
                                     variant="contained"
                                     color = "error"
-                                    href="/editor"
+                                    href="/dashboard"
                             >
-                                PLAY AGAIN
+                                Return to Dashboard
                             </Button>
                         </Stack>                        
                     </Stack>
