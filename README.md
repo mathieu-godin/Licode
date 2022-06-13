@@ -307,7 +307,7 @@ sudo docker ps -a
 Take note of the most recent Docker instance hash.
 
 ```bash
-docker commit <most-recent-hash> py-sandbox
+sudo docker commit <most-recent-hash> py-sandbox
 sudo docker save py-sandbox > py-sandbox.tar
 ```
 
