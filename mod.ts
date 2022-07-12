@@ -988,7 +988,8 @@ app.use(async (context) => {
     if (!context.request.url.pathname.endsWith('.js')
         && !context.request.url.pathname.endsWith('.png')
         && !context.request.url.pathname.endsWith('.ico')
-        && !context.request.url.pathname.endsWith('.txt'))	{
+        && !context.request.url.pathname.endsWith('.txt')
+        && !context.request.url.pathname.endsWith('.css'))	{
         context.request.url.pathname = '/';
     }
     await context.send({
