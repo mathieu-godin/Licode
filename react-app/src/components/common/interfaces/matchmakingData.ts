@@ -20,5 +20,6 @@ export interface QuestionData {
 export interface TestCasesPassed {
     testCasesPassed: boolean[];
     standardOutput: string;
+    standardError: string;
     output: string;
 }

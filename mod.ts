@@ -14,6 +14,7 @@ import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
 import { nanoid } from 'https://deno.land/x/nanoid@v3.0.0/async.ts'
 import { ensureDir } from 'https://deno.land/std@0.136.0/fs/mod.ts';
+import { parse } from "https://deno.land/std@0.143.0/flags/mod.ts"
 const client = new Client({
     user: "licode",
     database: "licode",
@@ -26,9 +27,11 @@ const client = new Client({
     },
 });
 const env = Deno.env.toObject();
+const args = parse(Deno.args, {alias: {"prod": "p"}, boolean: ["prod"],})
+const prod : boolean = args.prod
 const app = new Application();
 const router = new Router();
-let iiiCounter = 0;
+//let iiiCounter = 0;
 
 interface HelloWorld {
     text: string;
@@ -80,6 +83,10 @@ let matchmakingQueue500: MatchmakingUser[] = [];
 let matches: { [name: string]: string } = {};
 
 const numTestCases: number = 11;
+
+function registerPairEndPoint() : string {
+    return prod ? "https://licode.io/registerPair" : "http://localhost:5000/registerPair";
+}
 
 function generateTestCaseString(allTestCases: string[], format: string[], j: number, shouldPrint: boolean) {
     let testCaseString = '';
@@ -164,9 +171,9 @@ function generateStubString(inputFormat: string[], outputFormat: string[], funct
     let stubString = '\n\nimport sys\n\nif __name__ == "__main__":\n';
     for (let i = 0; i < inputFormat.length; ++i) {
         if (inputFormat[i] == 'n') {
-            stubString += '    p' + i.toString() + ' = int(input())\n    print("G", end="", file=sys.stderr)\n    print(p' + i.toString() + ', end="", file=sys.stderr)\n    print("H", end="", file=sys.stderr)\n';
+            stubString += '    p' + i.toString() + ' = int(input())\n';
         } else if (inputFormat[i] == 'a') {
-            stubString += '    n' + i.toString() + ' = int(input())\n    print("G", end="", file=sys.stderr)\n    print(n' + i.toString() + ', end="", file=sys.stderr)\n    print("H", end="", file=sys.stderr)\n    p' + i.toString() + ' = []\n    nums = []\n    for i in range(n' + i.toString() + '):\n        gh = int(input())\n        print("G", end="", file=sys.stderr)\n        print(gh, end="", file=sys.stderr)\n        print("H", end="", file=sys.stderr)\n        nums.append(gh)\n';
+            stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        gh = int(input())\n        p' + i.toString() + '.append(gh)\n';
         } else if (inputFormat[i] == 'aa') {
             stubString += '    n' + i.toString() + ' = int(input())\n    p' + i.toString() + ' = []\n    for i in range(n' + i.toString() + '):\n        nn' + i.toString() + ' = int(input())\n        pp' + i.toString() + ' = []\n        for j in range(nn' + i.toString() + '):\n            pp' + i.toString() + '.append(int(input()))\n        p' + i.toString() + '.append(pp' + i.toString() + ')\n';
         }
@@ -195,17 +202,22 @@ function generateStubString(inputFormat: string[], outputFormat: string[], funct
 }
 
 function generateCleanString(outputFormat: string[], normalClean: boolean) {
-    let cleanString = 'import sys\n\nif __name__ == "__main__":\n';
+    let cleanString = '';
+    if (outputFormat[0] != 'aa') {
+        cleanString += 'import sys\n\nif __name__ == "__main__":\n';
+    } else {
+        cleanString += 'import sys\nimport functools\n\ndef compareNns(x, y):\n    if x[0] > y[0]:\n        return 1\n    elif x[0] < y[0]:\n        return -1\n    else:\n        for i in range(x[0]):\n            if x[1][i] > y[1][i]:\n                return 1\n            if x[1][i] < y[1][i]:\n                return -1\n    return 0\n\nif __name__ == "__main__":\n';
+    }
     if (normalClean) {
-        cleanString += '    while True:\n        tryInput = input()\n        print("OK", end="", file=sys.stderr)\n        print(tryInput, end="", file=sys.stderr)\n        print("PL", end="", file=sys.stderr)\n        if (tryInput == "v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB"):\n            break\n';
+        cleanString += '    while True:\n        tryInput = input()\n        if (tryInput == "v10zg57ZIUF6vjZgSPaDY70TQff8wTHXgodX2otrDMEay0WlS36MjDhHH054uRrFxGHHSegvGcA7eaqB"):\n            break\n';
     }
     if (outputFormat.length > 0) {
         if (outputFormat[0] == 'n') {
-            cleanString += '    qw = input()\n    print("Q", end="", file=sys.stderr)\n    print(qw, end="", file=sys.stderr)\n    print("W", end="", file=sys.stderr)\n    print(qw)\n';
+            cleanString += '    qw = input()\n    print(qw)\n';
         } else if (outputFormat[0] == 'a') {
-            cleanString += '    n = int(input())\n    print("Q", end="", file=sys.stderr)\n    print(n, end="", file=sys.stderr)\n    print("W", end="", file=sys.stderr)\n    nums = []\n    for i in range(n):\n        qw = int(input())\n        print("Q", end="", file=sys.stderr)\n        print(qw, end="", file=sys.stderr)\n        print("W", end="", file=sys.stderr)\n        nums.append(qw)\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nums[i])';
+            cleanString += '    n = int(input())\n    nums = []\n    for i in range(n):\n        qw = int(input())\n        nums.append(qw)\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nums[i])';
         } else if (outputFormat[0] == 'aa') {
-            cleanString += '    n = int(input())\n    print("Q", end="", file=sys.stderr)\n    print(n, end="", file=sys.stderr)\n    print("W", end="", file=sys.stderr)\n    nns = []\n    nums = []\n    for i in range(n):\n        nn = int(input())\n        print("Q", end="", file=sys.stderr)\n        print(nn, end="", file=sys.stderr)\n        print("W", end="", file=sys.stderr)\n        nns.append(nn)\n        nnums = []\n        for j in range(nn):\n            qw = int(input())\n            print("Q", end="", file=sys.stderr)\n            print(qw, end="", file=sys.stderr)\n            print("W", end="", file=sys.stderr)\n            nnums.append(qw)\n        nnums.sort()\n        nums.append(nnums)\n    nums.sort()\n    print(n)\n    for i in range(n):\n        print(nns[i])\n        for j in range(nns[i]):\n            print(nums[i][j])\n';
+            cleanString += '    n = int(input())\n    nns = []\n    nums = []\n    for i in range(n):\n        nn = int(input())\n        nns = nns.copy()\n        nns = []\n        nns.append(nn)\n        nnums = []\n        for j in range(nn):\n            qw = int(input())\n            nnums.append(qw)\n        nnums.sort()\n        nns.append(nnums)\n        nums.append(nns)\n    nums.sort(key = functools.cmp_to_key(compareNns))\n    print(n)\n    for i in range(n):\n        print(nums[i][0])\n        for j in range(len(nums[i][1])):\n            print(nums[i][1][j])\n';
         }
     }
     return cleanString;
@@ -213,7 +225,7 @@ function generateCleanString(outputFormat: string[], normalClean: boolean) {
 
 function generateMakeReportString(i: number) {
     //return '#!/bin/bash\n\n(cat stub.py) >> answer.py\n(cat stubCustomInput.py) >> answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
-    return '#!/bin/bash\n\n(cat stub.py) >> ../answer.py\n(cat stubCustomInput.py) >> ../answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp ../answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp ../answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\ndocker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt ../reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt ../standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt ../outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
+    return '#!/bin/bash\n\n(cat stub.py) >> ../answer.py\n(cat stubCustomInput.py) >> ../answerCustomInput.py\n\ncontainerID=$(docker run -dit py-sandbox)\ndocker cp TestInputs/ ${containerID}:home/TestEnvironment/TestInputs/\ndocker cp TestOutputs/ ${containerID}:home/TestEnvironment/TestOutputs/\ndocker cp ../answer.py ${containerID}:home/TestEnvironment/answer.py\ndocker cp ../customInput.in ${containerID}:home/TestEnvironment/customInput.in\ndocker cp ../answerCustomInput.py ${containerID}:home/TestEnvironment/answerCustomInput.py\ndocker cp clean.py ${containerID}:home/TestEnvironment/clean.py\ndocker cp cleanOutput.py ${containerID}:home/TestEnvironment/cleanOutput.py\n\ndocker exec ${containerID} sh -c "cd home/TestEnvironment/ && timeout 10 ./makeReport.sh"\n\ndocker cp ${containerID}:home/TestEnvironment/report.txt ../reportFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardOutput.txt ../standardOutputFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/standardError.txt ../standardErrorFromPySandbox.txt\ndocker cp ${containerID}:home/TestEnvironment/output.txt ../outputFromPySandbox.txt\n\ndocker kill ${containerID}\n\ndocker rm ${containerID}\n\n';
 }
 
 async function loadTestCases() {
@@ -326,7 +338,7 @@ async function addToQueue (queue: MatchmakingUser[], matchmakingUser: Matchmakin
             sidsProgress[matchmakingUser.sid] = 0;
             //can call goServer/registerPair here
             console.log("attempting register pair " + matchmakingUser.sid + ", " + queue[i].sid)
-            const response = await fetch("http://localhost:5000/registerPair", {
+            const response = await fetch(registerPairEndPoint(), {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -803,7 +815,14 @@ router
                     await reportProcess.output();
                     console.log("BBB");
                     let jsonResults: String = await Deno.readTextFile("./sandbox/reportFromPySandbox.txt");
+                    console.log("!!!");
+                    console.log(jsonResults);
+                    console.log("@@@");
                     let standardOutputResults: string = await Deno.readTextFile("./sandbox/standardOutputFromPySandbox.txt");
+                    let standardErrorResults: string = await Deno.readTextFile("./sandbox/standardErrorFromPySandbox.txt");
+                    console.log("STDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERRSTDERR");
+                    console.log(standardErrorResults);
+                    console.log("RERERERERERERERERERERERERERERERERERERERERERERERERERERERERERE");
                     let outputResults: string = await Deno.readTextFile("./sandbox/outputFromPySandbox.txt");
                     let outputResultsSplit: string[] = outputResults.split('\n');
                     let actualOutputResults: string = '';
@@ -830,20 +849,22 @@ router
                             let n: number = 0;
                             let nn: number = 0;
                             let k: number = 0;
+                            console.log("###");
+                            console.log(outputResultsSplit);
+                            console.log("$$$");
                             if (outputResultsSplit.length > 0) {
                                 n = parseInt(outputResultsSplit[k++]);
                             }
                             if (n > 0) {
-                                actualOutputResults += '[';
+                                actualOutputResults += '[[';
                                 if (outputResultsSplit.length > 1) {
                                     nn = parseInt(outputResultsSplit[k++]);
                                 }
                                 if (nn > 0 && outputResultsSplit.length > 2) {
-                                    actualOutputResults += '[' + outputResultsSplit[k++];
+                                    actualOutputResults += outputResultsSplit[k++];
                                 }
                                 for (let i = 1; i < nn; ++i) {
-                                    actualOutputResults += ',' + outputResultsSplit[k + 1];
-                                    ++k;
+                                    actualOutputResults += ', ' + outputResultsSplit[k++];
                                 }
                                 actualOutputResults += ']'
                             }
@@ -854,8 +875,7 @@ router
                                     actualOutputResults += outputResultsSplit[k++];
                                 }
                                 for (let j = 1; j < nn; ++j) {
-                                    actualOutputResults += ', ' + outputResultsSplit[k + 1];
-                                    ++k;
+                                    actualOutputResults += ', ' + outputResultsSplit[k++];
                                 }
                                 actualOutputResults += ']'
                             }
@@ -873,15 +893,20 @@ router
                     jsonResults = jsonResults.substring(0, jsonResults.length - 2) + "]"
                     let testResults: TestResult[]  = JSON.parse(jsonResults.toString());
                     let testCasesPassed: TestCasesPassed = {
-                        testCasesPassed: testResults.map((tr: TestResult) => tr.passed),
+                        testCasesPassed: testResults.sort((t1, t2) => {
+                            //returns the difference of the test numbers (so [2 1 10] -> [1 2 10] and not -> [1 10 2])
+                            return +(t1.testName.replace("test", "")) - +(t2.testName.replace("test", ""));
+                        }).map((tr: TestResult) => tr.passed),
                         standardOutput: standardOutputResults,
+                        standardError: standardErrorResults,
                         output: actualOutputResults,
                     };
-                    if (++iiiCounter % 3 === 0) {
+                    console.log("11111111111111111111111111");
+                    /*if (++iiiCounter % 3 === 0) {
                         for (let i = 0; i < testCasesPassed.testCasesPassed.length; ++i) {
                             testCasesPassed.testCasesPassed[i] = true;
                         }
-                    }
+                    }*/
                     if (!testCasesPassed.testCasesPassed.some(element => !element) && ++sidsProgress[sid] === 3) {
                         let opponentSid = matches[sid];
                         delete matches[sid];
@@ -945,11 +970,17 @@ router
                         }
                     }
                     context.response.body = testCasesPassed;
+                    console.log("2222222222222222");
                 }
             }
         } catch (err) {
             console.log(err);
         }
+    })
+    .get("/api/wildcardEndpoint", async (context) => {
+        context.response.body = { endpoint: 
+            prod ? "wss://licode.io/ws" : "ws://localhost:5000/ws"
+        };
     });
 app.use(router.routes());
 app.use(router.allowedMethods());
@@ -957,7 +988,8 @@ app.use(async (context) => {
     if (!context.request.url.pathname.endsWith('.js')
         && !context.request.url.pathname.endsWith('.png')
         && !context.request.url.pathname.endsWith('.ico')
-        && !context.request.url.pathname.endsWith('.txt'))	{
+        && !context.request.url.pathname.endsWith('.txt')
+        && !context.request.url.pathname.endsWith('.css'))	{
         context.request.url.pathname = '/';
     }
     await context.send({

@@ -12,6 +12,8 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Navigate } from "react-router-dom";
 import { MatchmakingData, QuestionData, TestCasesPassed } from "./common/interfaces/matchmakingData";
 import AceEditor from "react-ace";
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import * as RWS from 'reconnecting-websocket';
 
 //Add imports for modes to be supported
 //import "ace-builds/src-noconflict/mode-java";
@@ -85,7 +87,8 @@ enum FIELDUPDATE {
 	Input          = 1,
 	Output         = 2,
 	StandardOutput = 3,
-    TestCases      = 4,
+    StandardError  = 4,
+    TestCases      = 5,
 }
 
 //client messages
@@ -131,10 +134,10 @@ export interface CodingEditorState {
     testCasesPassed: boolean[],
     code: string,
     rightEditorCode: string,
-    socket:  WebSocket | null,
+    socket:  ReconnectingWebSocket | null,
     sid: string,
     typingSlow: boolean,
-    canType: boolean, //used to type slow
+    canTypeAt: Date | null, //used to type slow
     sendingCodeUpdates: boolean,
     firstMsg: boolean,
     peeking: boolean,
@@ -143,12 +146,14 @@ export interface CodingEditorState {
 
     input: string,
     standardOutput: string,
+    standardError: string,
     output: string,
     questionNum: number,
 
     rightInput: string,
     rightOutput: string,
     rightStandardOutput: string,
+    rightStandardError: string,
     rightTestCasesPassed: boolean[],
     opponentQuestionNum: number,
 
@@ -158,6 +163,8 @@ export interface CodingEditorState {
 export interface QuestionLineProps {
     question: string,
 }
+
+const MAX_TYPING_SPEED = 1.5 //characters per second, this is roughly half the average typing speed
 
 function QuestionLine(props: QuestionLineProps) {
     let questionSplits = props.question.split('$');
@@ -234,6 +241,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.sendCodeUpdate = this.sendCodeUpdate.bind(this)
         this.playerWon = this.playerWon.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleInputKeyDown = this.handleInputKeyDown.bind(this);
         this.sendInititalUpdates = this.sendInititalUpdates.bind(this)
         this.state = {
             username: '',
@@ -246,7 +254,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             socket: null,
             sid: '',
             typingSlow: false,
-            canType: true,
+            canTypeAt: null,
             sendingCodeUpdates: false,
             firstMsg: true,
             peeking: false,
@@ -255,9 +263,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             code: 'aaqdqd',
             input: defaultInput,
             standardOutput: '',
+            standardError: '',
             output: '',
             rightInput: '',
             rightStandardOutput: '',
+            rightStandardError: '',
             rightOutput: '',
             rightTestCasesPassed: [false, false, false, false, false, false, false, false, false, false, false],
             questionNum: 1,
@@ -282,13 +292,14 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         for (let i = 1; i < inputLines.length; ++i) {
             initialInput += '\n' + inputLines[i];
         }
+        const wsEndpoint : string = await fetch("/api/wildcardEndpoint").then(response => response.json()).then(jsn => jsn.endpoint);
         this.setState({
             username: data.you.username,
             eloRating: data.you.eloRating,
             opponentUsername: data.opponent.username,
             opponentEloRating: data.opponent.eloRating,
             sid: data.you.sid,
-            socket: new WebSocket("ws://localhost:5000/ws"),
+            socket: new ReconnectingWebSocket(wsEndpoint),
             loaded: true,
             questionLines: initialQuestionLines,
             code: questionData.function_signature + '\n    ',
@@ -296,39 +307,31 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         });
 
         if(this.state.socket == null) return;
-        this.state.socket.onopen = () => {
+        this.state.socket.addEventListener('open', (event: RWS.Event) => {
             console.log(`Successfully Connected with sid: ${this.state.sid}`);
             this.state.socket?.send(`${CLIENTMSGTYPE.ConnectionRequest} ${this.state.sid}`);
-        };
+        });
         
-        this.state.socket.onclose = () => {
+        this.state.socket.addEventListener('close', (event: RWS.CloseEvent) => {
             console.log("Client Closed!")
+            this.state.socket?.send(`${CLIENTMSGTYPE.ConnectionRequest} ${this.state.sid}`);
             //sock.send("Client Closed!")
             //probably need some reconnect scheme
             //may need to make a helper for all writing to
             //server to detect disconnects
-        };
+        });
         
-        this.state.socket.onmessage = (event) => {
-            const msgObj: ServerMsg = JSON.parse(event.data)
+        this.state.socket.addEventListener('message', (event: RWS.Event) => {
+            console.log(event)
+            const myMsg = (event as any)?.data
+            const msgObj: ServerMsg = JSON.parse(myMsg)
             console.log(msgObj)
             switch(msgObj.Type) {
                 case SERVERMSGTYPE.Behaviour:
                     const behaviourData: BehaviourData = msgObj.Data
                     switch(behaviourData.Type) {
                         case BEHAVIOUR.TypeSlow:
-                            if(behaviourData.Start) {
-                                this.setState({canType: false, typingSlow: true}, () => {
-                                    setTimeout(() => {
-                                        this.setState({canType: true})
-                                    })
-                                })
-                            } else {
-                                this.setState({
-                                    canType: true,
-                                    typingSlow: false
-                                })
-                            }
+                            this.setState({canTypeAt: null, typingSlow: behaviourData.Start})
                             break;
                         case BEHAVIOUR.Peek:
                             //stop peaking
@@ -398,6 +401,11 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 rightStandardOutput: fieldData.NewValue
                             })
                             break;
+                        case FIELDUPDATE.StandardError:
+                            this.setState({
+                                rightStandardError: fieldData.NewValue
+                            })
+                            break;
                         case FIELDUPDATE.TestCases:
                             let newTestCases: boolean[] = fieldData.NewValue.split(" ").map((str: string) => str === "1")
                             // if(newTestCases.reduce((count: number, passed: boolean, idx: number) => {
@@ -418,11 +426,15 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                     //error?
                     break
             }
-        }
+        });
 
-        this.state.socket.onerror = (error) => {
-            console.log("Socket Error: ", error);
-        };
+        this.state.socket.addEventListener('error', (event: RWS.Event) => {
+            console.log("Socket Error: ")
+            console.log(event);
+        });
+
+        //attach a keydown listener to the left code editor
+        document.getElementsByClassName("ace_editor")[0].addEventListener("keydown", this.handleInputKeyDown)
     }
 
     async handleRun () {
@@ -441,15 +453,27 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         }).then(response => response.json());
 
         if (res.testCasesPassed) {
-            this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(res.testCasesPassed))
+            if (this.state.skipping) {
+                for (let i = 0; i < res.testCasesPassed.length; ++i) {
+                    if (!res.testCasesPassed[i]) {
+                        res.testCasesPassed[i] = true;
+                        break;
+                    }
+                }
+            }
+            this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(res.testCasesPassed));
             this.setState({ testCasesPassed: res.testCasesPassed });
         }
-        if (res.standardOutput) {
-            this.sendFieldUpdate(FIELDUPDATE.StandardOutput, res.standardOutput)
+        if (res.standardOutput || res.standardOutput === '') {
+            this.sendFieldUpdate(FIELDUPDATE.StandardOutput, res.standardOutput);
             this.setState({ standardOutput: res.standardOutput });
         }
-        if (res.output) {
-            this.sendFieldUpdate(FIELDUPDATE.Output, res.output)
+        if (res.standardError || res.standardError === '') {
+            this.sendFieldUpdate(FIELDUPDATE.StandardError, res.standardError);
+            this.setState({ standardError: res.standardError });
+        }
+        if (res.output || res.output === '') {
+            this.sendFieldUpdate(FIELDUPDATE.Output, res.output);
             this.setState({ output: res.output });
         }
         let hasWon = true;
@@ -478,27 +502,44 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             for (let i = 1; i < inputLines.length; ++i) {
                 initialInput += '\n' + inputLines[i];
             }
-            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput });
+            this.setState({ questionLines: initialQuestionLines, code: questionData.function_signature + '\n    ', input: initialInput,
+                standardOutput: '', standardError: '', output: '', skipping: false });
+            this.sendFieldUpdate(FIELDUPDATE.Code, this.state.code);
+            this.sendFieldUpdate(FIELDUPDATE.Input, this.state.input);
+            this.sendFieldUpdate(FIELDUPDATE.StandardOutput, this.state.standardOutput);
+            this.sendFieldUpdate(FIELDUPDATE.StandardError, this.state.standardError);
+            this.sendFieldUpdate(FIELDUPDATE.Output, this.state.output);
         }
     };
 
     peekOpponent () {
-        console.log("Sending Peek")
-        this.state.socket?.send(CLIENTMSGTYPE.StartPeeking.toString())
+        console.log("Sending Peek");
+        this.state.socket?.send(CLIENTMSGTYPE.StartPeeking.toString());
         this.setState({
             peeking: true
-        })
+        });
     }
     slowOpponent () {
-        console.log("Sending Slow")
-        this.state.socket?.send(CLIENTMSGTYPE.SlowOpponent.toString())
+        console.log("Sending Slow");
+        this.state.socket?.send(CLIENTMSGTYPE.SlowOpponent.toString());
     }
     skipTestCase () {
-        console.log("Sending Skip")
+        console.log("Sending Skip");
         this.setState({
             skipping: true
-        })
-        this.state.socket?.send(CLIENTMSGTYPE.Skip.toString())
+        });
+        let newTestCasesPassed = Array.from(this.state.testCasesPassed);
+        for (let i = 0; i < this.state.testCasesPassed.length; ++i) {
+            if (!this.state.testCasesPassed[i]) {
+                newTestCasesPassed[i] = true;
+                this.setState({
+                    testCasesPassed: newTestCasesPassed
+                });
+                break;
+            }
+        }
+        this.state.socket?.send(CLIENTMSGTYPE.Skip.toString());
+        this.sendFieldUpdate(FIELDUPDATE.TestCases, this.stringifyBoolArray(newTestCasesPassed));
     }
 
     processOpponentField (field: string) : string {
@@ -521,30 +562,24 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
         this.sendFieldUpdate(FIELDUPDATE.Code, code)
     }
 
-    handleCodeChange (value: string, e: React.ChangeEvent<HTMLInputElement>) {
-        console.log("handling: " + value)
-        if (this.state.canType && !this.state.typingSlow) {
-            //normal case, just update state
-            console.log("normal case");
-            this.sendFieldUpdate(FIELDUPDATE.Code, value)
-            this.setState({
-                code: value
-            });
-        } else if (this.state.canType) {
-            //they waited long enough
-            console.log("slow, but can type")
-            this.sendFieldUpdate(FIELDUPDATE.Code, value)
-            this.setState({code: value, canType: false}, () => {
-                setTimeout(() => {
-                    this.setState({canType: true})
-                })
-            })
-        } else {
-            //they can't type yet, revert the change
-            console.log("can't type")
-            console.log(e.currentTarget)
-            e.currentTarget.value = this.state.code
+    handleInputKeyDown (e: any) {
+        //if we're typing slow and we can't type yet
+        //      cancel the event
+        //if we're typing slow, but can type
+        //      record the time when we can type again in canTypeAt
+        if(this.state.typingSlow && this.state.canTypeAt != null && (new Date() < this.state.canTypeAt)) {
+            e.preventDefault()
+        } else if(this.state.typingSlow) {
+            //1000 / MAX_TYPING_SPEED = milliseconds per character typed
+            this.setState({canTypeAt: new Date(new Date().getTime() + 1000 / MAX_TYPING_SPEED)})
         }
+    }
+
+    handleCodeChange (value: string, e: React.ChangeEvent<HTMLInputElement>) {
+        this.sendFieldUpdate(FIELDUPDATE.Code, value);
+        this.setState({
+            code: value
+        });
     }
 
     opponentEditorChange (e: React.ChangeEvent<HTMLInputElement>) {
@@ -564,15 +599,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                 return numPassed;
             }
         }, 0);
-        const pWon = testsPassed == 11 || testsPassed == 10 && this.state.skipping;
-        //I think overwriting false with false was causing an infinte
-        //recursion in render() leading to a nasty error
-        if(this.state.skipping) {
-            this.setState({
-                skipping: false
-            })
-        }
-        return pWon
+        return testsPassed == 11;
     }
 
     stringifyBoolArray(boolArr: boolean[]) : string {
@@ -606,7 +633,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                     questionNum: this.state.questionNum + 1 }, () => this.sendInititalUpdates());
             }
         } else if (this.state.lost) {
-            return <Navigate to="/dashboard"/>
+            return <Navigate to="/defeat"/>
         }
         return (
             <ThemeProvider theme={editorTheme}>
@@ -701,6 +728,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                     <Grid item xs={10}>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
                                             InputProps={{ readOnly: true }} value={this.state.standardOutput} />
+                                        <span style={{color: "red"}}>{this.state.standardError}</span>
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">
@@ -808,7 +836,6 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         readOnly={true}
                                         highlightActiveLine={false}
                                         value = {this.state.peeking? this.state.rightEditorCode : this.processOpponentField(this.state.rightEditorCode)}
-                                        onChange={this.handleCodeChange}
                                         editorProps={{ $blockScrolling: true }}
                                     />
                                 </Grid>
@@ -838,6 +865,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                         <EditorTextField id="filled-multiline-static" multiline fullWidth rows={2} variant="filled"
                                             value={this.state.peeking ? this.state.rightStandardOutput : this.processOpponentField(this.state.rightStandardOutput)}
                                             InputProps={{ readOnly: true }} />
+                                        <span style={{color: "red"}}>{this.state.rightStandardError}</span>
                                     </Grid>
                                 </Grid>
                                 <Grid item container mt={1} alignItems="center">

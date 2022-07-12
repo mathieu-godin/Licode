@@ -14,16 +14,16 @@ function AppAppBar() {
   return (
     <div>
       <AppBar position="fixed">
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Toolbar sx={{ justifyContent: 'space-between', backgroundColor: '#000000' }}>
           <Box sx={{ flex: 1 }} />
-          <Typography variant="h2">
+          <Typography variant="mainTitle" sx={{ color: '#ffffff' }}>
           licode
           </Typography>
           <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-            <LCButton href="/signin" sx={{color: 'inherit'}}>
+            <LCButton href="/signin" sx={{color: '#ffffff' }}>
                 Sign In
             </LCButton>
-            <LCButton href="/register" sx={{color: 'inherit'}}>
+            <LCButton href="/register" sx={{color: '#ffffff' }}>
                 Sign Up
             </LCButton>
           </Box>

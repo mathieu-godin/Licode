@@ -1,4 +1,5 @@
 import { createTheme } from '@mui/material/styles';
+import React from 'react';
 
 declare module '@mui/material/styles' {
     interface PaletteColor {
@@ -27,6 +28,9 @@ declare module '@mui/material/styles' {
         aboveEditor: React.CSSProperties;
         inputOutput: React.CSSProperties;
         buttonExponent: React.CSSProperties;
+        welcomeTitle: React.CSSProperties;
+        welcomeSubtitle: React.CSSProperties;
+        mainTitle: React.CSSProperties;
     }
 
     interface TypographyVariantsOptions {
@@ -37,6 +41,9 @@ declare module '@mui/material/styles' {
         aboveEditor: React.CSSProperties;
         inputOutput: React.CSSProperties;
         buttonExponent: React.CSSProperties;
+        welcomeTitle?: React.CSSProperties;
+        welcomeSubtitle?: React.CSSProperties;
+        mainTitle?: React.CSSProperties;
     }
 }
 
@@ -55,6 +62,9 @@ declare module '@mui/material/Typography' {
         aboveEditor: true;
         inputOutput: true;
         buttonExponent: true;
+        welcomeTitle: true;
+        welcomeSubtitle: true;
+        mainTitle: true;
     }
 }
 
@@ -113,6 +123,24 @@ editorTheme.typography.buttonExponent = {
     fontFamily: 'Arial',
     color: '#000000',
     fontSize: 12,
+}
+
+editorTheme.typography.welcomeTitle = {
+    fontFamily: 'Varela Round',
+    color: '#000000',
+    fontSize: 56,
+}
+
+editorTheme.typography.welcomeSubtitle = {
+    fontFamily: 'Varela Round',
+    color: '#000000',
+    fontSize: 20,
+}
+
+editorTheme.typography.mainTitle = {
+    fontFamily: 'Varela Round',
+    color: '#000000',
+    fontSize: 48,
 }
 
 export default editorTheme;

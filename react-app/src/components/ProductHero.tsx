@@ -9,8 +9,8 @@ export default function ProductHero() {
       sxBackground={{
         backgroundImage: `url(${backgroundImage})`,
         backgroundColor: '#7fc7d9', // Average color of the background image.
-        backgroundPosition: 'center',
-        backgroundSize: 'contain'
+        backgroundPosition: 'bottom',
+        backgroundSize: 'cover'
       }}
     >
       {/* Increase the network loading priority of the background image. */}
@@ -19,13 +19,13 @@ export default function ProductHero() {
         src={backgroundImage}
         alt="increase priority"
       />
-      <Typography color="inherit" align="center" variant="h2">
+      <Typography color="inherit" align="center" variant="welcomeTitle">
         Adversarial Programming
       </Typography>
       <Typography
         color="inherit"
         align="center"
-        variant="h5"
+        variant="welcomeSubtitle"
         sx={{ mb: 4, mt: { sx: 4, sm: 10 } }}
       >
         Skip test cases, get a sneak peak of your opponent's code and even slow them down!

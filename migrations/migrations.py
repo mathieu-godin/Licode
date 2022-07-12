@@ -28,7 +28,7 @@ try:
                 f = open(LAST_PERFORMED_FILE_PATH, 'r')
                 last_performed = f.read()
                 f.close()
-                while files[i] != last_performed:
+                while files[i] != last_performed.strip():
                     i += 1
                 i += 1
             f = open(CONFIG_FILE, 'r')
