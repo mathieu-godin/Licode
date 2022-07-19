@@ -3,20 +3,16 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import InfoIcon from '@mui/icons-material/Info'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import FormErrorMessage from "./common/formErrorMessage";
-import { getConstantValue } from 'typescript';
-
-const MIN_PASSWORD_LENGTH = 8;
-const MAX_PASSWORD_LENGTH = 256;
-const NUM_PASSWORD_SOFT_REQS = 2;
+import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, NUM_PASSWORD_SOFT_REQS, validateEmail, validatePassword, validateUsername } from './common/validation';
 
 
 function Copyright(props: any) {
@@ -113,35 +109,14 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
     validateField(fieldName: string, value: string, annoying: boolean = false) {
         var valMsgs = this.state.validationMessages;
         switch (fieldName) {
+            case 'username':
+                valMsgs.username = validateUsername(value, annoying);
+                break;
+            case 'email':
+                valMsgs.email = validateEmail(value, annoying);
+                break;
             case 'password':
-                if (!annoying && value.length === 0) {
-                    //don't want to annoy the user, they know an empty password is invalid
-                    valMsgs.password = '';
-                } else if (value.length < MIN_PASSWORD_LENGTH) {
-                    valMsgs.password = `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
-                } else if (value.length > MAX_PASSWORD_LENGTH) {
-                    valMsgs.password = `Password must be at most ${MAX_PASSWORD_LENGTH} characters`
-                } else {
-                    //must meet NUM_PASSWORD_SOFT_REQS of 4 requirements
-                    var hasLower = /[a-z]/.test(value);
-                    var hasUpper = /[A-Z]/.test(value);
-                    var hasDigit = /\d/.test(value);
-                    var hasSpecial = /[^a-zA-Z\d]/.test(value);
-                    var softReqsMet = 0;
-                    if (hasLower) softReqsMet++
-                    if (hasUpper) softReqsMet++
-                    if (hasDigit) softReqsMet++
-                    if (hasSpecial) softReqsMet++
-                    if (softReqsMet < NUM_PASSWORD_SOFT_REQS) {
-                        valMsgs.password = `Password must have at least ${NUM_PASSWORD_SOFT_REQS} of the following:
-                                at least 1 lower case letter
-                                at least 1 upper case letter
-                                at least 1 number
-                                at least 1 special character.`;
-                    } else {
-                        valMsgs.password = ''
-                    }
-                }
+                valMsgs.password = validatePassword(value, annoying);
                 break;
             case 'confirmpassword':
                 if (!annoying && (value === "" || this.state.password === "")) {
@@ -151,12 +126,6 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                 } else {
                     valMsgs.confirmpassword = '';
                 }
-                break;
-            case 'username':
-                //validate username
-                break;
-            case 'email':
-                //validate email
                 break;
             default:
                 break;
@@ -225,7 +194,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         autoComplete="email"
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item xs={10}>
                         <TextField
                         required
                         fullWidth
@@ -236,6 +205,23 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         value={this.state.password}
                         autoComplete="new-password"
                         />
+                    </Grid>
+                    <Grid item xs={2}>
+                        <Tooltip title={
+                            <div>
+                                    {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
+                                    {`be at most ${MAX_PASSWORD_LENGTH} characters`}<br/>
+                                    {`and have at least ${NUM_PASSWORD_SOFT_REQS} of the following:`}<br/>
+                                    <ul>
+                                        <li>at least 1 lower case letter</li>
+                                        <li>at least 1 upper case letter</li>
+                                        <li>at least 1 number</li>
+                                        <li>at least 1 special character.</li>
+                                    </ul>
+                            </div>
+                        } placement="right">
+                            <InfoIcon />
+                        </Tooltip>
                     </Grid>
                     <Grid item xs={12}>
                         <FormErrorMessage message={passwordValMessage} keepFormatting={true} />

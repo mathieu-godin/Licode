@@ -9,6 +9,7 @@ import {
 import { MatchmakingData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
 import { QuestionData } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
 import { TestCasesPassed } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
+import * as Validation from "./react-app/src/components/common/validation.ts";
 
 import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
@@ -454,6 +455,28 @@ router
                     && typeof user?.username?.value === "string"
                     && typeof user?.password?.value === "string", Status.BadRequest);
                 context.response.status = Status.OK;
+
+                 //redo validation, can't trust front-end
+                var password : string = user?.password?.value ?? "";
+                var email : string = user?.email?.value ?? "";
+                var username : string = user?.username?.value ?? "";
+                var validationMessage = Validation.validateUsername(username, true);
+                if (validationMessage !== "") {
+                    context.response.body = { text: validationMessage };
+                    return;
+                }
+                validationMessage = Validation.validateEmail(email, true);
+                if (validationMessage !== "") {
+                    context.response.body = { text: validationMessage };
+                    return;
+                }
+                validationMessage = Validation.validatePassword(password, true);
+                if (validationMessage !== "") {
+                    context.response.body = { text: validationMessage };
+                    return;
+                }
+
+
                 await client.connect();
                 const usernameResult = await client.queryArray("select username from users where username='"
                     + user?.username?.value + "'");
