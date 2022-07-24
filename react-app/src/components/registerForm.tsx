@@ -13,6 +13,8 @@ import InfoIcon from '@mui/icons-material/Info'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import FormErrorMessage from "./common/formErrorMessage";
 import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, NUM_PASSWORD_SOFT_REQS, validateEmail, validatePassword, validateUsername } from './common/validation';
+import { IconButton, InputAdornment } from '@mui/material';
+import { RemoveRedEye, VisibilityOff } from '@mui/icons-material';
 
 
 function Copyright(props: any) {
@@ -48,6 +50,7 @@ export interface RegisterFormState {
     confirmpassword: string;
     errorMessage: string;
     validationMessages: {username: string, email: string, password: string, confirmpassword: string};
+    showPasswords: boolean;
 }
 
 class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState> {
@@ -56,8 +59,9 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleUserInput = this.handleUserInput.bind(this);
         this.validateForm = this.validateForm.bind(this);
+        this.toggleShowPassword = this.toggleShowPassword.bind(this);
         this.state = { email: '', username: '', password: '', confirmpassword: '', errorMessage: '', 
-            validationMessages: {username: '', email: '', password: '', confirmpassword: ''}
+            validationMessages: {username: '', email: '', password: '', confirmpassword: ''}, showPasswords: false
         };
     }
     
@@ -150,11 +154,26 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
             && this.state.validationMessages.confirmpassword === "";
     }
 
+    toggleShowPassword () {
+        this.setState({
+            showPasswords: !this.state.showPasswords
+        });
+    }
+
     render() {
         const errorMessage  = this.state.errorMessage;
         const usernameErrorMessage = this.state.validationMessages.username;
         const passwordValMessage = this.state.validationMessages.password;
         const confPasswordValMessage = this.state.validationMessages.confirmpassword;
+        const passwordInputType = this.state.showPasswords ? "text" : "password";
+        const toggleShowIconButton = this.state.showPasswords ? 
+            (<IconButton aria-label="Hide Passwords" onClick={this.toggleShowPassword}>
+                <VisibilityOff/>
+            </IconButton>)
+            :
+            (<IconButton aria-label="Show Passwords" onClick={this.toggleShowPassword}>
+                <RemoveRedEye/>
+            </IconButton>);
         return (
             <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
@@ -173,80 +192,81 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                 </Typography>
                 <Box component="form" noValidate onSubmit={this.handleSubmit} onChange={this.handleUserInput} sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                            required
-                            fullWidth
-                            id="username"
-                            label="Username"
-                            name="username"
-                            value={this.state.username}
-                            autoComplete="username"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                            required
-                            fullWidth
-                            id="email"
-                            label="Email Address"
-                            name="email"
-                            value={this.state.email}
-                            autoComplete="email"
-                            />
-                        </Grid>
-                        <Grid item xs={10}>
-                            <TextField
+                    <Grid item xs={12}>
+                        <TextField
+                        required
+                        fullWidth
+                        id="username"
+                        label="Username"
+                        name="username"
+                        value={this.state.username}
+                        autoComplete="username"
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                        required
+                        fullWidth
+                        id="email"
+                        label="Email Address"
+                        name="email"
+                        value={this.state.email}
+                        autoComplete="email"
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
                             required
                             fullWidth
                             name="password"
                             label="Password"
-                            type="password"
+                            type={passwordInputType}
                             id="password"
                             value={this.state.password}
                             autoComplete="new-password"
-                            />
-                        </Grid>
-                        <Grid item xs={2}>
-                            <Tooltip title={
-                                <div>
-                                        {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
-                                        {`be at most ${MAX_PASSWORD_LENGTH} characters`}<br/>
-                                        {`and have at least ${NUM_PASSWORD_SOFT_REQS} of the following:`}<br/>
-                                        <ul>
-                                            <li>at least 1 lower case letter</li>
-                                            <li>at least 1 upper case letter</li>
-                                            <li>at least 1 number</li>
-                                            <li>at least 1 special character.</li>
-                                        </ul>
-                                </div>
-                            } placement="right">
-                                <InfoIcon />
-                            </Tooltip>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                            required
-                            fullWidth
-                            name="confirmpassword"
-                            label="Confirm Password"
-                            type="password"
-                            id="confirmpassword"
-                            value={this.state.confirmpassword}
-                            />
-                        </Grid>
-                        <Grid item xs={12} style={{padding: 0}}>
-                            <FormErrorMessage message={usernameErrorMessage} />
-                        </Grid>
-                        <Grid item xs={12} style={{padding: 0}}>
-                            <FormErrorMessage message={confPasswordValMessage} />
-                        </Grid>
-                        <Grid item xs={12} style={{padding: 0}}>
-                            <FormErrorMessage message={errorMessage} />
-                        </Grid>
+                            InputProps={{
+                                endAdornment:
+                                <InputAdornment position="end">
+                                    {toggleShowIconButton}
+                                    <Tooltip title={
+                                        <div>
+                                                {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
+                                                {`be at most ${MAX_PASSWORD_LENGTH} characters`}<br/>
+                                                {`and have at least ${NUM_PASSWORD_SOFT_REQS} of the following:`}<br/>
+                                                <ul>
+                                                    <li>at least 1 lower case letter</li>
+                                                    <li>at least 1 upper case letter</li>
+                                                    <li>at least 1 number</li>
+                                                    <li>at least 1 special character.</li>
+                                                </ul>
+                                        </div>
+                                    } placement="right">
+                                        <InfoIcon />
+                                    </Tooltip>
+                                </InputAdornment>
+                            }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                        required
+                        fullWidth
+                        name="confirmpassword"
+                        label="Confirm Password"
+                        type={passwordInputType}
+                        id="confirmpassword"
+                        value={this.state.confirmpassword}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormErrorMessage message={passwordValMessage} style={{padding: 0}} keepFormatting={true} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormErrorMessage message={confPasswordValMessage} style={{padding: 0}} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormErrorMessage message={errorMessage} style={{padding: 0}} />
+                    </Grid>
                     </Grid>
                     <Button
                     type="submit"
