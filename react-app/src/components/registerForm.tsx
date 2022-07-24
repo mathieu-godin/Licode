@@ -258,14 +258,17 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         value={this.state.confirmpassword}
                         />
                     </Grid>
-                    <Grid item xs={12}>
-                        <FormErrorMessage message={passwordValMessage} style={{padding: 0}} keepFormatting={true} />
+                    <Grid item xs={12} style={{padding: 0}}>
+                        <FormErrorMessage message={usernameErrorMessage} />
                     </Grid>
-                    <Grid item xs={12}>
-                        <FormErrorMessage message={confPasswordValMessage} style={{padding: 0}} />
+                    <Grid item xs={12} style={{padding: 0}}>
+                        <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
                     </Grid>
-                    <Grid item xs={12}>
-                        <FormErrorMessage message={errorMessage} style={{padding: 0}} />
+                    <Grid item xs={12} style={{padding: 0}}>
+                        <FormErrorMessage message={confPasswordValMessage} />
+                    </Grid>
+                    <Grid item xs={12} style={{padding: 0}}>
+                        <FormErrorMessage message={errorMessage} />
                     </Grid>
                     </Grid>
                     <Button
