@@ -45,7 +45,7 @@ export function validateUsername(username: string, annoying: boolean) : string {
     } else if (username.length > MAX_USERNAME_LENGTH) {
         return `Username must be at most ${MAX_USERNAME_LENGTH} characters`
     } else {
-        if (!/^(?!.*[_\-\.]{2}).*$/.test(username)) {
+        if (/^.*[-]{2}.*$/.test(username) || /^.*[.]{2}.*$/.test(username) || /^.*[_]{2}.*$/.test(username)) {
             return `Username must not contain consecutive dashes, periods, or underscores`;
         } else {
             return ''
