@@ -13,6 +13,7 @@ import InfoIcon from '@mui/icons-material/Info'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import FormErrorMessage from "./common/formErrorMessage";
 import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, NUM_PASSWORD_SOFT_REQS, validateEmail, validatePassword, validateUsername } from './common/validation';
+import { InputAdornment } from '@mui/material';
 
 
 function Copyright(props: any) {
@@ -194,34 +195,37 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         autoComplete="email"
                         />
                     </Grid>
-                    <Grid item xs={10}>
+                    <Grid item xs={12}>
                         <TextField
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        value={this.state.password}
-                        autoComplete="new-password"
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            value={this.state.password}
+                            autoComplete="new-password"
+                            InputProps={{
+                                endAdornment:
+                                <InputAdornment position="end">
+                                    <Tooltip title={
+                                        <div>
+                                                {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
+                                                {`be at most ${MAX_PASSWORD_LENGTH} characters`}<br/>
+                                                {`and have at least ${NUM_PASSWORD_SOFT_REQS} of the following:`}<br/>
+                                                <ul>
+                                                    <li>at least 1 lower case letter</li>
+                                                    <li>at least 1 upper case letter</li>
+                                                    <li>at least 1 number</li>
+                                                    <li>at least 1 special character.</li>
+                                                </ul>
+                                        </div>
+                                    } placement="right">
+                                        <InfoIcon />
+                                    </Tooltip>
+                                </InputAdornment>
+                            }}
                         />
-                    </Grid>
-                    <Grid item xs={2}>
-                        <Tooltip title={
-                            <div>
-                                    {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
-                                    {`be at most ${MAX_PASSWORD_LENGTH} characters`}<br/>
-                                    {`and have at least ${NUM_PASSWORD_SOFT_REQS} of the following:`}<br/>
-                                    <ul>
-                                        <li>at least 1 lower case letter</li>
-                                        <li>at least 1 upper case letter</li>
-                                        <li>at least 1 number</li>
-                                        <li>at least 1 special character.</li>
-                                    </ul>
-                            </div>
-                        } placement="right">
-                            <InfoIcon />
-                        </Tooltip>
                     </Grid>
                     <Grid item xs={12}>
                         <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
