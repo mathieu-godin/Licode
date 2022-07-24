@@ -13,7 +13,8 @@ import InfoIcon from '@mui/icons-material/Info'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import FormErrorMessage from "./common/formErrorMessage";
 import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, NUM_PASSWORD_SOFT_REQS, validateEmail, validatePassword, validateUsername } from './common/validation';
-import { InputAdornment } from '@mui/material';
+import { IconButton, InputAdornment } from '@mui/material';
+import { RemoveRedEye, VisibilityOff } from '@mui/icons-material';
 
 
 function Copyright(props: any) {
@@ -49,6 +50,7 @@ export interface RegisterFormState {
     confirmpassword: string;
     errorMessage: string;
     validationMessages: {username: string, email: string, password: string, confirmpassword: string};
+    showPasswords: boolean;
 }
 
 class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState> {
@@ -57,8 +59,9 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleUserInput = this.handleUserInput.bind(this);
         this.validateForm = this.validateForm.bind(this);
+        this.toggleShowPassword = this.toggleShowPassword.bind(this);
         this.state = { email: '', username: '', password: '', confirmpassword: '', errorMessage: '', 
-            validationMessages: {username: '', email: '', password: '', confirmpassword: ''}
+            validationMessages: {username: '', email: '', password: '', confirmpassword: ''}, showPasswords: false
         };
     }
     
@@ -151,10 +154,25 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
             && this.state.validationMessages.confirmpassword === "";
     }
 
+    toggleShowPassword () {
+        this.setState({
+            showPasswords: !this.state.showPasswords
+        });
+    }
+
     render() {
         const errorMessage  = this.state.errorMessage;
         const passwordValMessage = this.state.validationMessages.password;
         const confPasswordValMessage = this.state.validationMessages.confirmpassword;
+        const passwordInputType = this.state.showPasswords ? "text" : "password";
+        const toggleShowIconButton = this.state.showPasswords ? 
+            (<IconButton aria-label="Hide Passwords" onClick={this.toggleShowPassword}>
+                <VisibilityOff/>
+            </IconButton>)
+            :
+            (<IconButton aria-label="Show Passwords" onClick={this.toggleShowPassword}>
+                <RemoveRedEye/>
+            </IconButton>);
         return (
             <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
@@ -201,13 +219,14 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                             fullWidth
                             name="password"
                             label="Password"
-                            type="password"
+                            type={passwordInputType}
                             id="password"
                             value={this.state.password}
                             autoComplete="new-password"
                             InputProps={{
                                 endAdornment:
                                 <InputAdornment position="end">
+                                    {toggleShowIconButton}
                                     <Tooltip title={
                                         <div>
                                                 {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
@@ -228,18 +247,18 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
-                    </Grid>
-                    <Grid item xs={12}>
                         <TextField
                         required
                         fullWidth
                         name="confirmpassword"
                         label="Confirm Password"
-                        type="password"
+                        type={passwordInputType}
                         id="confirmpassword"
                         value={this.state.confirmpassword}
                         />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
                     </Grid>
                     <Grid item xs={12}>
                         <FormErrorMessage message={confPasswordValMessage} />
