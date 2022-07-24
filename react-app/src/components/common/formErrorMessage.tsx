@@ -10,15 +10,18 @@ export interface FormState {}
 
 class FormErrorMessage extends React.Component<Partial<FormProps>, FormState> {
     render() {
-        const text = (<Typography sx={{ display: 'inline', color: '#ff0000' }}>{this.props.message}</Typography>);
-        if ((this.props.message ?? "") !== "" && (this.props.keepFormatting ?? false)) {
-            return (
-                <pre style={{ fontFamily: 'inherit' }}>
-                    {text}
-                </pre>
-            );
+        if ((this.props.message ?? "") !== "") {
+            const text = (<div style={{ paddingLeft: 16, paddingTop: 16 }}><Typography sx={{ display: 'inline', color: '#ff0000'}}>{this.props.message}</Typography></div>);
+            if (this.props.keepFormatting ?? false) {
+                return (
+                    <pre style={{ fontFamily: 'inherit' }}>
+                        {text}
+                    </pre>
+                );
+            }
+            return text;
         }
-        return text;
+        return <div style={{display: 'none'}}></div>
     }
 }
 

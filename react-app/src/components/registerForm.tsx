@@ -152,6 +152,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
 
     render() {
         const errorMessage  = this.state.errorMessage;
+        const usernameErrorMessage = this.state.validationMessages.username;
         const passwordValMessage = this.state.validationMessages.password;
         const confPasswordValMessage = this.state.validationMessages.confirmpassword;
         return (
@@ -172,77 +173,80 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                 </Typography>
                 <Box component="form" noValidate onSubmit={this.handleSubmit} onChange={this.handleUserInput} sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <TextField
-                        required
-                        fullWidth
-                        id="username"
-                        label="Username"
-                        name="username"
-                        value={this.state.username}
-                        autoComplete="username"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                        required
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
-                        value={this.state.email}
-                        autoComplete="email"
-                        />
-                    </Grid>
-                    <Grid item xs={10}>
-                        <TextField
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        value={this.state.password}
-                        autoComplete="new-password"
-                        />
-                    </Grid>
-                    <Grid item xs={2}>
-                        <Tooltip title={
-                            <div>
-                                    {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
-                                    {`be at most ${MAX_PASSWORD_LENGTH} characters`}<br/>
-                                    {`and have at least ${NUM_PASSWORD_SOFT_REQS} of the following:`}<br/>
-                                    <ul>
-                                        <li>at least 1 lower case letter</li>
-                                        <li>at least 1 upper case letter</li>
-                                        <li>at least 1 number</li>
-                                        <li>at least 1 special character.</li>
-                                    </ul>
-                            </div>
-                        } placement="right">
-                            <InfoIcon />
-                        </Tooltip>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                        required
-                        fullWidth
-                        name="confirmpassword"
-                        label="Confirm Password"
-                        type="password"
-                        id="confirmpassword"
-                        value={this.state.confirmpassword}
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormErrorMessage message={confPasswordValMessage} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <FormErrorMessage message={errorMessage} />
-                    </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                            required
+                            fullWidth
+                            id="username"
+                            label="Username"
+                            name="username"
+                            value={this.state.username}
+                            autoComplete="username"
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                            required
+                            fullWidth
+                            id="email"
+                            label="Email Address"
+                            name="email"
+                            value={this.state.email}
+                            autoComplete="email"
+                            />
+                        </Grid>
+                        <Grid item xs={10}>
+                            <TextField
+                            required
+                            fullWidth
+                            name="password"
+                            label="Password"
+                            type="password"
+                            id="password"
+                            value={this.state.password}
+                            autoComplete="new-password"
+                            />
+                        </Grid>
+                        <Grid item xs={2}>
+                            <Tooltip title={
+                                <div>
+                                        {`Password must be at least ${MIN_PASSWORD_LENGTH} characters,`}<br/>
+                                        {`be at most ${MAX_PASSWORD_LENGTH} characters`}<br/>
+                                        {`and have at least ${NUM_PASSWORD_SOFT_REQS} of the following:`}<br/>
+                                        <ul>
+                                            <li>at least 1 lower case letter</li>
+                                            <li>at least 1 upper case letter</li>
+                                            <li>at least 1 number</li>
+                                            <li>at least 1 special character.</li>
+                                        </ul>
+                                </div>
+                            } placement="right">
+                                <InfoIcon />
+                            </Tooltip>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                            required
+                            fullWidth
+                            name="confirmpassword"
+                            label="Confirm Password"
+                            type="password"
+                            id="confirmpassword"
+                            value={this.state.confirmpassword}
+                            />
+                        </Grid>
+                        <Grid item xs={12} style={{padding: 0}}>
+                            <FormErrorMessage message={usernameErrorMessage} />
+                        </Grid>
+                        <Grid item xs={12} style={{padding: 0}}>
+                            <FormErrorMessage message={confPasswordValMessage} />
+                        </Grid>
+                        <Grid item xs={12} style={{padding: 0}}>
+                            <FormErrorMessage message={errorMessage} />
+                        </Grid>
                     </Grid>
                     <Button
                     type="submit"
