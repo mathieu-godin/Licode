@@ -188,6 +188,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
     render() {
         const errorMessage  = this.state.errorMessage;
         const usernameErrorMessage = this.state.validationMessages.username;
+        const emailErrorMessage = this.state.validationMessages.email;
         const passwordValMessage = this.state.validationMessages.password;
         const confPasswordValMessage = this.state.validationMessages.confirmpassword;
         const passwordInputType = this.state.showPasswords ? "text" : "password";
@@ -289,6 +290,9 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                     </Grid>
                     <Grid item xs={12} style={{padding: 0}}>
                         <FormErrorMessage message={usernameErrorMessage} />
+                    </Grid>
+                    <Grid item xs={12} style={{padding: 0}}>
+                        <FormErrorMessage message={emailErrorMessage} />
                     </Grid>
                     <Grid item xs={12} style={{padding: 0}}>
                         <FormErrorMessage message={passwordValMessage} keepFormatting={true} />
