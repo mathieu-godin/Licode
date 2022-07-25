@@ -145,7 +145,6 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                     display="flex" 
                     flexDirection="column"
                 >
-                    <AppAppBar hasToken={this.state.loaded} username={this.state.user.username.value}/>
                     <Box
                         display="flex"
                         alignItems="center" 
