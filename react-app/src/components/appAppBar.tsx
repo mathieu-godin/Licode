@@ -20,7 +20,7 @@ export interface GreetingProps {
 function Greeting(props: GreetingProps) {
     const loaded: boolean = props.loaded;
     if (loaded) {
-        return <Typography variant="h6" sx={{ mr: 55, color: '#ffffff', alignSelf: "flex-start", flex: 0 }}>Welcome, {props.username}</Typography>;
+        return <Typography variant="h6" sx={{ mr: 55, color: '#ffffff'}}>Welcome, {props.username}</Typography>;
     } else {
         return <Typography variant="h6" sx={{ mr: 55, display: "none"  }} />;
     }
@@ -37,11 +37,14 @@ function AppAppBar(props: AppAppBarProps) {
             <ThemeProvider theme={editorTheme}>
                 <div>
                     <AppBar position="fixed">
-                    <Toolbar sx={{ backgroundColor: '#000000' }}>
-                        <Greeting loaded={props.hasToken} username={props.username} />
-                        <Typography variant="mainTitle" sx={{ color: '#ffffff', alignSelf: 'center' }}>
+                    <Toolbar sx={{  justifyContent: 'space-between', backgroundColor: '#000000' }}>
+                        <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                            <Greeting loaded={props.hasToken} username={props.username} />
+                        </Box>
+                        <Typography variant="mainTitle" sx={{ color: '#ffffff'}}>
                             licode
                         </Typography>
+                        <Box sx={{ flex: 1 }} />
                     </Toolbar>
                     </AppBar>
                     <Toolbar />
