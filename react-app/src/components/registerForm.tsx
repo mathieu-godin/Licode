@@ -12,7 +12,8 @@ import Container from '@mui/material/Container';
 import InfoIcon from '@mui/icons-material/Info'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import FormErrorMessage from "./common/formErrorMessage";
-import { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, NUM_PASSWORD_SOFT_REQS, validateEmail, validatePassword, validateUsername } from './common/validation';
+import { MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH, MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, NUM_PASSWORD_SOFT_REQS, validateEmail,
+    validatePassword, validateUsername } from './common/validation';
 import { IconButton, InputAdornment } from '@mui/material';
 import { RemoveRedEye, VisibilityOff } from '@mui/icons-material';
 
@@ -228,6 +229,21 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         value={this.state.username}
                         autoComplete="username"
                         onBlur={this.onUsernameBlur}
+                        InputProps={{
+                            endAdornment:
+                            <InputAdornment position="end">
+                                <Tooltip title={
+                                    <div>
+                                            {`Username must be at least ${MIN_USERNAME_LENGTH} characters,`}<br/>
+                                            {`be at most ${MAX_USERNAME_LENGTH} characters,`}<br/>
+                                            {`and may contain letters, numbers, and non-consecutive`}<br/>
+                                            {`dashes, periods, and underscores`}<br/>
+                                    </div>
+                                } placement="right">
+                                    <InfoIcon />
+                                </Tooltip>
+                            </InputAdornment>
+                        }}
                         />
                     </Grid>
                     <Grid item xs={12}>
