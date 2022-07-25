@@ -60,6 +60,11 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
         this.handleUserInput = this.handleUserInput.bind(this);
         this.validateForm = this.validateForm.bind(this);
         this.toggleShowPassword = this.toggleShowPassword.bind(this);
+        this.onBlur = this.onBlur.bind(this);
+        this.onUsernameBlur = this.onUsernameBlur.bind(this);
+        this.onEmailBlur = this.onEmailBlur.bind(this);
+        this.onPasswordBlur = this.onPasswordBlur.bind(this);
+        this.onConfirmPasswordBlur = this.onConfirmPasswordBlur.bind(this);
         this.state = { email: '', username: '', password: '', confirmpassword: '', errorMessage: '', 
             validationMessages: {username: '', email: '', password: '', confirmpassword: ''}, showPasswords: false
         };
@@ -93,14 +98,34 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
         } 
     }
 
-    //update state and validate after
-    //any input changes
+    // update state and validate after
+    // any input changes
     handleUserInput(e : React.FormEvent<HTMLFormElement>) {
         const inputTarget = e.target as EventTarget & HTMLInputElement;
         const field = inputTarget.name;
         const value = inputTarget.value;
         var stateObj : any = {[field] : value};
-        this.setState(stateObj, () => { this.validateField(field, value) });
+        this.setState(stateObj);
+    }
+
+    onBlur (e: React.FocusEvent<HTMLInputElement>, field: string) {
+        this.validateField(field, e.target.value);
+    }
+
+    onUsernameBlur (e: React.FocusEvent<HTMLInputElement>) {
+        this.onBlur(e, "username");
+    }
+
+    onEmailBlur (e: React.FocusEvent<HTMLInputElement>) {
+        this.onBlur(e, "email");
+    }
+
+    onPasswordBlur (e: React.FocusEvent<HTMLInputElement>) {
+        this.onBlur(e, "password");
+    }
+
+    onConfirmPasswordBlur (e: React.FocusEvent<HTMLInputElement>) {
+        this.onBlur(e, "confirmpassword");
     }
 
     //called with annoying = false by handleUserInput to
@@ -202,6 +227,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         name="username"
                         value={this.state.username}
                         autoComplete="username"
+                        onBlur={this.onUsernameBlur}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -213,6 +239,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         name="email"
                         value={this.state.email}
                         autoComplete="email"
+                        onBlur={this.onEmailBlur}
                         />
                     </Grid>
                     <Grid item xs={12}>
@@ -225,6 +252,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                             id="password"
                             value={this.state.password}
                             autoComplete="new-password"
+                            onBlur={this.onPasswordBlur}
                             InputProps={{
                                 endAdornment:
                                 <InputAdornment position="end">
@@ -256,6 +284,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                         label="Confirm Password"
                         type={passwordInputType}
                         id="confirmpassword"
+                        onBlur={this.onConfirmPasswordBlur}
                         value={this.state.confirmpassword}
                         />
                     </Grid>
