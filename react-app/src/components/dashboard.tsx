@@ -1,19 +1,6 @@
 import * as React from "react";
-import { AppBar, Toolbar, Box, Button, Typography, Grid, Stack, Table, Paper, TableContainer, TableBody, TableRow, TableCell } from "@mui/material"
-import Avatar from '@mui/material/Avatar';
-import Form from "./common/form";
-import { sizing } from '@mui/system';
+import { Box, Button, Typography, Grid, Stack, Table, Paper, TableContainer, TableBody, TableRow, TableCell } from "@mui/material"
 import Image from '../images/BlueBackground.png';
-import AppAppBar from "./appAppBar";
-
-const styles = {
-    paperContainer: {
-        backgroundImage: `url(${Image})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        border:"10px"
-    }
-};
 
 interface User {
     email: { value: string };
@@ -138,10 +125,9 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
     render() {
         return (
-            <Paper style={styles.paperContainer}
-            >
                 <Box
-                    height="96vh" 
+                    height="100vh"
+                    sx={{ backgroundImage: `url(${Image})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}
                     display="flex" 
                     flexDirection="column"
                 >
@@ -179,7 +165,6 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                         </Stack>
                     </Box>
                 </Box>
-            </Paper>
         );
     }
 }
