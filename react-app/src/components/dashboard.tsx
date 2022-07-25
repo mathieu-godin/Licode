@@ -4,6 +4,7 @@ import Avatar from '@mui/material/Avatar';
 import Form from "./common/form";
 import { sizing } from '@mui/system';
 import Image from '../images/BlueBackground.png';
+import AppAppBar from "./appAppBar";
 
 const styles = {
     paperContainer: {
@@ -32,19 +33,7 @@ export interface DashboardState {
     loaded: boolean,
 }
 
-export interface GreetingProps {
-    username: string,
-    loaded: boolean,
-}
 
-function Greeting(props: GreetingProps) {
-    const loaded: boolean = props.loaded;
-    if (loaded) {
-        return <Typography variant="h6" sx={{ mr: 55 }}>Welcome, {props.username}</Typography>;
-    } else {
-        return <Typography variant="h6" sx={{ mr: 55, display: "none"  }} />;
-    }
-}
 
 export interface WinLossProps {
     numWins: number,
@@ -156,14 +145,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                     display="flex" 
                     flexDirection="column"
                 >
-                    <AppBar position="static">
-                        <Toolbar>
-                            <Greeting loaded={this.state.loaded} username={this.state.user.username.value} />
-                            <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
-                                licode
-                            </Typography>
-                        </Toolbar>
-                    </AppBar>
+                    <AppAppBar hasToken={this.state.loaded} username={this.state.user.username.value}/>
                     <Box
                         display="flex"
                         alignItems="center" 

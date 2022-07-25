@@ -15,7 +15,7 @@ class Home extends React.Component<HomeProps, HomeState> {
     return (
       <ThemeProvider theme={editorTheme}>
         <React.Fragment>
-          <AppAppBar />
+          <AppAppBar hasToken={false} username=""/>
           <ProductHero />
         </React.Fragment>
       </ThemeProvider>

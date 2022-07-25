@@ -28,6 +28,7 @@ function App() {
             <React.Fragment>
                 <main className="container">
                     <Routes>
+                        <Route path="/test" element={<Dashboard setToken={giveToken}/>}/>
                         <Route path="/dashboard" element={<HomeRedirect />} />
                         <Route path="/waitlist" element={<HomeRedirect />} />
                         <Route path="/editor" element={<HomeRedirect />} />
