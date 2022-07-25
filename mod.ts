@@ -481,8 +481,9 @@ router
                 const usernameResult = await client.queryArray("select username from users where username='"
                     + user?.username?.value + "'");
                 if (usernameResult.rows.length < 1) {
+                    let emailLowerCase: string | undefined = user?.email?.value?.toLowerCase();
                     const emailResult = await client.queryArray("select email from users where email='"
-                        + user?.email?.value + "'");
+                        + emailLowerCase + "'");
                     if (emailResult.rows.length < 1) {
                         let saltHexString = '';
                         for (let i = 0; i < 32; ++i) {
@@ -506,7 +507,7 @@ router
                         }
                         await client.queryArray(
                             "insert into public.users(email, username, hashed_password, salt, num_wins, num_losses, created_at, updated_at, elo_rating, has_2400_rating_history)"
-                            + " values ('" + user?.email?.value + "', '" + user?.username?.value + "', '"
+                            + " values ('" + emailLowerCase + "', '" + user?.username?.value + "', '"
                             + "\\x" + hashedPasswordHexString + "', '" + "\\x" + saltHexString + "', '0', '0', now(), now(), '1000', 'false')");
                         let sid = await nanoid(40);
                         sids[sid] = user.username.value;
@@ -541,13 +542,14 @@ router
                 context.assert(
                     typeof user?.email?.value === "string"
                     && typeof user?.password?.value === "string", Status.BadRequest);
+                let emailLowerCase: string | undefined = user?.email?.value?.toLowerCase();
                 context.response.status = Status.OK;
                 await client.connect();
                 const usernameResult = await client.queryArray("select email, username, hashed_password, salt from users where username='"
-                    + user?.email?.value + "'");
+                    + emailLowerCase + "'");
                 if (usernameResult.rows.length < 1) {
                     const emailResult = await client.queryArray("select email, username, hashed_password, salt from users where email='"
-                        + user?.email?.value + "'");
+                        + emailLowerCase + "'");
                     if (emailResult.rows.length < 1) {
                         context.response.body = { text: 'Given Email or Username Does Not Exist' };
                     } else {
