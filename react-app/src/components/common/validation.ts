@@ -1,6 +1,8 @@
 
 export const MIN_PASSWORD_LENGTH = 8;
+export const MIN_USERNAME_LENGTH = 4;
 export const MAX_PASSWORD_LENGTH = 256;
+export const MAX_USERNAME_LENGTH = 16;
 export const NUM_PASSWORD_SOFT_REQS = 2;
 
 export function validatePassword(password: string, annoying: boolean) : string {
@@ -35,7 +37,20 @@ export function validatePassword(password: string, annoying: boolean) : string {
 }   
 
 export function validateUsername(username: string, annoying: boolean) : string {
-    return '';
+    if (!annoying && username.length === 0) {
+        //don't want to annoy the user, they know an empty password is invalid
+        return '';
+    } else if (username.length < MIN_USERNAME_LENGTH) {
+        return `Username must be at least ${MIN_USERNAME_LENGTH} characters`
+    } else if (username.length > MAX_USERNAME_LENGTH) {
+        return `Username must be at most ${MAX_USERNAME_LENGTH} characters`
+    } else {
+        if (/^.*[-]{2}.*$/.test(username) || /^.*[.]{2}.*$/.test(username) || /^.*[_]{2}.*$/.test(username)) {
+            return `Username must not contain consecutive dashes, periods, or underscores`;
+        } else {
+            return ''
+        }
+    }
 }
 
 export function validateEmail(email: string, annoying: boolean) : string {
