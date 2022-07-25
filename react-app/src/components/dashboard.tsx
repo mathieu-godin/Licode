@@ -145,6 +145,9 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                     display="flex" 
                     flexDirection="column"
                 >
+                    <Typography sx={{ position: 'fixed', left: 30, top: 30, fontSize: 32, color: 'white' }}>
+                        Welcome, {this.state.user.username.value}
+                    </Typography>
                     <Box
                         display="flex"
                         alignItems="center" 
