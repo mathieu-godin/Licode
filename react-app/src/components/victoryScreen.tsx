@@ -38,7 +38,7 @@ class VictoryScreen extends React.Component<VictoryScreenProps, VictoryScreenSta
                         <Stack direction="row" spacing={0}>
                             <IconButton
                                 aria-label="cancelicon" 
-                                href="/dashboard"  
+                                href="/licode/dashboard"  
                                 size = "large"                                  
                             >
                                 <CancelIcon fontSize="inherit"/>
@@ -46,7 +46,7 @@ class VictoryScreen extends React.Component<VictoryScreenProps, VictoryScreenSta
                             <Button fullWidth
                                     variant="contained"
                                     color = "error"
-                                    href="/dashboard"
+                                    href="/licode/dashboard"
                             >
                                 Return to Dashboard
                             </Button>
@@ -91,7 +91,7 @@ class VictoryScreen extends React.Component<VictoryScreenProps, VictoryScreenSta
                             <WinLossTable loaded={this.state.loaded} numWins={this.state.numWins} numLosses={this.state.numLosses} />
                             <Button 
                                 fullWidth variant="contained"
-                                href="/editor"                                           
+                                href="/licode/editor"                                           
                             >
                                 PLAY 
                             </Button>

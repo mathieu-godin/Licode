@@ -17,7 +17,7 @@ function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="/">
+      <Link color="inherit" href="licode">
         licode
       </Link>{' '}
       {new Date().getFullYear()}
@@ -128,7 +128,7 @@ class LoginForm extends React.Component<LoginFormProps, LoginFormState> {
                     </Button>
                     <Grid container>
                     <Grid item>
-                        <Link href="register" variant="body2">
+                        <Link href="/licode/register" variant="body2">
                         {"Don't have an account? Sign Up"}
                         </Link>
                     </Grid>

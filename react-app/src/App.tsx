@@ -11,6 +11,9 @@ import HomeRedirect from "./components/homeRedirect";
 import VictoryScreen from "./components/victoryScreen";
 import DefeatScreen from "./components/defeatScreen";
 import CodingEditor from "./components/codingEditor";
+import { BrowserHistory, createBrowserHistory } from 'history';
+
+export const history = createBrowserHistory();
 
 function App() {
     const [token, setToken] = useState(localStorage.getItem('token') === '1');

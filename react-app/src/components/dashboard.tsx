@@ -46,20 +46,20 @@ function WinLossTable(props: WinLossProps) {
                 <Table>                          
                     <TableBody>
                         <TableRow>
-                            <TableCell>Rating: </TableCell>
-                            <TableCell>{props.eloRating}</TableCell>
+                            <TableCell sx={{fontSize: 24}}>Rating: </TableCell>
+                            <TableCell sx={{fontSize: 24}}>{props.eloRating}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Number of Wins: </TableCell>
-                            <TableCell>{props.numWins}</TableCell>
+                            <TableCell sx={{fontSize: 24}}>Number of Wins: </TableCell>
+                            <TableCell sx={{fontSize: 24}}>{props.numWins}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Number of Losses: </TableCell>
-                            <TableCell>{props.numLosses}</TableCell>
+                            <TableCell sx={{fontSize: 24}}>Number of Losses: </TableCell>
+                            <TableCell sx={{fontSize: 24}}>{props.numLosses}</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Winrate: </TableCell>
-                            <TableCell>{computeWinRate(props.numWins, props.numLosses)}</TableCell>
+                            <TableCell sx={{fontSize: 24}}>Winrate: </TableCell>
+                            <TableCell sx={{fontSize: 24}}>{computeWinRate(props.numWins, props.numLosses)}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
@@ -127,11 +127,11 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         return (
                 <Box
                     height="100vh"
-                    sx={{ backgroundImage: `url(${Image})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}
+                    sx={{ backgroundColor: '#01182a', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }}
                     display="flex" 
                     flexDirection="column"
                 >
-                    <Typography sx={{ position: 'fixed', left: 30, top: 30, fontSize: 32, color: 'white' }}>
+                    <Typography sx={{ position: 'fixed', left: 30, top: 30, fontSize: 56, color: 'white' }}>
                         Welcome, {this.state.user.username.value}
                     </Typography>
                     <Box
@@ -142,24 +142,24 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
                     >
                         <Stack
                             spacing={2}
-                            sx={{ bgcolor:'background.paper', border:5, p:2, borderColor: 'primary.main'}} 
+                            sx={{ bgcolor:'background.paper', border:5, p:2, borderColor: 'primary.main', width: '80vw', marginTop: '15vh'}} 
                         >
                             <Typography
                                 align='center'
-                                variant='h6'
                                 color="common.white"
-                                sx={{bgcolor:'text.disabled', borderRadius:1, p:1}}
+                                sx={{bgcolor:'text.disabled', borderRadius:1, p:1, fontSize: 32}}
                             >
                                 STATS
                             </Typography>
                             <WinLossTable loaded={this.state.loaded} numWins={this.state.numWins} numLosses={this.state.numLosses} eloRating={this.state.eloRating} />
                             <Button 
                                 fullWidth variant="contained"
-                                href="/waitlist"                                           
+                                href="/licode/waitlist"
+                                sx={{fontSize: 32}}                                        
                             >
                                 PLAY 
                             </Button>
-                            <Button variant="contained" onClick={this.handleLogout}>
+                            <Button variant="contained" onClick={this.handleLogout} sx={{fontSize: 32}}>
                                 LOGOUT
                             </Button>
                         </Stack>

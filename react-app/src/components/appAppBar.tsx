@@ -62,10 +62,10 @@ function AppAppBar(props: AppAppBarProps) {
                             licode
                         </Typography>
                         <Box sx={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                            <LCButton href="/signin" sx={{color: '#ffffff' }}>
+                            <LCButton href="/licode/signin" sx={{color: '#ffffff' }}>
                                 Sign In
                             </LCButton>
-                            <LCButton href="/register" sx={{color: '#ffffff' }}>
+                            <LCButton href="/licode/register" sx={{color: '#ffffff' }}>
                                 Sign Up
                             </LCButton>
                         </Box>

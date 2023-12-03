@@ -11,7 +11,7 @@ import { QuestionData } from "./react-app/src/components/common/interfaces/match
 import { TestCasesPassed } from "./react-app/src/components/common/interfaces/matchmakingData.ts";
 import * as Validation from "./react-app/src/components/common/validation.ts";
 
-import { Client } from "https://deno.land/x/postgres@v0.15.0/mod.ts";
+import { Client } from "https://deno.land/x/postgres@v0.17.0/mod.ts";
 import { crypto } from "https://deno.land/std@0.132.0/crypto/mod.ts";
 import { nanoid } from 'https://deno.land/x/nanoid@v3.0.0/async.ts'
 import { ensureDir } from 'https://deno.land/std@0.136.0/fs/mod.ts';

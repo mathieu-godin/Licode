@@ -39,14 +39,14 @@ class DefeatScreen extends React.Component<DefeatScreenProps, DefeatScreenState>
                             <IconButton
                                 aria-label="cancelicon"
                                 size = "large" 
-                                href="/dashboard"                                   
+                                href="/licode/dashboard"                                   
                             >
                                 <CancelIcon fontSize="inherit"/>
                             </IconButton>
                             <Button fullWidth
                                     variant="contained"
                                     color = "error"
-                                    href="/dashboard"
+                                    href="/licode/dashboard"
                             >
                                 Return to Dashboard
                             </Button>
@@ -91,7 +91,7 @@ class DefeatScreen extends React.Component<DefeatScreenProps, DefeatScreenState>
                             <WinLossTable loaded={this.state.loaded} numWins={this.state.numWins} numLosses={this.state.numLosses} />
                             <Button 
                                 fullWidth variant="contained"
-                                href="/editor"                                           
+                                href="/licode/editor"                                           
                             >
                                 PLAY 
                             </Button>

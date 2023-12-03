@@ -22,7 +22,7 @@ function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="/">
+      <Link color="inherit" href="licode">
         licode
       </Link>{' '}
       {new Date().getFullYear()}
@@ -72,6 +72,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
     }
     
     async handleSubmit (e: React.SyntheticEvent<HTMLFormElement>) {
+        console.log("AAAAAAAAAAAAAAAAAAAA");
         e.preventDefault();
         if (this.validateForm()) {
             let user: User = {
@@ -330,7 +331,7 @@ class RegisterForm extends React.Component<RegisterFormProps, RegisterFormState>
                     </Button>
                     <Grid container justifyContent="flex-end">
                     <Grid item>
-                        <Link href="signin" variant="body2">
+                        <Link href="/licode/signin" variant="body2">
                         Already have an account? Sign in
                         </Link>
                     </Grid>
