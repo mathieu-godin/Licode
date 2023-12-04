@@ -339,7 +339,7 @@ async function addToQueue (queue: MatchmakingUser[], matchmakingUser: Matchmakin
             sidsProgress[matchmakingUser.sid] = 0;
             //can call goServer/registerPair here
             console.log("attempting register pair " + matchmakingUser.sid + ", " + queue[i].sid);
-            /*const response = await fetch(registerPairEndPoint(), {
+            const response = await fetch(registerPairEndPoint(), {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -348,8 +348,8 @@ async function addToQueue (queue: MatchmakingUser[], matchmakingUser: Matchmakin
                     Id1: matchmakingUser.sid,
                     Id2: queue[i].sid,
                 }),
-            });*/ //TODO - Check response 
-            //console.log(response.status);
+            }); //TODO - Check response 
+            console.log(response.status);
             //can probably eliminate this, main purpose of this api
             //method is to match users and register them with the go server
             context.response.body = {
