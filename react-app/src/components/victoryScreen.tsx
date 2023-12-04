@@ -11,7 +11,7 @@ export interface VictoryScreenState {}
 
 const styles = {
     paperContainer: {
-        backgroundImage: `url(${Image})`,
+        backgroundColor: '#fdc332',
         backgroundPosition: "center",
         backgroundSize: "cover",
         border:"0px"
@@ -32,21 +32,15 @@ class VictoryScreen extends React.Component<VictoryScreenProps, VictoryScreenSta
                 >
                     <Stack
                         spacing={4}
-                        sx={{ bgcolor:'background.paper', fontFamily: "Stencil Std", fontSize:40, border:5, p:2, borderColor: '#ff7961'}} 
+                        sx={{ bgcolor:'background.paper', fontFamily: 'Varela Round', fontSize: 92, border:5, p:2, borderColor: '#f09d03', textAlign: 'center'}} 
                     >
                         VICTORY
                         <Stack direction="row" spacing={0}>
-                            <IconButton
-                                aria-label="cancelicon" 
-                                href="/licode/dashboard"  
-                                size = "large"                                  
-                            >
-                                <CancelIcon fontSize="inherit"/>
-                            </IconButton>
                             <Button fullWidth
                                     variant="contained"
-                                    color = "error"
+                                    color = 'success'
                                     href="/licode/dashboard"
+                                    sx={{fontFamily: 'Varela Round', fontSize: 36}}
                             >
                                 Return to Dashboard
                             </Button>
