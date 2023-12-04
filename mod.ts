@@ -86,7 +86,7 @@ let matches: { [name: string]: string } = {};
 const numTestCases: number = 11;
 
 function registerPairEndPoint() : string {
-    return prod ? "https://licode.io/registerPair" : "http://localhost:5000/registerPair";
+    return prod ? "https://mathieu-godin.com/registerPair" : "http://localhost:5000/registerPair";
 }
 
 function generateTestCaseString(allTestCases: string[], format: string[], j: number, shouldPrint: boolean) {
@@ -1004,7 +1004,7 @@ router
     })
     .get("/api/wildcardEndpoint", async (context) => {
         context.response.body = { endpoint: 
-            prod ? "wss://licode.io/ws" : "ws://localhost:5000/ws"
+            prod ? "wss://mathieu-godin.com/ws" : "ws://localhost:5000/ws"
         };
     });
 app.use(router.routes());
