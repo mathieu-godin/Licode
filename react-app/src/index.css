@@ -43,10 +43,9 @@ body {
   display: none;
 }
 .show-ring {
-  display: block;
+  display: inline-block;
 }
 .lds-dual-ring {
-  display: inline-block;
   width: 40px;
   height: 40px;
   vertical-align: middle;
