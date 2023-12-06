@@ -158,6 +158,8 @@ export interface CodingEditorState {
     opponentQuestionNum: number,
 
     questionLines: string[],
+
+    ringClass: string,
 }
 
 export interface QuestionLineProps {
@@ -273,6 +275,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             questionNum: 1,
             opponentQuestionNum: 1,
             questionLines: ['', '', ''],
+            ringClass: 'ds-dual-ring hide-ring',
         }
     }
 
@@ -438,6 +441,9 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
     }
 
     async handleRun () {
+        this.setState({
+            ringClass: "lds-dual-ring show-ring"
+        });
         let codeSubmission: CodeSubmission = {
             value: '',
             input: '',
@@ -510,6 +516,9 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
             this.sendFieldUpdate(FIELDUPDATE.StandardError, this.state.standardError);
             this.sendFieldUpdate(FIELDUPDATE.Output, this.state.output);
         }
+        this.setState({
+            ringClass: "lds-dual-ring hide-ring"
+        });
     };
 
     peekOpponent () {
@@ -939,6 +948,7 @@ class CodingEditor extends React.Component<CodingEditorProps, CodingEditorState>
                                 <ColorButton variant="contained" sx={{ minWidth: 125, fontSize: 24 }} onClick={this.handleRun}>
                                     Run
                                 </ColorButton>
+                                <div className={this.state.ringClass}></div>
                             </Grid>
                             <Grid item xs={10} />
                         </Grid>
