@@ -436,7 +436,7 @@ func reader(conn *websocket.Conn) {
 			goto GeneralError
 		}
 
-		log.Println(msg)
+		//log.Println(msg)
 
 		//parse the message type
 		msgType, err = strconv.ParseInt(args[0], 10, 32)
